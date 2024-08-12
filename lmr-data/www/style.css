@@ -1,0 +1,21 @@
+
+body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .sidebar {
+      width: 250px; /* Set the desired width for the sidebar */
+      float: left; /* Float the sidebar to the left */
+      height: 100vh; /* Full height to fill the viewport */
+      background-color: #f8f9fa; /* Optional: background color */
+      position: fixed; /* Fix the sidebar to the left side */
+      /* top: 10; *//* Ensure it starts from the top */
+      /* bottom: 0; *//* Ensure it extends to the bottom */
+    }
+    .main {
+      margin-left: 280px; /* Adjust this value to match the sidebar width */
+      padding: 20px;
+      overflow: hidden;
+    }
+  

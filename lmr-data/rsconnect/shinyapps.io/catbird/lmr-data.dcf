@@ -1,0 +1,13 @@
+name: lmr-data
+title: lmr-data
+username: catbird
+account: catbird
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12437390
+bundleId: 8971875
+url: https://catbird.shinyapps.io/lmr-data/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: test-df.R

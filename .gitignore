@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+.env
+.env-orig
+# file in folder
+lmr-data/.env
+config.yml
+lmr-data/config.yml
