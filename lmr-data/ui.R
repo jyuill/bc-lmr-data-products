@@ -17,7 +17,7 @@ fluidPage(
     # Link to the external CSS file
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
     # Application title
-    titlePanel("LMR data"),
+    titlePanel("BC Liquor Market Report (LMR) data"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
