@@ -13,9 +13,17 @@ library(lubridate)
 library(scales)
 library(plotly)
 library(here)
+library(bslib)
+library(RColorBrewer)
 
 # set plot theme
 theme_set(theme_classic())
+# set color palette
+# - bar and line colors
+bar_col <- brewer.pal(n=9, name='YlGnBu')[9]
+# - palette for use with categories
+bpal <- brewer.pal(n=9, name="YlOrRd")
+cat_type_color <- c("Beer"=bpal[6], "Refresh Bev"=bpal[3], "Spirits"=bpal[4], "Wine"=bpal[8])
 
 # drop incomplete calendar year at start
 #tbl_yq <- table(lmr_data$cyr, lmr_data$cqtr)
@@ -25,6 +33,8 @@ theme_set(theme_classic())
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
+  # experiment with different bs themes
+  #bslib::bs_themer()
   # query database via separate file for tidyness
   source('query.R')
   
@@ -104,24 +114,26 @@ function(input, output, session) {
         # get filtered, aggregated data
         x <- annual_data()
         # plot
+        ch_title <- "Net $ Sales by Year"
         p <- x %>%
           ggplot(aes(x = cyr, y = netsales)) +
-          geom_col() +
+          geom_col(fill=bar_col) +
           scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                              expand = expansion(mult=c(0,0.05))) +
-          labs(title="Net $ Sales by Year", x="", y="")+
+          labs(title=ch_title, x="", y="")+
           theme(axis.ticks.x = element_blank())
         ggplotly(p)
     })
     # plot sales by quarter
     output$sales_qtr <- renderPlotly({
       x <- qtr_data()
+      ch_title <- "Net $ Sales by Qtr"
       p <- x %>%
         ggplot(aes(x = end_qtr_dt, y = netsales)) +
-        geom_col() +
+        geom_col(fill=bar_col) +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
-        labs(title="Net $ Sales by Quarter", x="", y="")+
+        labs(title=ch_title, x="", y="")+
         theme(axis.ticks.x = element_blank())
       ggplotly(p)
     })
@@ -132,14 +144,15 @@ function(input, output, session) {
       max_y <- max(x$yoy, na.rm = TRUE)
       min_y <- min(x$yoy, na.rm = TRUE)
       max_val <- max(abs(min_y), abs(max_y))
+      ch_title <- "% Chg Net $ Sales by Yr"
       p <- x %>% 
         ggplot(aes(x = cyr, y = yoy)) +
-        geom_col() +
+        geom_col(fill=bar_col) +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         scale_y_continuous(labels = scales::percent,
                            expand = expansion(mult=c(0,0.05)),
                            limits = c(0 - max_val, max_val)) +
-        labs(title='% Change in Net $ Sales', x="", y="")+
+        labs(title=ch_title, x="", y="")+
         theme(axis.ticks.x = element_blank())
     })
     
@@ -149,14 +162,15 @@ function(input, output, session) {
       max_y <- max(x$qoq, na.rm = TRUE)
       min_y <- min(x$qoq, na.rm = TRUE)
       max_val <- max(abs(min_y), abs(max_y))
+      ch_title <- "% Chg Net $ Sales by Qtr"
       p <- x %>% 
         ggplot(aes(x = end_qtr_dt, y = qoq)) +
-        geom_col() +
+        geom_col(fill=bar_col) +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         scale_y_continuous(labels = scales::percent,
                            expand = expansion(mult=c(0,0.05)),
                            limits = c(0 - max_val, max_val)) +
-        labs(title='% Change in Net $ Sales by Qtr', x="", y="")+
+        labs(title=ch_title, x="", y="")+
         theme(axis.ticks.x = element_blank())
     })
     
@@ -164,12 +178,14 @@ function(input, output, session) {
     output$sales_yr_cat <- renderPlotly({
       x <- annual_data_cat()
       x$cat_type <- reorder(x$cat_type, x$netsales, FUN = sum)
+      ch_title <- "Net $ Sales by Cat by Yr"
       p <- x %>%
         ggplot(aes(x = cyr, y = netsales, fill = cat_type)) +
         geom_col(position = "stack") +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
-        labs(title="Net $ Sales by Year and Category", x="", y="")+
+        scale_fill_manual(values=cat_type_color)+
+        labs(title=ch_title, x="", y="")+
         theme(axis.ticks.x = element_blank(),
               legend.position = "top",
               legend.title = element_blank())
@@ -192,12 +208,14 @@ function(input, output, session) {
     output$sales_qtr_cat <- renderPlotly({
       x <- qtr_data_cat()
       x$cat_type <- reorder(x$cat_type, x$netsales, FUN = sum)
+      ch_title <- "Net $ Sales by Cat by Qtr"
       p <- x %>%
         ggplot(aes(x = end_qtr_dt, y = netsales, fill = cat_type)) +
         geom_col(position = "stack") +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
-        labs(title="Net $ Sales by Qtr and Category", x="", y="")+
+        scale_fill_manual(values=cat_type_color)+
+        labs(title=ch_title, x="", y="")+
         theme(axis.ticks.x = element_blank(),
               legend.position = "top",
               legend.title = element_blank())
@@ -220,14 +238,17 @@ function(input, output, session) {
     output$sales_yoy_cat <- renderPlotly({
       x <- annual_data_cat()
       x$cat_type <- reorder(x$cat_type, x$yoy, FUN = sum)
+      ch_title <- "% Chg Net $ Sales by Cat"
       p <- x %>%
         ggplot(aes(x = cyr, y = yoy)) +
-        geom_col() +
+        geom_col(fill=bar_col) +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         facet_grid(cat_type~.) +
         scale_y_continuous(labels = scales::percent,
                            expand = expansion(mult=c(0,0.05))) +
-        labs(title='% Change in Net $ Sales by Category', x="", y="")+
+        theme(strip.background = element_rect(fill = bar_col)) +
+        theme(strip.text=element_text(color='white'))+
+        labs(title=ch_title, x="", y="")+
         theme(axis.ticks.x = element_blank())
       ggplotly(p)
     })
@@ -235,14 +256,17 @@ function(input, output, session) {
     output$sales_qoq_cat <- renderPlotly({
       x <- qtr_data_cat()
       x$cat_type <- reorder(x$cat_type, x$qoq, FUN = sum)
+      ch_title <- "% Chg Net $ Sales by Qtr"
       p <- x %>%
         ggplot(aes(x = end_qtr_dt, y = qoq)) +
-        geom_col() +
+        geom_col(fill=bar_col) +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         facet_grid(cat_type~.) +
         scale_y_continuous(labels = scales::percent,
                            expand = expansion(mult=c(0,0.05))) +
-        labs(title='% Change in Net $ Sales by Qtr and Category', x="", y="")+
+        theme(strip.background = element_rect(fill = bar_col)) +
+        theme(strip.text=element_text(color='white'))+
+        labs(title=ch_title, x="", y="")+
         theme(axis.ticks.x = element_blank())
       ggplotly(p)
     })

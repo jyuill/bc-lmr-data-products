@@ -11,9 +11,16 @@ library(shiny)
 library(shinyWidgets)
 library(tidyverse)
 library(plotly)
+library(bslib)
+library(RColorBrewer)
 
 # Define UI for application that draws a histogram
 fluidPage(
+  theme = bslib::bs_theme(version = 4,
+                          preset = 'lux',
+                          `enable-shadows` = TRUE,
+                          `enable-rounded` = TRUE,
+                          font_scale = NULL),
     # Link to the external CSS file
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
     # Application title
@@ -45,10 +52,11 @@ fluidPage(
             uiOutput("dynamic_cat"),
         ), # end sidebarPanel
 
-        # Show a plot of the generated distribution
+        # main panel with content
         mainPanel(
           class = "main",
           fluidRow(
+            tags$h2("Total Sales by Year and Quarter (all categories)", class='section'),
             column(width = 6,
                    plotlyOutput("sales_yr")
             ),
@@ -65,6 +73,7 @@ fluidPage(
           )
           ), # end fluidRow 2
           fluidRow(
+            tags$h2("Sales by Year and Quarter by Category", class='section'),
             column(width = 6,
                    plotlyOutput("sales_yr_cat")
             ),
