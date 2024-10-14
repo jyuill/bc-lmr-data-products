@@ -1,0 +1,102 @@
+---
+title: "GGplot Chart Theme Sampler"
+format: html
+editor: visual
+execute: 
+  echo: true
+  warning: false
+---
+
+```{r setup}
+library(tidyverse)
+library(scales)
+library(lubridate)
+library(RColorBrewer)
+
+```
+
+## Charts with different ggplot themes 
+
+Designed to help with choosing the best option for the situation.
+
+Uses themes that come with the ggplot package.
+
+### First, get some data
+
+```{r get_data, include=FALSE}
+# data set that comes with R and has time dimension and at least one other dimension and at least one metric
+chart_data <- tsibbledata::global_economy
+# add metric for GDP per capita
+chart_data <- chart_data %>% mutate(
+  GDP_per_cap = GDP / Population
+)
+# isolate country 
+chart_data_single <- chart_data %>% filter(Code=='CAN')
+# filter for select countries
+chart_data_select <- chart_data %>% filter(Code %in% c("CAN","USA","BRA","JPN","IND","NGA")) 
+```
+
+## Histograms
+
+```{r histogram}
+c1 <- chart_data_select %>% ggplot(aes(x=GDP_per_cap))+geom_histogram()
+```
+
+### Default Chart (Gray or Grey)
+
+```{r}
+c1
+```
+
+### Minimal
+
+```{r}
+c1 + theme_minimal()
+```
+
+### Light
+
+```{r}
+c1 + theme_light()
+```
+
+### Dark
+
+```{r}
+c1 + theme_dark()
+```
+
+### Classic
+
+```{r}
+c1 + theme_classic()
+```
+
+### BW
+
+```{r}
+c1 + theme_bw()
+```
+
+## Line Charts
+
+```{r}
+
+```
+
+```{r}
+# set chart for target style
+chart_example <- chart_data_single %>% ggplot(aes(x=Year, y=Growth))+geom_line()
+chart_example + labs(title = "Default")
+chart_example + labs(title = "Minimal") + theme_minimal()
+chart_example + labs(title = "Light") + theme_light()
+chart_example + labs(title = "Dark") + theme_dark()
+chart_example + labs(title = "Classic") + theme_classic()
+chart_example + labs(title = "BW") + theme_bw()
+```
+
+## Bar Charts
+
+### Bar Charts with Faceting
+
+## Boxplots

@@ -252,7 +252,7 @@ function(input, output, session) {
         theme(axis.ticks.x = element_blank())
       ggplotly(p)
     })
-    
+    ## facet plots --------------------------------------------
     output$sales_qoq_cat <- renderPlotly({
       x <- qtr_data_cat()
       x$cat_type <- reorder(x$cat_type, x$qoq, FUN = sum)
@@ -264,6 +264,7 @@ function(input, output, session) {
         facet_grid(cat_type~.) +
         scale_y_continuous(labels = scales::percent,
                            expand = expansion(mult=c(0,0.05))) +
+        theme_light()+
         theme(strip.background = element_rect(fill = bar_col)) +
         theme(strip.text=element_text(color='white'))+
         labs(title=ch_title, x="", y="")+

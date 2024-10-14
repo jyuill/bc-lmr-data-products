@@ -73,7 +73,7 @@ fluidPage(
           )
           ), # end fluidRow 2
           fluidRow(
-            tags$h2("Sales by Year and Quarter by Category", class='section'),
+            tags$h2("Category Sales by Year and Quarter", class='section'),
             column(width = 6,
                    plotlyOutput("sales_yr_cat")
             ),
