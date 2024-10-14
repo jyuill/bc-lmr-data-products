@@ -7,7 +7,7 @@ execute:
   warning: false
 ---
 
-```{r setup}
+```{r setup, include = FALSE}
 library(tidyverse)
 library(scales)
 library(lubridate)
@@ -23,26 +23,45 @@ Uses themes that come with the ggplot package.
 
 ### First, get some data
 
-```{r get_data, include=FALSE}
+```{r get_data}
 # data set that comes with R and has time dimension and at least one other dimension and at least one metric
 chart_data <- tsibbledata::global_economy
 # add metric for GDP per capita
 chart_data <- chart_data %>% mutate(
   GDP_per_cap = GDP / Population
 )
-# isolate country 
+# isolate country for use case
 chart_data_single <- chart_data %>% filter(Code=='CAN')
-# filter for select countries
+# filter for select countries to make manageable for use cases
 chart_data_select <- chart_data %>% filter(Code %in% c("CAN","USA","BRA","JPN","IND","NGA")) 
 ```
 
+### Function to take chart info and process themes
+
+```{r chart_themes}
+# function to take chart info as input, apply themes, return variations with themes
+chartThemeSampler <- function(chart_example) {
+  c_dflt <- chart_example + labs(title = "Default (aka Gray/Grey)")
+  c_m <- chart_example + labs(title = "Minimal") + theme_minimal()
+  c_l <- chart_example + labs(title = "Light") + theme_light()
+  c_drk <- chart_example + labs(title = "Dark") + theme_dark()
+  c_c <- chart_example + labs(title = "Classic") + theme_classic()
+  c_bw <- chart_example + labs(title = "BW") + theme_bw()
+  return(list(c_dflt, c_m, c_l, c_drk, c_c, c_bw))
+}
+```
+
 ## Histograms
+
+Using histogram as example to show general look/feel of different themes.
+
+Separated here with headings for clarity. Subsequent sections theme is noted in chart title.
 
 ```{r histogram}
 c1 <- chart_data_select %>% ggplot(aes(x=GDP_per_cap))+geom_histogram()
 ```
 
-### Default Chart (Gray or Grey)
+### Default Chart (aka Gray/Grey)
 
 ```{r}
 c1
@@ -81,22 +100,34 @@ c1 + theme_bw()
 ## Line Charts
 
 ```{r}
-
+# set chart for target style
+chart_example <- chart_data_single %>% ggplot(aes(x=Year, y=Growth))+geom_line()
+# print charts in different themes
+chartThemeSampler(chart_example)
 ```
+
+## Column (Bar) Charts
 
 ```{r}
 # set chart for target style
-chart_example <- chart_data_single %>% ggplot(aes(x=Year, y=Growth))+geom_line()
-chart_example + labs(title = "Default")
-chart_example + labs(title = "Minimal") + theme_minimal()
-chart_example + labs(title = "Light") + theme_light()
-chart_example + labs(title = "Dark") + theme_dark()
-chart_example + labs(title = "Classic") + theme_classic()
-chart_example + labs(title = "BW") + theme_bw()
+chart_example <- chart_data_single %>% ggplot(aes(x=Year, y=Growth))+geom_col()
+# print charts in different themes
+chartThemeSampler(chart_example)
 ```
 
-## Bar Charts
+### Column Charts with Faceting
 
-### Bar Charts with Faceting
+```{r}
+chart_example <- chart_data_select %>% filter(Year >= 2000) %>%
+  ggplot(aes(x=Year, y=Growth))+geom_col()+
+  facet_grid(Code~.)
+chartThemeSampler(chart_example)
+```
 
 ## Boxplots
+
+```{r}
+chart_example <- chart_data_select %>% 
+  ggplot(aes(x=Code, y=Growth))+geom_boxplot()
+chartThemeSampler(chart_example)
+```
