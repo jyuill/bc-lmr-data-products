@@ -17,7 +17,8 @@ library(bslib)
 library(RColorBrewer)
 
 # set plot theme
-theme_set(theme_classic())
+theme_set(theme_light()+theme(panel.grid.minor = element_blank(),
+                              panel.grid.major = element_line(color = 'grey90', linewidth=0.1)))
 # set color palette
 # - bar and line colors
 bar_col <- brewer.pal(n=9, name='YlGnBu')[9]
