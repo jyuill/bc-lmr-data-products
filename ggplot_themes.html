@@ -95,12 +95,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#theme_tufte-ggthemes" id="toc-theme_tufte-ggthemes" class="nav-link" data-scroll-target="#theme_tufte-ggthemes">theme_tufte (ggthemes)</a></li>
   </ul></li>
   <li><a href="#function-to-take-chart-info-and-process-themes" id="toc-function-to-take-chart-info-and-process-themes" class="nav-link" data-scroll-target="#function-to-take-chart-info-and-process-themes">Function to take chart info and process themes</a></li>
+  <li><a href="#histograms-1" id="toc-histograms-1" class="nav-link" data-scroll-target="#histograms-1">Histograms</a></li>
   <li><a href="#line-charts" id="toc-line-charts" class="nav-link" data-scroll-target="#line-charts">Line Charts</a></li>
   <li><a href="#column-bar-charts" id="toc-column-bar-charts" class="nav-link" data-scroll-target="#column-bar-charts">Column (Bar) Charts</a>
   <ul class="collapse">
   <li><a href="#column-charts-with-faceting" id="toc-column-charts-with-faceting" class="nav-link" data-scroll-target="#column-charts-with-faceting">Column Charts with Faceting</a></li>
   </ul></li>
   <li><a href="#boxplots" id="toc-boxplots" class="nav-link" data-scroll-target="#boxplots">Boxplots</a></li>
+  <li><a href="#scatterplots" id="toc-scatterplots" class="nav-link" data-scroll-target="#scatterplots">Scatterplots</a>
+  <ul class="collapse">
+  <li><a href="#scatterplots---faceted" id="toc-scatterplots---faceted" class="nav-link" data-scroll-target="#scatterplots---faceted">Scatterplots - faceted</a></li>
+  </ul></li>
   <li><a href="#mods" id="toc-mods" class="nav-link" data-scroll-target="#mods">Mods</a>
   <ul class="collapse">
   <li><a href="#function-for-mods" id="toc-function-for-mods" class="nav-link" data-scroll-target="#function-for-mods">Function for mods</a></li>
@@ -287,14 +292,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  c_drk <span class="ot">&lt;-</span> chart_example <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Dark"</span>) <span class="sc">+</span> <span class="fu">theme_dark</span>()</span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  c_c <span class="ot">&lt;-</span> chart_example <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Classic"</span>) <span class="sc">+</span> <span class="fu">theme_classic</span>()</span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  c_bw <span class="ot">&lt;-</span> chart_example <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"BW"</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>()</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  c_econ <span class="ot">&lt;-</span> chart_example <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"theme_economist_white (ggthemes)"</span>) <span class="sc">+</span> <span class="fu">theme_economist_white</span>()</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  c_tufte <span class="ot">&lt;-</span> chart_example <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"theme_tufte (ggthemes)"</span>) <span class="sc">+</span> <span class="fu">theme_tufte</span>()</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  cts <span class="ot">&lt;-</span> <span class="fu">list</span>(c_dflt, c_m, c_l, c_drk, c_c, c_bw, c_econ, c_tufte)</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(cts)) {</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(cts[[i]])</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  c_econ <span class="ot">&lt;-</span> chart_example <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"theme_economist_white (ggthemes)"</span>)<span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">theme_economist_white</span>()</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  c_tufte <span class="ot">&lt;-</span> chart_example <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"theme_tufte (ggthemes)"</span>) <span class="sc">+</span> <span class="fu">theme_tufte</span>()</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># combine</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  cts <span class="ot">&lt;-</span> <span class="fu">list</span>(c_dflt, c_m, c_l, c_drk, c_c, c_bw, c_econ, c_tufte)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(cts)) {</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(cts[[i]])</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="histograms-1" class="level2">
+<h2 class="anchored" data-anchor-id="histograms-1">Histograms</h2>
 </section>
 <section id="line-charts" class="level2">
 <h2 class="anchored" data-anchor-id="line-charts">Line Charts</h2>
@@ -460,51 +470,53 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="mods" class="level2">
-<h2 class="anchored" data-anchor-id="mods">Mods</h2>
-<p>Test out minor modifications to built-in themes.</p>
-<section id="function-for-mods" class="level3">
-<h3 class="anchored" data-anchor-id="function-for-mods">Function for mods</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># takes list of chart settings plus additional theme definition as inputs and combines</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>chartMod <span class="ot">&lt;-</span> <span class="cf">function</span>(charts, theme_def) {</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#theme_def &lt;- theme_light() + theme(panel.grid = element_blank())</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(c <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(charts)) {</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    chart_mod <span class="ot">&lt;-</span> charts[[c]] <span class="sc">+</span> theme_def</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(chart_mod)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="scatterplots" class="level2">
+<h2 class="anchored" data-anchor-id="scatterplots">Scatterplots</h2>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set chart for target style</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>chart_example <span class="ot">&lt;-</span> chart_data_single <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>GDP_per_cap, <span class="at">y=</span>Growth))<span class="sc">+</span><span class="fu">geom_point</span>()</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># use function to get collection of charts with different themes</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># prints charts in accordance with size and layout settings</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">chartThemeSampler</span>(chart_example)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="384"></p>
 </div>
-</section>
-<section id="light-without-grid-lines" class="level3">
-<h3 class="anchored" data-anchor-id="light-without-grid-lines">Light without grid lines</h3>
-<ul>
-<li>theme_light, with border</li>
-<li>no gridlines</li>
-<li>geom_hline for line at 0 on y-axis</li>
-</ul>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>chart_line <span class="ot">&lt;-</span> chart_data_single <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Year, <span class="at">y=</span>Growth))<span class="sc">+</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color=</span><span class="st">'darkgrey'</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>chart_col <span class="ot">&lt;-</span> chart_data_single <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Year, <span class="at">y=</span>Growth))<span class="sc">+</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()<span class="sc">+</span> </span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">'grey'</span>)</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>chart_col_facet <span class="ot">&lt;-</span> chart_data_select <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Year <span class="sc">&gt;=</span> <span class="dv">2000</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Year, <span class="at">y=</span>Growth))<span class="sc">+</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()<span class="sc">+</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(Code<span class="sc">~</span>.) <span class="sc">+</span> </span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">'lightgrey'</span>)</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>chart_box <span class="ot">&lt;-</span> chart_data_select <span class="sc">%&gt;%</span> </span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Code, <span class="at">y=</span>Growth))<span class="sc">+</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">'grey70'</span>)</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co"># set list of charts</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>charts <span class="ot">&lt;-</span> <span class="fu">list</span>(chart_line, chart_col, chart_col_facet, chart_box)</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="co"># set theme to apply</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>theme_def <span class="ot">&lt;-</span> <span class="fu">theme_light</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="co"># run function to show charts</span></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="fu">chartMod</span>(charts, theme_def)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid" width="384"></p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-13-3.png" class="img-fluid" width="384"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-13-4.png" class="img-fluid" width="384"></p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-13-5.png" class="img-fluid" width="384"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-13-6.png" class="img-fluid" width="384"></p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-13-7.png" class="img-fluid" width="384"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-13-8.png" class="img-fluid" width="384"></p>
+</div>
+</div>
+</div>
+<section id="scatterplots---faceted" class="level3">
+<h3 class="anchored" data-anchor-id="scatterplots---faceted">Scatterplots - faceted</h3>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>chart_example <span class="ot">&lt;-</span> chart_data_select <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Code <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"BRA"</span>,<span class="st">"CAN"</span>,<span class="st">"IND"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Exports, <span class="at">y=</span>Imports))<span class="sc">+</span><span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(Code<span class="sc">~</span>.)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">chartThemeSampler</span>(chart_example)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
@@ -522,35 +534,116 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="ggplot_themes_files/figure-html/unnamed-chunk-14-4.png" class="img-fluid" width="384"></p>
 </div>
 </div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-14-5.png" class="img-fluid" width="384"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-14-6.png" class="img-fluid" width="384"></p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-14-7.png" class="img-fluid" width="384"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-14-8.png" class="img-fluid" width="384"></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="mods" class="level2">
+<h2 class="anchored" data-anchor-id="mods">Mods</h2>
+<p>Test out minor modifications to built-in themes.</p>
+<section id="function-for-mods" class="level3">
+<h3 class="anchored" data-anchor-id="function-for-mods">Function for mods</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># takes list of chart settings plus additional theme definition as inputs and combines</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>chartMod <span class="ot">&lt;-</span> <span class="cf">function</span>(charts, theme_def) {</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#theme_def &lt;- theme_light() + theme(panel.grid = element_blank())</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(c <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(charts)) {</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    chart_mod <span class="ot">&lt;-</span> charts[[c]] <span class="sc">+</span> theme_def</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(chart_mod)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="light-without-grid-lines" class="level3">
+<h3 class="anchored" data-anchor-id="light-without-grid-lines">Light without grid lines</h3>
+<ul>
+<li>theme_light, with border</li>
+<li>no gridlines</li>
+<li>geom_hline for line at 0 on y-axis</li>
+</ul>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>chart_line <span class="ot">&lt;-</span> chart_data_single <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Year, <span class="at">y=</span>Growth))<span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color=</span><span class="st">'darkgrey'</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>chart_col <span class="ot">&lt;-</span> chart_data_single <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Year, <span class="at">y=</span>Growth))<span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()<span class="sc">+</span> </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">'grey'</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>chart_col_facet <span class="ot">&lt;-</span> chart_data_select <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Year <span class="sc">&gt;=</span> <span class="dv">2000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Year, <span class="at">y=</span>Growth))<span class="sc">+</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()<span class="sc">+</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(Code<span class="sc">~</span>.) <span class="sc">+</span> </span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">'lightgrey'</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>chart_box <span class="ot">&lt;-</span> chart_data_select <span class="sc">%&gt;%</span> </span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Code, <span class="at">y=</span>Growth))<span class="sc">+</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">'grey70'</span>)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co"># set list of charts</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>charts <span class="ot">&lt;-</span> <span class="fu">list</span>(chart_line, chart_col, chart_col_facet, chart_box)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co"># set theme to apply</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>theme_def <span class="ot">&lt;-</span> <span class="fu">theme_light</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co"># run function to show charts</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="fu">chartMod</span>(charts, theme_def)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="384"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid" width="384"></p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-16-3.png" class="img-fluid" width="384"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-16-4.png" class="img-fluid" width="384"></p>
+</div>
+</div>
 </div>
 </section>
 <section id="light-wth-major-gridlines-only" class="level3">
 <h3 class="anchored" data-anchor-id="light-wth-major-gridlines-only">Light wth major gridlines only</h3>
 <p>Major gridlines in with color lightened and size reduced.</p>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># use same chart definitions as above</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># set list of charts</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>charts <span class="ot">&lt;-</span> <span class="fu">list</span>(chart_line, chart_col, chart_col_facet, chart_box)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># set theme to apply</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>theme_def <span class="ot">&lt;-</span> <span class="fu">theme_light</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> </span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">'grey80'</span>, <span class="at">linewidth =</span> <span class="fl">0.1</span>),</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>())</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co"># run function to show charts</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="fu">chartMod</span>(charts, theme_def)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># use same chart definitions as above</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># set list of charts</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>charts <span class="ot">&lt;-</span> <span class="fu">list</span>(chart_line, chart_col, chart_col_facet, chart_box)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># set theme to apply</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>theme_def <span class="ot">&lt;-</span> <span class="fu">theme_light</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">'grey80'</span>, <span class="at">linewidth =</span> <span class="fl">0.1</span>),</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># run function to show charts</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="fu">chartMod</span>(charts, theme_def)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="384"></p>
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="384"></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-15-2.png" class="img-fluid" width="384"></p>
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="384"></p>
 </div>
 </div>
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-15-3.png" class="img-fluid" width="384"></p>
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-17-3.png" class="img-fluid" width="384"></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-15-4.png" class="img-fluid" width="384"></p>
+<p><img src="ggplot_themes_files/figure-html/unnamed-chunk-17-4.png" class="img-fluid" width="384"></p>
 </div>
 </div>
 </div>

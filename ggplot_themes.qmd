@@ -132,14 +132,18 @@ chartThemeSampler <- function(chart_example) {
   c_drk <- chart_example + labs(title = "Dark") + theme_dark()
   c_c <- chart_example + labs(title = "Classic") + theme_classic()
   c_bw <- chart_example + labs(title = "BW") + theme_bw()
-  c_econ <- chart_example + labs(title = "theme_economist_white (ggthemes)") + theme_economist_white()
+  c_econ <- chart_example + labs(title = "theme_economist_white (ggthemes)")+
+            theme_economist_white()
   c_tufte <- chart_example + labs(title = "theme_tufte (ggthemes)") + theme_tufte()
+  # combine
   cts <- list(c_dflt, c_m, c_l, c_drk, c_c, c_bw, c_econ, c_tufte)
   for(i in 1:length(cts)) {
     print(cts[[i]])
   }
 }
 ```
+
+## Histograms
 
 ## Line Charts
 
@@ -179,6 +183,28 @@ chartThemeSampler(chart_example)
 #| layout-ncol: 2
 chart_example <- chart_data_select %>% 
   ggplot(aes(x=Code, y=Growth))+geom_boxplot()
+chartThemeSampler(chart_example)
+```
+
+## Scatterplots
+
+```{r}
+#| layout-ncol: 2
+# set chart for target style
+chart_example <- chart_data_single %>% ggplot(aes(x=GDP_per_cap, y=Growth))+geom_point()
+# use function to get collection of charts with different themes
+# prints charts in accordance with size and layout settings
+chartThemeSampler(chart_example)
+```
+
+### Scatterplots - faceted
+
+```{r}
+#| layout-ncol: 2
+#| fig-height: 6
+chart_example <- chart_data_select %>% filter(Code %in% c("BRA","CAN","IND")) %>%
+  ggplot(aes(x=Exports, y=Imports))+geom_point()+
+  facet_grid(Code~.)
 chartThemeSampler(chart_example)
 ```
 
