@@ -34,6 +34,7 @@ fluidPage(
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
+      # sidebar ----
         sidebarPanel(
           class = "sidebar",
             # select one or more years, including multiple years
@@ -58,7 +59,7 @@ fluidPage(
             uiOutput("dynamic_cat"),
         ), # end sidebarPanel
 
-        # main panel with content
+        # main panel with content ----
         mainPanel(
           class = "main",
           fluidRow(
@@ -95,6 +96,6 @@ fluidPage(
                    plotlyOutput("sales_qoq_cat", height = "500px")
           )
           ), # end fluidRow 4
-        ) # end mainPanel
-    ) # end sidebarLayout
+        ) # end mainPanel ----
+    ) # end sidebarLayout ----
 ) # end shinyUI

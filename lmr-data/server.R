@@ -24,6 +24,9 @@ bar_col <- brewer.pal(n=9, name='YlGnBu')[9] # #081D58
 # - palette for use with categories
 bpal <- brewer.pal(n=9, name="YlOrRd")
 cat_type_color <- c("Beer"=bpal[6], "Refresh Bev"=bpal[3], "Spirits"=bpal[4], "Wine"=bpal[8])
+# - palette for quarters
+qpal <- brewer.pal(n=9, name="Blues")
+qtr_color <- c("Q1"=qpal[5], "Q2"=qpal[7], "Q3"=qpal[8], "Q4"=qpal[9])
 
 # drop incomplete calendar year at start
 #tbl_yq <- table(lmr_data$cyr, lmr_data$cqtr)
@@ -88,11 +91,13 @@ function(input, output, session) {
     mutate(yoy = (netsales - lag(netsales))/lag(netsales))
   })
   qtr_data <- reactive({
-    filtered_data() %>% group_by(cyr, cqtr, end_qtr_dt) %>%
+    filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
       summarize(netsales = sum(netsales)) %>% ungroup() %>%
-      mutate(qoq = (netsales - lag(netsales))/lag(netsales))
+      mutate(qoq = (netsales - lag(netsales))/lag(netsales),
+             yr_qtr = paste(cyr, cqtr, sep = "-")
+      )
     # for testing
-    #qtr_data <- lmr_data %>% group_by(cyr, cqtr, end_qtr_dt) %>% 
+    #qtr_data <- lmr_data %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>% 
     #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
     #  mutate(qoq = (netsales - lag(netsales))/lag(netsales))
   })
@@ -108,7 +113,7 @@ function(input, output, session) {
     # need to base the qoq on the number of cats chosen in filter
     n_qtr <- length(input$qtr_check)
     n_cats <- length(input$cat_check)
-    filtered_data() %>% group_by(cyr, cqtr, end_qtr_dt, cat_type) %>%
+    filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt, cat_type) %>%
       summarize(netsales = sum(netsales)) %>% ungroup() %>%
       mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
   })
@@ -116,10 +121,12 @@ function(input, output, session) {
   # plot theme
   theme_set(theme_light()+theme(panel.grid.minor = element_blank(),
                                 panel.grid.major = element_line(color = 'grey90', linewidth=0.1)))
-  # x-axis text 
+  # x-axis text - set angle and other formats
   theme_xax <- theme(axis.ticks.x = element_blank(),
                    axis.text.x = element_text(angle = 90, hjust = 1))
-  scale_x_qtr <- scale_x_date(date_labels = "%y %m", date_breaks = "6 months")
+  theme_xaxq <- theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
+  # no legend
+  theme_nleg <- theme(legend.position = "none")
     ## sales ------------------------------------------------------------------
     # plot for sales by year
     output$sales_yr <- renderPlotly({
@@ -141,13 +148,13 @@ function(input, output, session) {
       x <- qtr_data()
       ch_title <- "Net $ Sales by Qtr"
       p <- x %>%
-        ggplot(aes(x = end_qtr_dt, y = netsales)) +
-        geom_col(fill=bar_col) +
-        scale_x_date(date_labels = "%y %m", date_breaks = "6 months")+
+        ggplot(aes(x = cyr_qtr, y = netsales, fill = cqtr)) +
+        geom_col() +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
+        scale_fill_manual(values=qtr_color)+
         labs(title=ch_title, x="", y="")+
-        theme_xax
+        theme_xax+theme_xaxq+theme_nleg
       ggplotly(p)
     })
     ## change in sales --------------------------------------------------------
@@ -177,15 +184,15 @@ function(input, output, session) {
       max_val <- max(abs(min_y), abs(max_y))
       ch_title <- "% Chg Net $ Sales by Qtr"
       p <- x %>% 
-        ggplot(aes(x = end_qtr_dt, y = qoq)) +
-        geom_col(fill=bar_col) +
+        ggplot(aes(x = cyr_qtr, y = qoq, fill = cqtr)) +
+        geom_col() +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
-        scale_x_qtr + 
         scale_y_continuous(labels = scales::percent,
                            expand = expansion(mult=c(0,0.05)),
                            limits = c(0 - max_val, max_val)) +
+        scale_fill_manual(values=qtr_color)+
         labs(title=ch_title, x="", y="")+
-        theme_xax
+        theme_xax+theme_xaxq+theme_nleg
     })
     
     ## sales by category --------------------------------------
@@ -227,7 +234,7 @@ function(input, output, session) {
       x$cat_type <- reorder(x$cat_type, x$netsales, FUN = sum)
       ch_title <- "Net $ Sales by Cat by Qtr"
       p <- x %>%
-        ggplot(aes(x = end_qtr_dt, y = netsales, fill = cat_type)) +
+        ggplot(aes(x = cyr_qtr, y = netsales, fill = cat_type)) +
         geom_col(position = "stack") +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
@@ -237,7 +244,7 @@ function(input, output, session) {
               legend.position = "top",
               legend.title = element_blank(),
               plot.margin = unit(c(1, 0, 0, 0), "cm"))+
-        theme_xax
+        theme_xax+theme_xaxq
       p_plotly <- ggplotly(p)
       # Customize legend in plotly
       p_plotly <- p_plotly %>% layout(
@@ -272,23 +279,24 @@ function(input, output, session) {
         theme_xax
       ggplotly(p)
     })
-    
+    ## plot qoq chg by cat
     output$sales_qoq_cat <- renderPlotly({
       x <- qtr_data_cat()
       x$cat_type <- reorder(x$cat_type, x$qoq, FUN = sum)
       ch_title <- "% Chg Net $ Sales by Qtr"
       p <- x %>%
-        ggplot(aes(x = end_qtr_dt, y = qoq)) +
-        geom_col(fill=bar_col) +
+        ggplot(aes(x = cyr_qtr, y = qoq, fill = cqtr)) +
+        geom_col() +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         facet_grid(cat_type~.) +
         scale_y_continuous(labels = scales::percent,
                            expand = expansion(mult=c(0,0.05))) +
+        scale_fill_manual(values=qtr_color)+
         theme_light()+
         theme(strip.background = element_rect(fill = bar_col)) +
         theme(strip.text=element_text(color='white'))+
         labs(title=ch_title, x="", y="")+
-        theme_xax
+        theme_xax+theme_xaxq+theme_nleg
       ggplotly(p)
     })
 }

@@ -60,6 +60,9 @@ lmr_data$cat_type <- as.factor(lmr_data$cat_type)
 lmr_data$cqtr <- as.factor(lmr_data$cqtr)
 lmr_data$cyr <- as.factor(lmr_data$cyr)
 lmr_data <- lmr_data %>% mutate(
+  cyr_qtr = paste(str_sub(cyr, start = 3, end = 4), cqtr, sep = "-")
+  )
+lmr_data <- lmr_data %>% mutate(
   cat_type = str_replace(cat_type, "Refreshment Beverages", "Refresh Bev"))
 
 # get rid of extraneous col (could do this by specifying all the cols in the query but this is easy hack)
