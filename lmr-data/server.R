@@ -17,11 +17,10 @@ library(bslib)
 library(RColorBrewer)
 
 # set plot theme
-theme_set(theme_light()+theme(panel.grid.minor = element_blank(),
-                              panel.grid.major = element_line(color = 'grey90', linewidth=0.1)))
+# - under 'plots' below
 # set color palette
 # - bar and line colors
-bar_col <- brewer.pal(n=9, name='YlGnBu')[9]
+bar_col <- brewer.pal(n=9, name='YlGnBu')[9] # #081D58
 # - palette for use with categories
 bpal <- brewer.pal(n=9, name="YlOrRd")
 cat_type_color <- c("Beer"=bpal[6], "Refresh Bev"=bpal[3], "Spirits"=bpal[4], "Wine"=bpal[8])
@@ -110,6 +109,13 @@ function(input, output, session) {
       mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
   })
   # plots --------------------------------------------------------------------
+  # plot theme
+  theme_set(theme_light()+theme(panel.grid.minor = element_blank(),
+                                panel.grid.major = element_line(color = 'grey90', linewidth=0.1)))
+  # x-axis text 
+  theme_xax <- theme(axis.ticks.x = element_blank(),
+                   axis.text.x = element_text(angle = 90, hjust = 1))
+    ## sales ------------------------------------------------------------------
     # plot for sales by year
     output$sales_yr <- renderPlotly({
         # get filtered, aggregated data
@@ -122,7 +128,7 @@ function(input, output, session) {
           scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                              expand = expansion(mult=c(0,0.05))) +
           labs(title=ch_title, x="", y="")+
-          theme(axis.ticks.x = element_blank())
+          theme_xax
         ggplotly(p)
     })
     # plot sales by quarter
@@ -135,10 +141,10 @@ function(input, output, session) {
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
         labs(title=ch_title, x="", y="")+
-        theme(axis.ticks.x = element_blank())
+        theme_xax
       ggplotly(p)
     })
-    
+    ## change in sales --------------------------------------------------------
     # plot for year-over-year change in sales
     output$sales_yoy <- renderPlotly({
       x <- annual_data()
@@ -154,7 +160,7 @@ function(input, output, session) {
                            expand = expansion(mult=c(0,0.05)),
                            limits = c(0 - max_val, max_val)) +
         labs(title=ch_title, x="", y="")+
-        theme(axis.ticks.x = element_blank())
+        theme_xax
     })
     
     # plot for quarter-over-quarter change in sales
@@ -172,10 +178,11 @@ function(input, output, session) {
                            expand = expansion(mult=c(0,0.05)),
                            limits = c(0 - max_val, max_val)) +
         labs(title=ch_title, x="", y="")+
-        theme(axis.ticks.x = element_blank())
+        theme_xax
     })
     
-    ## plot for annual sales by category --------------------------------------
+    ## sales by category --------------------------------------
+    ## plot for annual sales by category
     output$sales_yr_cat <- renderPlotly({
       x <- annual_data_cat()
       x$cat_type <- reorder(x$cat_type, x$netsales, FUN = sum)
@@ -189,7 +196,9 @@ function(input, output, session) {
         labs(title=ch_title, x="", y="")+
         theme(axis.ticks.x = element_blank(),
               legend.position = "top",
-              legend.title = element_blank())
+              legend.title = element_blank(),
+              plot.margin = unit(c(1, 0, 0, 0), "cm"))+
+        theme_xax
       p_plotly <- ggplotly(p)
       # Customize legend in plotly
       p_plotly <- p_plotly %>% layout(
@@ -205,7 +214,7 @@ function(input, output, session) {
       p_plotly
     })
     
-    ## plot for qtr sales by category -----------------------------------------
+    ## plot for qtr sales by category 
     output$sales_qtr_cat <- renderPlotly({
       x <- qtr_data_cat()
       x$cat_type <- reorder(x$cat_type, x$netsales, FUN = sum)
@@ -219,7 +228,9 @@ function(input, output, session) {
         labs(title=ch_title, x="", y="")+
         theme(axis.ticks.x = element_blank(),
               legend.position = "top",
-              legend.title = element_blank())
+              legend.title = element_blank(),
+              plot.margin = unit(c(1, 0, 0, 0), "cm"))+
+        theme_xax
       p_plotly <- ggplotly(p)
       # Customize legend in plotly
       p_plotly <- p_plotly %>% layout(
@@ -235,6 +246,7 @@ function(input, output, session) {
       p_plotly
     })
 
+    ## facet plots --------------------------------------------
     ## plot yoy chg by cat
     output$sales_yoy_cat <- renderPlotly({
       x <- annual_data_cat()
@@ -250,10 +262,10 @@ function(input, output, session) {
         theme(strip.background = element_rect(fill = bar_col)) +
         theme(strip.text=element_text(color='white'))+
         labs(title=ch_title, x="", y="")+
-        theme(axis.ticks.x = element_blank())
+        theme_xax
       ggplotly(p)
     })
-    ## facet plots --------------------------------------------
+    
     output$sales_qoq_cat <- renderPlotly({
       x <- qtr_data_cat()
       x$cat_type <- reorder(x$cat_type, x$qoq, FUN = sum)
@@ -269,7 +281,7 @@ function(input, output, session) {
         theme(strip.background = element_rect(fill = bar_col)) +
         theme(strip.text=element_text(color='white'))+
         labs(title=ch_title, x="", y="")+
-        theme(axis.ticks.x = element_blank())
+        theme_xax
       ggplotly(p)
     })
 }

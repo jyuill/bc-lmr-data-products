@@ -16,15 +16,21 @@ library(RColorBrewer)
 
 # Define UI for application that draws a histogram
 fluidPage(
+  # apply bootstrap theme - set using 'preset'
   theme = bslib::bs_theme(version = 4,
                           preset = 'lux',
                           `enable-shadows` = TRUE,
                           `enable-rounded` = TRUE,
                           font_scale = NULL),
-    # Link to the external CSS file
-    tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
+  # Link to the external CSS file
+    # 2 ways to do this: 1) tags$head or 2) includeCSS
+    # - same effect; 1 more scalable but 2 allows to see the CSS file in the IDE, without needing browser
+    #tags$head(
+    #  tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+    #),
+    includeCSS("www/style.css"),
     # Application title
-    titlePanel("BC Liquor Market Report (LMR) data"),
+    titlePanel("BC Liquor Market Report (LMR) Data"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
