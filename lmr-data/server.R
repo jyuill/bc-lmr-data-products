@@ -38,8 +38,13 @@ qtr_color <- c("Q1"=qpal[5], "Q2"=qpal[7], "Q3"=qpal[8], "Q4"=qpal[9])
 function(input, output, session) {
   # experiment with different bs themes
   #bslib::bs_themer()
+  # get data ----
   # query database via separate file for tidyness
   source('query.R')
+  beer_data <- lmr_data %>% filter(cat_type == "Beer")
+  refresh_data <- lmr_data %>% filter(cat_type == "Refresh Bev")
+  spirits_data <- lmr_data %>% filter(cat_type == "Spirits")
+  wine_data <- lmr_data %>% filter(cat_type == "Wine")
   
   # setup dynamic filters ----------------------------------------------------
   # Dynamically generate UI filters based on lmr_data
@@ -71,6 +76,11 @@ function(input, output, session) {
                                     selected = unique(lmr_data$cat_type),
                                     inline = FALSE
   )
+  dynamic_beer_cat <- checkboxGroupInput(inputId = "beer_cat_check", "Select a Category", 
+                                    choices = unique(beer_data$category), 
+                                    selected = unique(beer_data$category),
+                                    inline = FALSE
+  )
   # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
   output$dynamic_sidebar <- renderUI({
     if (input$tabselected == 1) {
@@ -81,7 +91,9 @@ function(input, output, session) {
       )
     } else if (input$tabselected == 2) {
       tagList(
-        dynamic_cyr
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_beer_cat
       )
     } else if (input$tabselected == 3) {
       tagList(
@@ -311,6 +323,71 @@ function(input, output, session) {
         theme_light()+
         theme(strip.background = element_rect(fill = bar_col)) +
         theme(strip.text=element_text(color='white'))+
+        labs(title=ch_title, x="", y="")+
+        theme_xax+theme_xaxq+theme_nleg
+      ggplotly(p)
+    })
+    
+    # BEER ---------------------------------------------------------------
+    ## beer: apply filters to data ---------------------------------------------------
+    cat("01 apply beer filters \n")
+    # Filter the data set based on the selected categories
+    beer_filtered_data <- reactive({
+      req(input$cyr_picker, input$qtr_check, input$beer_cat_check)
+      beer_data
+      beer_data %>% filter(cyr %in% input$cyr_picker) %>%
+        filter(cqtr %in% input$qtr_check) %>%
+        filter(category %in% input$beer_cat_check)
+    })
+    cat("02 aggregate annual & qtr totals \n")
+    ## annual and qtr totals ---------------------------------------------------
+    beer_annual_data <- reactive({
+       beer_filtered_data() %>% group_by(cyr) %>%
+        summarize(netsales = sum(netsales)) %>%
+        mutate(yoy = (netsales - lag(netsales))/lag(netsales))
+      # test
+      #beer_annual_data <- beer_data %>% group_by(cyr) %>% 
+      #  summarize(netsales = sum(netsales)) %>% 
+      #  mutate(yoy = (netsales - lag(netsales))/lag(netsales))
+    })
+    beer_qtr_data <- reactive({
+      beer_filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
+        summarize(netsales = sum(netsales)) %>% ungroup() %>%
+        mutate(qoq = (netsales - lag(netsales))/lag(netsales),
+               yr_qtr = paste(cyr, cqtr, sep = "-")
+        )
+      # for testing
+      #qtr_data <- lmr_data %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>% 
+      #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
+      #  mutate(qoq = (netsales - lag(netsales))/lag(netsales))
+    })
+    ## beer plots ----
+    ## plot for sales by year
+    output$beer_sales_yr <- renderPlotly({
+      # get filtered, aggregated data
+      print(beer_annual_data)
+      x <- beer_annual_data()
+      # plot
+      ch_title <- "Net Beer $ Sales by Year"
+      p <- x %>%
+        ggplot(aes(x = cyr, y = netsales)) +
+        geom_col(fill=bar_col) +
+        scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
+                           expand = expansion(mult=c(0,0.05))) +
+        labs(title=ch_title, x="", y="") +
+        theme_xax
+      ggplotly(p)
+    })
+    ## plot sales by quarter
+    output$beer_sales_qtr <- renderPlotly({
+      x <- beer_qtr_data()
+      ch_title <- "Net $ Sales by Qtr"
+      p <- x %>%
+        ggplot(aes(x = cyr_qtr, y = netsales, fill = cqtr)) +
+        geom_col() +
+        scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
+                           expand = expansion(mult=c(0,0.05))) +
+        scale_fill_manual(values=qtr_color)+
         labs(title=ch_title, x="", y="")+
         theme_xax+theme_xaxq+theme_nleg
       ggplotly(p)

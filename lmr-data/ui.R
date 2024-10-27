@@ -90,12 +90,12 @@ fluidPage(
                      fluidRow( ## fluidRow 1 ----
                        tags$h2("Beer Sales by Year and Quarter (all categories)", class='section'),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yr")
+                              ,
+                              plotlyOutput("beer_sales_yr")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_qtr")
+                              ,
+                              plotlyOutput("beer_sales_qtr")
                        )
                      ), # end fluidRow 1
                      fluidRow( ## fluidRow 2 ----

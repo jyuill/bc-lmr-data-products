@@ -49,7 +49,7 @@ con_aws <- dbConnect(RMariaDB::MariaDB(),
 # main query - all the data -> raw data joined with date dimensions
 lmr_data <- dbGetQuery(con_aws, "SELECT * FROM bcbg.tblLDB_lmr lmr
                            RIGHT JOIN bcbg.tblLDB_quarter qtr ON lmr.fy_qtr = qtr.fy_qtr;")
-print(head(lmr_data))
+#print(head(lmr_data))
 # close connection
 dbDisconnect(con_aws)
 
