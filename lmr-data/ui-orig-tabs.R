@@ -23,13 +23,12 @@ fluidPage(
                           `enable-rounded` = TRUE,
                           font_scale = NULL),
   # Link to the external CSS file
-    # 2 ways to do this: 2) tags$link in tags$head or 1) includeCSS
-    # - same effect; 2 more scalable but 1 allows to see the CSS file in the IDE, without needing browser
-    includeCSS("www/style.css"),
-    tags$head(
+    # 2 ways to do this: 1) tags$link in tags$head or 2) includeCSS
+    # - same effect; 1 more scalable but 2 allows to see the CSS file in the IDE, without needing browser
+    #tags$head(
       #  tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
-      ),
-    
+      #),
+    includeCSS("www/style.css"),
     # Application title
     titlePanel("BC Liquor Market Report (LMR) Data"),
 
@@ -38,9 +37,23 @@ fluidPage(
       # sidebar ----
         sidebarPanel(
           class = "sidebar",
-          # dynamic sidebar displays filter options depending on tab selected (courtesy of chatGPT)
-          # - allows for re-use of same filter setup across multiple tabs
-          uiOutput("dynamic_sidebar") 
+            # conditional panel Tab 1 ----
+            conditionalPanel(
+              condition = "input.tabselected == 1",
+              # select one or more years, including multiple years
+              uiOutput("dynamic_cyr"),
+              # filter for quarters
+              uiOutput("dynamic_qtr"),
+              # filter for categories
+              uiOutput("dynamic_cat")
+            ), # end conditionalPanel Tab 1
+             # conditional panel Tab 2 ----
+            conditionalPanel(
+              condition = "input.tabselected == 2" #,
+              # year selector PROBLEM: can't use same dynamic filter for multiple tabs!!!
+              # - chatGPT work-arounds not very helpful; will try dynamic sidepanels
+              #uiOutput("dynamic_cyr")
+            ) # end conditionalPanel Tab 2
         ), # end sidebarPanel
 
         # main panel with content ----

@@ -44,34 +44,50 @@ function(input, output, session) {
   # setup dynamic filters ----------------------------------------------------
   # Dynamically generate UI filters based on lmr_data
   # otherwise, app will crash because lmr_data not available for filters in ui.R
-  output$dynamic_cyr <- renderUI({
-    pickerInput(
-      inputId = "cyr_picker",
-      label = "Select Year(s):",
-      choices = unique(lmr_data$cyr),
-      selected = unique(lmr_data$cyr),
-      multiple = TRUE,
-      options = list(
-        `actions-box` = TRUE,
-        `selected-text-format` = "count > 3",
-        `count-selected-text` = "{0} years selected",
-        `live-search` = TRUE
+  # CHATGPT suggestion as alt to below
+  ## year filter ----
+  dynamic_cyr <- pickerInput(
+    inputId = "cyr_picker",
+    label = "Select Year(s):",
+    choices = unique(lmr_data$cyr),
+    selected = unique(lmr_data$cyr),
+    multiple = TRUE,
+    options = list(
+      `actions-box` = TRUE,
+      `selected-text-format` = "count > 3",
+      `count-selected-text` = "{0} years selected",
+      `live-search` = TRUE
+    )
+  )
+  ## qtr filters ----
+  dynamic_qtr <- checkboxGroupInput(inputId = "qtr_check", "Select a quarter", 
+                                    choices = sort(unique(lmr_data$cqtr)), 
+                                    selected = unique(lmr_data$cqtr),
+                                    inline = FALSE
+  )
+  ## overall category filter ----
+  dynamic_cat <- checkboxGroupInput(inputId = "cat_check", "Select a Category", 
+                                    choices = unique(lmr_data$cat_type), 
+                                    selected = unique(lmr_data$cat_type),
+                                    inline = FALSE
+  )
+  # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
+  output$dynamic_sidebar <- renderUI({
+    if (input$tabselected == 1) {
+      tagList(
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_cat
       )
-    )
-  })
-  output$dynamic_qtr <- renderUI({
-    checkboxGroupInput(inputId = "qtr_check", "Select a quarter", 
-                        choices = sort(unique(lmr_data$cqtr)), 
-                        selected = unique(lmr_data$cqtr),
-                        inline = FALSE
-    )
-  })
-  output$dynamic_cat <- renderUI({
-    checkboxGroupInput(inputId = "cat_check", "Select a Category", 
-                        choices = unique(lmr_data$cat_type), 
-                        selected = unique(lmr_data$cat_type),
-                        inline = FALSE
-    )
+    } else if (input$tabselected == 2) {
+      tagList(
+        dynamic_cyr
+      )
+    } else if (input$tabselected == 3) {
+      tagList(
+        dynamic_cyr
+      )
+    }
   })
   
   # apply filters to data ---------------------------------------------------
