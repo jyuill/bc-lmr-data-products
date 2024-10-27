@@ -91,6 +91,10 @@ function(input, output, session) {
     filtered_data() %>% group_by(cyr, cqtr, end_qtr_dt) %>%
       summarize(netsales = sum(netsales)) %>% ungroup() %>%
       mutate(qoq = (netsales - lag(netsales))/lag(netsales))
+    # for testing
+    #qtr_data <- lmr_data %>% group_by(cyr, cqtr, end_qtr_dt) %>% 
+    #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
+    #  mutate(qoq = (netsales - lag(netsales))/lag(netsales))
   })
   # by cat -------------------------------------------------------------------
   ## annual data by cat
@@ -115,6 +119,7 @@ function(input, output, session) {
   # x-axis text 
   theme_xax <- theme(axis.ticks.x = element_blank(),
                    axis.text.x = element_text(angle = 90, hjust = 1))
+  scale_x_qtr <- scale_x_date(date_labels = "%y %m", date_breaks = "6 months")
     ## sales ------------------------------------------------------------------
     # plot for sales by year
     output$sales_yr <- renderPlotly({
@@ -138,6 +143,7 @@ function(input, output, session) {
       p <- x %>%
         ggplot(aes(x = end_qtr_dt, y = netsales)) +
         geom_col(fill=bar_col) +
+        scale_x_date(date_labels = "%y %m", date_breaks = "6 months")+
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
         labs(title=ch_title, x="", y="")+
@@ -174,6 +180,7 @@ function(input, output, session) {
         ggplot(aes(x = end_qtr_dt, y = qoq)) +
         geom_col(fill=bar_col) +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
+        scale_x_qtr + 
         scale_y_continuous(labels = scales::percent,
                            expand = expansion(mult=c(0,0.05)),
                            limits = c(0 - max_val, max_val)) +
