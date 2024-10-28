@@ -354,7 +354,7 @@ function(input, output, session) {
     cat("02 aggregate annual & qtr totals \n")
     ## annual and qtr totals ---------------------------------------------------
     beer_annual_data <- reactive({
-       beer_filtered_data() %>% group_by(cyr) %>%
+       beer_filtered_data() %>% group_by(cat_type, cyr) %>%
         summarize(netsales = sum(netsales)) %>%
         mutate(yoy = (netsales - lag(netsales))/lag(netsales))
       # test
@@ -363,13 +363,13 @@ function(input, output, session) {
       #  mutate(yoy = (netsales - lag(netsales))/lag(netsales))
     })
     beer_qtr_data <- reactive({
-      beer_filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
+      beer_filtered_data() %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
         summarize(netsales = sum(netsales)) %>% ungroup() %>%
         mutate(qoq = (netsales - lag(netsales))/lag(netsales),
                yr_qtr = paste(cyr, cqtr, sep = "-")
         )
       # for testing
-      #beer_qtr_data <- beer_data %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>% 
+      #beer_qtr_data <- beer_data %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>% 
       #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
       #  mutate(qoq = (netsales - lag(netsales))/lag(netsales))
     })
@@ -399,7 +399,7 @@ function(input, output, session) {
     ### annual data by cat 
     beer_annual_data_cat <- reactive({
       n_cats <- length(input$beer_cat_check)
-      beer_filtered_data() %>% group_by(cyr, category) %>%
+      beer_filtered_data() %>% group_by(cat_type, cyr, category) %>%
         summarize(netsales = sum(netsales)) %>% ungroup() %>%
         mutate(yoy = (netsales - lag(netsales, n=n_cats))/lag(netsales, n=n_cats))
     })
@@ -407,7 +407,7 @@ function(input, output, session) {
       # need to base the qoq on the number of cats chosen in filter
       n_qtr <- length(input$qtr_check)
       n_cats <- length(input$beer_cat_check)
-      beer_filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt, category) %>%
+      beer_filtered_data() %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, category) %>%
         summarize(netsales = sum(netsales)) %>% ungroup() %>%
         mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
     })
@@ -425,7 +425,7 @@ function(input, output, session) {
       x <- beer_annual_data_cat()
       x$category <- reorder(x$category, x$yoy, FUN = sum)
       CatChgChart("Yrly % Chg Beer Sales by Source", 
-               x, "cyr", "yoy", "", bar_col, theme_xax+theme_nleg)
+               x, "cyr", "yoy", "cat_type", bar_col, theme_xax+theme_nleg)
     })
     output$beer_sales_qoq_cat_chg <- renderPlotly({
       x <- beer_qtr_data_cat()
