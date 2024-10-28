@@ -89,44 +89,36 @@ fluidPage(
             tabPanel("Beer", value = 2,
                      fluidRow( ## fluidRow 1 ----
                        tags$h2("Beer Sales by Year and Quarter (all categories)", class='section'),
-                       column(width = 6
-                              ,
+                       column(width = 6,
                               plotlyOutput("beer_sales_yr")
                        ),
-                       column(width = 6
-                              ,
+                       column(width = 6,
                               plotlyOutput("beer_sales_qtr")
                        )
                      ), # end fluidRow 1
                      fluidRow( ## fluidRow 2 ----
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_yoy", height = "200px")
+                       column(width = 6,
+                              plotlyOutput("beer_sales_yoy", height = "200px")
                        ),
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_qoq", height = "200px")
+                       column(width = 6,
+                              plotlyOutput("beer_sales_qoq", height = "200px")
                         )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 ----
-                       tags$h2("Beer Category Sales by Year and Quarter", class='section'),
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_yr_cat")
+                       tags$h2("Beer Sales by Source: Yearly and Quarterly", class='section'),
+                       column(width = 6,
+                              plotlyOutput("beer_sales_yr_cat")
                        ),
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_qtr_cat")
+                       column(width = 6,
+                              plotlyOutput("beer_sales_qtr_cat")
                        )
                      ), # end fluidRow 3
                      fluidRow( ## fluidRow 4 ----
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_yoy_cat", height = "500px")
+                       column(width = 6,
+                              plotlyOutput("beer_sales_yoy_cat_chg", height = "500px")
                        ),
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_qoq_cat", height = "500px")
+                       column(width = 6,
+                              plotlyOutput("beer_sales_qoq_cat_chg", height = "500px")
                        )
                      ) # end fluidRow 4
             ), # end tabPanel 2
