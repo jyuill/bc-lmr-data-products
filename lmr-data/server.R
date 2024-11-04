@@ -420,7 +420,7 @@ function(input, output, session) {
       CatChart("Qtrly Beer Sales by Source", 
                beer_qtr_data_cat(), "cyr_qtr", beer_cat_color, theme_xax+theme_xaxq)
     })
-    ### change by source ----
+    ### facet: change by source ----
     output$beer_sales_yoy_cat_chg <- renderPlotly({
       x <- beer_annual_data_cat()
       x$category <- reorder(x$category, x$yoy, FUN = sum)
@@ -431,7 +431,7 @@ function(input, output, session) {
       x <- beer_qtr_data_cat()
       x$category <- reorder(x$category, x$qoq, FUN = sum)
       CatChgChart("Qtrly % Chg Beer Sales by Source", 
-               x, "cyr_qtr", "qoq", "cqtr", qtr_color, theme_xax+theme_xaxq+theme_nleg)
+               x, "cyr_qtr", "qoq", "cqtr", bar_col, theme_xax+theme_xaxq+theme_nleg)
     })
 }
 

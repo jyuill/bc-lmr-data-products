@@ -30,6 +30,7 @@ h2 {font-size: 2em;
     color: #f8f9fa;
     background-color: #233E86;
     padding:12px;
+    margin-bottom: 0px;
 }   
 /* for regular section headings */
 h2.section {font-size: 1.6em; 
@@ -42,5 +43,31 @@ h2.section {font-size: 1.6em;
     color: #233E86;
     background-color: #f8f9fa;
     }
-  
+/* larger margin bottom - mainly for About pg */
+h2.marginb {margin-bottom: 15px;
+    }
+/* for sub-title */
+h3.sub {font-size: 1em;
+    font-weight: normal;
+    text-transform: none;
+    text-align: center;
+    margin-top: 0em;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 100%;
+    /* border: 1px solid black; */
+    color: #3D3D3D;
+    background-color: #f8f9fa;
+    }
+    
+/* for bold text - override bootstrap theme */
+strong {color: #233E86;
+        font-weight: bold !important;
+        font-size: 1.1em;
+        }
+
+a {color: #081D58;
+    text-decoration: underline;
+    }
+    }
   

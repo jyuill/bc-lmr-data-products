@@ -31,8 +31,10 @@ fluidPage(
       ),
     
     # Application title
-    titlePanel("BC Liquor Market Report (LMR) Data"),
-
+    titlePanel("BC Liquor Market Report Dashboard"),
+    tags$h3("An (unofficial) consolidated view of quarterly BC Liquor Sales data, 
+            compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources"),
+            class = "sub"),
     # Sidebar with a slider input for number of bins
     sidebarLayout(
       # sidebar ----
@@ -263,12 +265,39 @@ fluidPage(
             # tabPanel 6: About ----
             tabPanel("About", value = 6,
                      fluidRow( ## fluidRow 1 ----
-                       tags$h2("About the BC Liquor Market Report (LMR) Data", class='section'),
-                       tags$p("This is a Shiny web application that provides an overview of the BC Liquor Market Report (LMR) data."),
-                       tags$p("The data is sourced from the BC Liquor Distribution Branch (LDB) and includes sales data for various categories of alcoholic beverages."),
-                       tags$p("The data is updated quarterly and includes sales data for the current fiscal year and previous fiscal years."),
-                       tags$p("The data is available for the following categories: Beer, Refreshment Beverages, Spirits, and Wine."),
-                       tags$p("The data is available for the following years: 2020, 2021, 2022, 2023, 2024.")
+                       tags$h2("About the BC Liquor Market Review Dashboard", class='section marginb'),
+                       tags$p("This collection of data visualizations provides a consolidated view of BC liquor sales, 
+                       compiled from the ", 
+                              tags$a(href="https://www.bcldb.com/publications/liquor-market-review", 
+                                     "BC Liquor Market Review"), 
+                              "published each quarter by the British Columbia Liquor Distribution Branch."),
+                       tags$p("Each edition of the Liquor Market Review is published in PDF format and 
+                              includes the ", tags$strong("most recent quarterly sales data for the province, 
+                              plus previous 4 quarters."), "with limited visualizations. 
+                              So the advantage here is that I have:"),
+                       tags$ul(tags$li(tags$strong("consolidated data from all quarterly reports since 2015")),
+                               tags$li("provided interactive visualizations with filtering, details on mouseover"),
+                               tags$li("shown year-over-year and quarter-over-quarter comparisons"),
+                               tags$li("consolidated data into total, category-level, and category-specific breakdowns")),
+                       tags$p("The Liquor Market Review breaks down",
+                              tags$strong("wholesale sales data by net revenue and litres"),
+                              " for alcoholic beverages in the following categories:"),
+                       tags$ul(tags$li("Beer"), 
+                               tags$li("Refreshment Beverages"), 
+                               tags$li("Spirits"), 
+                               tags$li("Wine")),
+                      tags$p("In addition, each category has beverage type and geographic depending on the category. 
+                             Not all of the detail available in the official version of the Liquor Market Review may be captured here. 
+                             Further, I offer", tags$strong("no guarantees"), "as to the accuracy of the data presented here. 
+                             If in doubt or using this information for important purposes, 
+                             please refer to the official Liquor Market Review."),
+                      tags$strong("Note: This is an unofficial, personal project and is not affiliated with the BC Liquor Distribution Branch."),
+                      tags$h3("Who did this?"),
+                      tags$p("This dashboard was created by John Yuill, a data analyst and data product developer based in Vancouver, BC. 
+                             "),
+                      tags$p("For more information, questions, or feedback, you can reach me on", 
+                             tags$a(href="https://www.linkedin.com/in/johnyuill/", "LinkedIn.")
+                             )
                      ) # end fluidRow 1
               ) # end tabPanel 6
             ) # end tabsetPanel ----
