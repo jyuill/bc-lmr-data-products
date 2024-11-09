@@ -176,7 +176,7 @@ function(input, output, session) {
   theme_xaxq <- theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
   # no legend
   theme_nleg <- theme(legend.position = "none")
-    ## sales ------------------------------------------------------------------
+    # TTL SALES ------------------------------------------------------------------
     # plot for sales by year
     output$sales_yr <- renderPlotly({
         # get filtered, aggregated data
@@ -332,7 +332,7 @@ function(input, output, session) {
     output$sales_qoq_cat <- renderPlotly({
       x <- qtr_data_cat()
       x$cat_type <- reorder(x$cat_type, x$qoq, FUN = sum)
-      ch_title <- "% Chg Net $ Sales by Qtr"
+      ch_title <- "% Chg Net $ Sales by Cat by Qtr"
       p <- x %>%
         ggplot(aes(x = cyr_qtr, y = qoq, fill = cqtr)) +
         geom_col() +
