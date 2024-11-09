@@ -33,7 +33,7 @@ fluidPage(
     # Application title
     titlePanel("BC Liquor Market Report Dashboard"),
     tags$h3("An (unofficial) consolidated view of quarterly BC Liquor Sales data, 
-            compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources"),
+            compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources", class='non-tab'),
             class = "sub"),
     # Sidebar with a slider input for number of bins
     sidebarLayout(
@@ -42,6 +42,7 @@ fluidPage(
           class = "sidebar",
           # dynamic sidebar displays filter options depending on tab selected (courtesy of chatGPT)
           # - allows for re-use of same filter setup across multiple tabs
+          # - conttrolled by dynamic_sidebar in server.R
           uiOutput("dynamic_sidebar") 
         ), # end sidebarPanel
 
@@ -53,7 +54,9 @@ fluidPage(
             # tabPanel 1: Overview ----
             tabPanel("Overview", value = 1,
                      fluidRow( ## fluidRow 1 ----
-                       tags$h2("Total Sales by Year and Quarter (all categories)", class='section'),
+                       tags$h2("Total Sales by Year and Quarter (all categories)", 
+                               class='section',
+                               id='ttl_sales'),
                        column(width = 6,
                               plotlyOutput("sales_yr")
                        ),
@@ -70,7 +73,8 @@ fluidPage(
                        )
                     ),
                      fluidRow( ## fluidRow 3 ----
-                       tags$h2("Category Sales by Year and Quarter", class='section'),
+                       tags$h2("Category Sales by Year and Quarter", class='section',
+                               id='cat_sales'),
                        column(width = 6,
                               plotlyOutput("sales_yr_cat")
                        ),
@@ -89,8 +93,10 @@ fluidPage(
             ), # end tabPanel 1
             # tabPanel 2: Beer ----
             tabPanel("Beer", value = 2,
-                     fluidRow( ## fluidRow 1 ----
-                       tags$h2("Beer Sales by Year and Quarter (all categories)", class='section'),
+                     fluidRow( ## fluidRow 1 ttl sales----
+                       tags$h2("Beer Sales by Year and Quarter (all categories)", 
+                               class='section',
+                               id="beer_sales"),
                        column(width = 6,
                               plotlyOutput("beer_sales_yr")
                        ),
@@ -106,8 +112,10 @@ fluidPage(
                               plotlyOutput("beer_sales_qoq", height = "200px")
                         )
                      ), # end fluidRow 2
-                     fluidRow( ## fluidRow 3 ----
-                       tags$h2("Beer Sales by Source: Yearly and Quarterly", class='section'),
+                     fluidRow( ## fluidRow 3 src sales ----
+                       tags$h2("Beer Sales by Source: Yearly and Quarterly", 
+                               class='section',
+                               id="bsrc_sales"),
                        column(width = 6,
                               plotlyOutput("beer_sales_yr_cat")
                        ),
@@ -122,7 +130,31 @@ fluidPage(
                        column(width = 6,
                               plotlyOutput("beer_sales_qoq_cat_chg", height = "500px")
                        )
-                     ) # end fluidRow 4
+                     ), # end fluidRow 4
+                     fluidRow( ## fluidRow 5 bc cat ----
+                               tags$h2("BC Beer Sales by Category: Yrly, Qtrly", 
+                                       class='section',
+                                       id="bcat_sales"),
+                               tags$p("Coming soon!"),
+                               column(width = 6,
+                               
+                                ),
+                               column(width = 6,
+                                      
+                               ),
+                     ), # end fluidRow 5
+                     fluidRow( ## fluidRow 6 import ----
+                       tags$h2("Import Beer Sales by Country: Yrly, Qtrly", 
+                               class='section',
+                               id="bimp_sales"),
+                       tags$p("Coming soon!"),
+                       column(width = 6,
+                              
+                       ),
+                       column(width = 6,
+                              
+                       )
+                     ) # end fluidRow 6
             ), # end tabPanel 2
             # tabPanel 3: Refresh Bev ----
             tabPanel("Refresh Bev", value = 3,
@@ -269,7 +301,7 @@ fluidPage(
                        tags$p("This collection of data visualizations provides a consolidated view of BC liquor sales, 
                        compiled from the ", 
                               tags$a(href="https://www.bcldb.com/publications/liquor-market-review", 
-                                     "BC Liquor Market Review"), 
+                                     "BC Liquor Market Review", class="non-tab"), 
                               "published each quarter by the British Columbia Liquor Distribution Branch."),
                        tags$p("Each edition of the Liquor Market Review is published in PDF format and 
                               includes the ", tags$strong("most recent quarterly sales data for the province, 
@@ -296,7 +328,7 @@ fluidPage(
                       tags$p("This dashboard was created by John Yuill, a data analyst and data product developer based in Vancouver, BC. 
                              "),
                       tags$p("For more information, questions, or feedback, you can reach me on", 
-                             tags$a(href="https://www.linkedin.com/in/johnyuill/", "LinkedIn.")
+                             tags$a(href="https://www.linkedin.com/in/johnyuill/", "LinkedIn.", class="non-tab")
                              )
                      ) # end fluidRow 1
               ) # end tabPanel 6

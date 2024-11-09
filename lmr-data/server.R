@@ -94,18 +94,27 @@ function(input, output, session) {
                                     inline = FALSE
   )
   # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
+  # dynamic sidebar ----
   output$dynamic_sidebar <- renderUI({
     if (input$tabselected == 1) {
       tagList(
         dynamic_cyr,
         dynamic_qtr,
-        dynamic_cat
+        dynamic_cat,
+        tags$h4("Contents"),
+        tags$a(href="#ttl_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+        tags$a(href="#cat_sales", "Category Sales: Yr & Qtr"),tags$br(),
       )
     } else if (input$tabselected == 2) {
       tagList(
         dynamic_cyr,
         dynamic_qtr,
-        dynamic_beer_cat
+        dynamic_beer_cat,
+        tags$h4("Contents"),
+          tags$a(href="#beer_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+          tags$a(href="#bsrc_sales", "Sales by Source"), tags$br(),
+          tags$a(href="#bcat_sales", "BC Sales by Category"), tags$br(),
+          tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br()
       )
     } else if (input$tabselected == 3) {
       tagList(
@@ -431,7 +440,7 @@ function(input, output, session) {
       x <- beer_qtr_data_cat()
       x$category <- reorder(x$category, x$qoq, FUN = sum)
       CatChgChart("Qtrly % Chg Beer Sales by Source", 
-               x, "cyr_qtr", "qoq", "cqtr", bar_col, theme_xax+theme_xaxq+theme_nleg)
+               x, "cyr_qtr", "qoq", "cqtr", qtr_color, theme_xax+theme_xaxq+theme_nleg)
     })
 }
 
