@@ -132,15 +132,14 @@ fluidPage(
                        )
                      ), # end fluidRow 4
                      fluidRow( ## fluidRow 5 bc cat ----
-                               tags$h2("BC Beer Sales by Category: Yrly, Qtrly", 
+                               tags$h2("BC-Produced Beer by Category: $ & %", 
                                        class='section',
                                        id="bcat_sales"),
-                               tags$p("Coming soon!"),
                                column(width = 6,
-                               
+                                      plotlyOutput("beer_sales_yr_bc_cat")
                                 ),
                                column(width = 6,
-                                      
+                                      plotlyOutput("beer_sales_yr_bc_cat_pc")
                                ),
                      ), # end fluidRow 5
                      fluidRow( ## fluidRow 6 import ----

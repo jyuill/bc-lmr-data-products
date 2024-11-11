@@ -16,6 +16,7 @@ library(here)
 library(bslib)
 library(RColorBrewer)
 
+# colors etc ----
 # set plot theme
 # - under 'plots' below
 # set color palette
@@ -30,6 +31,7 @@ qtr_color <- c("Q1"=qpal[5], "Q2"=qpal[7], "Q3"=qpal[8], "Q4"=qpal[9])
 # palette for beer categories
 beer_pal <- brewer.pal(n=11, name="RdYlGn")
 beer_cat_color <- c("BC"=beer_pal[11], "Other Prov"=beer_pal[7], "Import"=beer_pal[9])
+beer_bc_cat_color <- c("BC Major"=beer_pal[11], "BC Regional"=beer_pal[10], "BC Micro"=beer_pal[9])
 # drop incomplete calendar year at start
 #tbl_yq <- table(lmr_data$cyr, lmr_data$cqtr)
 #if(any(tbl_yq[1,] == 0)) {
@@ -39,14 +41,17 @@ beer_cat_color <- c("BC"=beer_pal[11], "Other Prov"=beer_pal[7], "Import"=beer_p
 # load functions used - mostly plots
 source('functions.R')
 
-# Define server logic required to draw a histogram
+# Define server logic
 function(input, output, session) {
   # experiment with different bs themes
   #bslib::bs_themer()
   # get data ----
   # query database via separate file for tidyness
+  ## all data ----
   source('query.R')
+  ## beer ----
   beer_data <- lmr_data %>% filter(cat_type == "Beer")
+  # rename categories for brevity
   beer_data <- beer_data %>% mutate(
     category = case_when(
       category == "Domestic - BC Beer" ~ "BC",
@@ -54,8 +59,27 @@ function(input, output, session) {
       category == "Import Beer" ~ "Import"
     )
   )
+  # rename bc subcategories for brevity
+  beer_data <- beer_data %>% mutate(
+    subcat = case_when(
+      subcategory == "Domestic - BC Commercial Beer" ~ "BC Major",
+      subcategory == "Domestic - BC Regional Beer" ~ "BC Regional",
+      subcategory == "Domestic - BC Micro Brew Beer" ~ "BC Micro",
+      subcategory == "Domestic - Other Province Commercial Beer" ~ "Other Prov Major",
+      subcategory == "Domestic - Other Province Regional Beer" ~ "Other Prov Reg.",
+      subcategory == "Domestic - Other Province Micro Brew Beer" ~ "Other Prov Micro",
+      str_detect(subcategory,  "Asia") ~ "Asia",
+      str_detect(subcategory, "Europe") ~ "Europe",
+      str_detect(subcategory, "Mexico") ~ "Mex/Carib",
+      str_detect(subcategory,"USA") ~ "USA",
+      str_detect(subcategory, "Other Country") ~ "Other Ctry"
+    )
+  )
+  ## refresh bev ----
   refresh_data <- lmr_data %>% filter(cat_type == "Refresh Bev")
+  ## spirits ----
   spirits_data <- lmr_data %>% filter(cat_type == "Spirits")
+  ## wine ----
   wine_data <- lmr_data %>% filter(cat_type == "Wine")
   
   # setup dynamic filters ----------------------------------------------------
@@ -191,35 +215,39 @@ function(input, output, session) {
     ## ttl sales ----
     # plot for sales by year
     output$sales_yr <- renderPlotly({
+      cat("sales data by year \n")
         # get filtered, aggregated data
         x <- annual_data()
+        # add tooltip column formatted to data
+        x <- x %>% tooltip_fmt(dim = 'cyr', units = 'B', y_var = 'netsales') 
         # plot
         ch_title <- "Net $ Sales by Year"
         p <- x %>%
-          ggplot(aes(x = cyr, y = netsales)) +
+          ggplot(aes(x = cyr, y = netsales, text=tooltip_text)) +
           geom_col(fill=bar_col) +
           scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                              expand = expansion(mult=c(0,0.05))) +
           labs(title=ch_title, x="", y="")+
-          theme_xax +
+          theme_xax #+
           #function to set tooltip format, based on dimension, units, and metric
-          tooltip_fmt('cyr', 'B', 'netsales')
+          #tooltip_fmt('cyr', 'B', 'netsales')
           
         ggplotly(p, tooltip = "text") # specify tooltip to avoid default showing
     })
     # plot sales by quarter
     output$sales_qtr <- renderPlotly({
       x <- qtr_data()
+      x <- x %>% tooltip_fmt(dim = 'cyr_qtr', units = 'M', y_var = 'netsales') 
       ch_title <- "Net $ Sales by Qtr"
       p <- x %>%
-        ggplot(aes(x = cyr_qtr, y = netsales, fill = cqtr)) +
+        ggplot(aes(x = cyr_qtr, y = netsales, fill = cqtr, text = tooltip_text)) +
         geom_col() +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
         scale_fill_manual(values=qtr_color)+
         labs(title=ch_title, x="", y="")+
-        theme_xax+theme_xaxq+theme_nleg+
-        tooltip_fmt('cyr_qtr', "M", 'netsales')
+        theme_xax+theme_xaxq+theme_nleg #+
+        #tooltip_fmt('cyr_qtr', "M", 'netsales')
       
       ggplotly(p, tooltip = "text")
     })
@@ -227,33 +255,34 @@ function(input, output, session) {
     # plot for year-over-year change in sales
     output$sales_yoy <- renderPlotly({
       x <- annual_data()
+      # add tooltip column formatted to data
+      x <- x %>% tooltip_fmt(dim = 'cyr', units = '%', y_var = 'yoy')
       max_y <- max(x$yoy, na.rm = TRUE)
       min_y <- min(x$yoy, na.rm = TRUE)
       max_val <- max(abs(min_y), abs(max_y))
       ch_title <- "% Chg Net $ Sales by Yr"
       p <- x %>% 
-        ggplot(aes(x = cyr, y = yoy)) +
+        ggplot(aes(x = cyr, y = yoy, text = tooltip_text)) +
         geom_col(fill=bar_col) +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         scale_y_continuous(labels = scales::label_percent(accuracy = 0.1), 
                            expand = expansion(mult=c(0,0.05)),
                            limits = c(0 - max_val, max_val)) +
         labs(title=ch_title, x="", y="")+
-        theme_xax +
-        #text_pc
-        tooltip_fmt('cyr', "%", 'yoy')
+        theme_xax 
       ggplotly(p, tooltip = "text")
     })
     
     # plot for quarter-over-quarter change in sales
     output$sales_qoq <- renderPlotly({
       x <- qtr_data()
+      x <- x %>% tooltip_fmt(dim = 'cyr_qtr', units = '%', y_var = 'qoq')
       max_y <- max(x$qoq, na.rm = TRUE)
       min_y <- min(x$qoq, na.rm = TRUE)
       max_val <- max(abs(min_y), abs(max_y))
       ch_title <- "% Chg Net $ Sales by Qtr"
       p <- x %>% 
-        ggplot(aes(x = cyr_qtr, y = qoq, fill = cqtr)) +
+        ggplot(aes(x = cyr_qtr, y = qoq, fill = cqtr, text = tooltip_text)) +
         geom_col() +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         scale_y_continuous(labels = scales::percent,
@@ -261,8 +290,8 @@ function(input, output, session) {
                            limits = c(0 - max_val, max_val)) +
         scale_fill_manual(values=qtr_color)+
         labs(title=ch_title, x="", y="")+
-        theme_xax+theme_xaxq+theme_nleg +
-        tooltip_fmt('cyr_qtr', "%", 'qoq')
+        theme_xax+theme_xaxq+theme_nleg #+
+        #tooltip_fmt('cyr_qtr', "%", 'qoq')
       ggplotly(p, tooltip = "text")
     })
     
@@ -270,14 +299,17 @@ function(input, output, session) {
     ## plot for annual sales by category
     output$sales_yr_cat <- renderPlotly({
       x <- annual_data_cat()
-      print(head(x))
-      #x$cat_type <- reorder(x$cat_type, x$netsales, FUN = sum)
-      x <- x %>%
+      #x <- x %>% 
+      #  mutate(cat_type = fct_reorder(cat_type, netsales, .fun = sum, .desc = FALSE))
+      # add formatted tooltip and sort categories
+      x <- x %>% tooltip_fmt(dim = 'cat_type', units = 'M', y_var = 'netsales') %>%
         mutate(cat_type = fct_reorder(cat_type, netsales, .fun = sum, .desc = FALSE))
+      print(head(x))
+      
       print(unique(x$cat_type))
       ch_title <- "Net $ Sales by Cat by Yr"
       p <- x %>%
-        ggplot(aes(x = cyr, y = netsales, fill = cat_type)) +
+        ggplot(aes(x = cyr, y = netsales, fill = cat_type, text=tooltip_text)) +
         geom_col(position = "stack") +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
@@ -289,8 +321,8 @@ function(input, output, session) {
               plot.margin = unit(c(1, 0, 0, 0), "cm"))+
         theme_xax #+
         #tooltip_fmt('cat_type', "M", 'netsales')
-      p_plotly <- ggplotly(p)
-      #p_plotly <- ggplotly(p, tooltip = "text")
+      #p_plotly <- ggplotly(p)
+      p_plotly <- ggplotly(p, tooltip = "text")
       # Customize legend in plotly
       p_plotly <- p_plotly %>% layout(
         legend = list(
@@ -308,10 +340,12 @@ function(input, output, session) {
     ## plot for qtr sales by category 
     output$sales_qtr_cat <- renderPlotly({
       x <- qtr_data_cat()
-      x$cat_type <- reorder(x$cat_type, x$netsales, FUN = sum)
+      x <- x %>% tooltip_fmt(dim = 'cat_type', units = 'M', y_var = 'netsales') %>%
+        mutate(cat_type = fct_reorder(cat_type, netsales, .fun = sum, .desc = FALSE))
+      
       ch_title <- "Net $ Sales by Cat by Qtr"
       p <- x %>%
-        ggplot(aes(x = cyr_qtr, y = netsales, fill = cat_type)) +
+        ggplot(aes(x = cyr_qtr, y = netsales, fill = cat_type, text = tooltip_text)) +
         geom_col(position = "stack") +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05))) +
@@ -321,8 +355,7 @@ function(input, output, session) {
               legend.position = "top",
               legend.title = element_blank(),
               plot.margin = unit(c(1, 0, 0, 0), "cm"))+
-        theme_xax+theme_xaxq +
-        tooltip_fmt('cat_type', "M", 'netsales')
+        theme_xax+theme_xaxq 
       
       p_plotly <- ggplotly(p, tooltip = "text")
       # Customize legend in plotly
@@ -343,41 +376,49 @@ function(input, output, session) {
     ## plot yoy chg by cat
     output$sales_yoy_cat <- renderPlotly({
       x <- annual_data_cat()
-      x$cat_type <- reorder(x$cat_type, x$yoy, FUN = sum)
+      max_y <- max(x$yoy, na.rm = TRUE)
+      min_y <- min(x$yoy, na.rm = TRUE)
+      max_val <- max(abs(min_y), abs(max_y))
+      x <- x %>% tooltip_fmt(dim = 'cyr', units = '%', y_var = 'yoy')
+      
       ch_title <- "% Chg Net $ Sales by Cat"
       p <- x %>%
-        ggplot(aes(x = cyr, y = yoy)) +
+        ggplot(aes(x = cyr, y = yoy, text = tooltip_text)) +
         geom_col(fill=bar_col) +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         facet_grid(cat_type~.) +
-        scale_y_continuous(labels = scales::percent,
-                           expand = expansion(mult=c(0,0.05))) +
+        scale_y_continuous(labels = scales::label_percent(),
+                           expand = expansion(mult=c(0,0.05)),
+                           limits = c(0 - max_val, max_val)) +
         theme(strip.background = element_rect(fill = bar_col)) +
         theme(strip.text=element_text(color='white'))+
         labs(title=ch_title, x="", y="")+
-        theme_xax + 
-        tooltip_fmt('cyr', "%", 'yoy')
+        theme_xax 
       ggplotly(p, tooltip = "text")
     })
     ## plot qoq chg by cat
     output$sales_qoq_cat <- renderPlotly({
       x <- qtr_data_cat()
-      x$cat_type <- reorder(x$cat_type, x$qoq, FUN = sum)
+      max_y <- max(x$qoq, na.rm = TRUE)
+      min_y <- min(x$qoq, na.rm = TRUE)
+      max_val <- max(abs(min_y), abs(max_y))
+      x <- x %>% tooltip_fmt(dim = 'cyr_qtr', units = '%', y_var = 'qoq')
+      
       ch_title <- "% Chg Net $ Sales by Cat by Qtr"
       p <- x %>%
-        ggplot(aes(x = cyr_qtr, y = qoq, fill = cqtr)) +
+        ggplot(aes(x = cyr_qtr, y = qoq, fill = cqtr, text = tooltip_text)) +
         geom_col() +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         facet_grid(cat_type~.) +
         scale_y_continuous(labels = scales::percent,
-                           expand = expansion(mult=c(0,0.05))) +
+                           expand = expansion(mult=c(0,0.05)),
+                           limits = c(0 - max_val, max_val)) +
         scale_fill_manual(values=qtr_color)+
         theme_light()+
         theme(strip.background = element_rect(fill = bar_col)) +
         theme(strip.text=element_text(color='white'))+
         labs(title=ch_title, x="", y="")+
-        theme_xax+theme_xaxq+theme_nleg +
-        tooltip_fmt('cyr_qtr', "%", 'qoq')
+        theme_xax+theme_xaxq+theme_nleg 
       ggplotly(p, tooltip = "text")
     })
     
@@ -398,10 +439,6 @@ function(input, output, session) {
        beer_filtered_data() %>% group_by(cat_type, cyr) %>%
         summarize(netsales = sum(netsales)) %>%
         mutate(yoy = (netsales - lag(netsales))/lag(netsales))
-      # test
-      #beer_annual_data <- beer_data %>% group_by(cyr) %>% 
-      #  summarize(netsales = sum(netsales)) %>% 
-      #  mutate(yoy = (netsales - lag(netsales))/lag(netsales))
     })
     beer_qtr_data <- reactive({
       beer_filtered_data() %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
@@ -409,10 +446,6 @@ function(input, output, session) {
         mutate(qoq = (netsales - lag(netsales))/lag(netsales),
                yr_qtr = paste(cyr, cqtr, sep = "-")
         )
-      # for testing
-      #beer_qtr_data <- beer_data %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>% 
-      #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
-      #  mutate(qoq = (netsales - lag(netsales))/lag(netsales))
     })
     ## beer plots ----
     ### sales - yr, qtr ----
@@ -420,26 +453,29 @@ function(input, output, session) {
     # - chart_title, dataset, bar col variable, list of theme modifications
     # - for themes, can list joined by '+'
     output$beer_sales_yr <- renderPlotly({
-      AnnualChart("Net Beer $ Sales by Year", beer_annual_data(), 
-                  'cyr', 'netsales', bar_col, theme_xax)
+      TtlChart("Net Beer $ Sales by Year", 
+               beer_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
+               theme_xax+theme_nleg, "M")
     })
     ## plot sales by quarter
     output$beer_sales_qtr <- renderPlotly({
-      QtrChart("Net Beer $ Sales by Qtr", 
-               beer_qtr_data(), 'cyr_qtr', 'netsales', qtr_color, theme_xax+theme_xaxq+theme_nleg)
+      TtlChart("Net Beer $ Sales by Qtr", 
+               beer_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
+               theme_xax+theme_xaxq+theme_nleg, "M")
     })
     
     ### change in sales ----
     # - uses x_var to set x variable - in this case, 'cyr'
     output$beer_sales_yoy <- renderPlotly({
-      YoYChart("% Chg Beer Sales - Yr", beer_annual_data(), "cyr", bar_col, theme_xax)
+      PoPChart("% Chg Beer Sales - Yr", beer_annual_data(), "cyr", "yoy", "cat_type", bar_col, 
+               theme_xax+theme_nleg, "%")
     })
     output$beer_sales_qoq <- renderPlotly({
-      QoQChart("% Chg Beer Sales - Qtr", beer_qtr_data(), "cyr_qtr", "qoq", "cqtr", qtr_color, 
-               theme_xax+theme_xaxq+theme_nleg)
+      PoPChart("% Chg Beer Sales - Qtr", beer_qtr_data(), "cyr_qtr", "qoq", "cqtr", qtr_color, 
+               theme_xax+theme_xaxq+theme_nleg, "%")
     })
     ## beer - cat - origin ----
-    ### annual data by cat 
+    ## data by cat ----
     beer_annual_data_cat <- reactive({
       n_cats <- length(input$beer_cat_check)
       beer_filtered_data() %>% group_by(cat_type, cyr, category) %>%
@@ -455,28 +491,77 @@ function(input, output, session) {
         summarize(netsales = sum(netsales)) %>% ungroup() %>%
         mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
     })
-    ### sales by category (source / origin) ----
+    ## plots by category (source / origin) ----
     output$beer_sales_yr_cat <- renderPlotly({
       CatChart("Yrly Beer Sales by Source", 
-               beer_annual_data_cat(), "cyr", "netsales","category", beer_cat_color, theme_xax)
+               beer_annual_data_cat(), "cyr", "netsales","category", beer_cat_color, 
+               theme_xax,"M")
     })
     output$beer_sales_qtr_cat <- renderPlotly({
       CatChart("Qtrly Beer Sales by Source", 
-               beer_qtr_data_cat(), "cyr_qtr", "netsales", "category", beer_cat_color, theme_xax+theme_xaxq)
+               beer_qtr_data_cat(), "cyr_qtr", "netsales", "category", beer_cat_color, 
+               theme_xax+theme_xaxq, "M")
     })
     ### facet: change by source ----
     output$beer_sales_yoy_cat_chg <- renderPlotly({
       x <- beer_annual_data_cat()
-      x$category <- reorder(x$category, x$yoy, FUN = sum)
       CatChgChart("Yrly % Chg Beer Sales by Source", 
-               x, "cyr", "yoy", "cat_type", bar_col, theme_xax+theme_nleg)
+               x, x_var = "cyr", y_var = "yoy", fill_var = "cat_type", 
+               fill_color = bar_col, 
+               strp_color = bar_col,
+               theme_xax+theme_nleg)
     })
     output$beer_sales_qoq_cat_chg <- renderPlotly({
       x <- beer_qtr_data_cat()
-      x$category <- reorder(x$category, x$qoq, FUN = sum)
       CatChgChart("Qtrly % Chg Beer Sales by Source", 
-               x, "cyr_qtr", "qoq", "cqtr", qtr_color, theme_xax+theme_xaxq+theme_nleg)
+               x, x_var = "cyr_qtr", y_var = "qoq", fill_var = "cqtr", 
+               fill_color = qtr_color, 
+               strp_color = bar_col,
+               theme_xax+theme_xaxq+theme_nleg)
     })
-}
+    ## beer - bc subcategory ----
+    ## data by subcat ----
+    beer_yr_data_subcat <- reactive({
+      n_subcats <- length(unique(beer_filtered_data()$subcat))
+      beer_filtered_data() %>% group_by(cat_type, cyr, subcat) %>%
+        summarize(netsales = sum(netsales),
+                  litres = sum(litres)) %>% ungroup() %>%
+        mutate(yoy_ns = (netsales - lag(netsales, n=n_subcats))/lag(netsales, n=n_subcats),
+               yoy_l = (litres - lag(litres, n=n_subcats))/lag(litres, n=n_subcats)
+      )
+    })
+    beer_qtr_data_subcat <- reactive({
+      # need to base the qoq on the number of cats chosen in filter
+      n_qtr <- length(input$qtr_check)
+      #n_cats <- length(input$beer_cat_check)
+      n_cats <- length(unique(beer_filtered_data()$subcat))
+      beer_filtered_data() %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, subcat) %>%
+        summarize(netsales = sum(netsales)) %>% ungroup() %>%
+        mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
+    })
+    ## bc subcat ----
+    beer_bc_yr_subcat <- reactive({
+      data <- beer_yr_data_subcat() %>% filter(str_detect(subcat, "BC"))
+      data_yr <- data %>% group_by(cyr) %>%
+        summarize(ttl_netsales = sum(netsales),
+                  ttl_litres = sum(litres)) %>% ungroup() 
+      data <- left_join(data, data_yr, by='cyr') %>%
+        mutate(pct_sales = netsales/ttl_netsales,
+               pct_litres = litres/ttl_litres)
+    })
+    
+    ## plots by bc subcategory ----
+    output$beer_sales_yr_bc_cat <- renderPlotly({
+      data <- beer_bc_yr_subcat()
+      CatChart2("Beer Sales $ by BC Category", 
+               data, "cyr", "netsales","subcat", beer_bc_cat_color, "stack", theme_xax, "M")
+    })
+    output$beer_sales_yr_bc_cat_pc <- renderPlotly({
+      #data <- beer_annual_data_subcat() %>% filter(str_detect(subcat, "BC"))
+      data <- beer_bc_yr_subcat()
+      CatChart2("Beer Sales % by BC Category", 
+               data, "cyr", "pct_sales","subcat", beer_bc_cat_color, "fill", theme_xax, "%")
+    })
+} # end server
 
 

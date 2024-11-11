@@ -70,3 +70,27 @@ data_cat <- dtest %>% group_by(cyr, cat_type) %>%
   summarize(netsales = sum(netsales)) %>% ungroup() %>%
   mutate(cat_type = reorder(cat_type, netsales, FUN = sum))
 data_cat %>% ggplot(aes(x=cyr, y=netsales, fill=cat_type)) + geom_col()
+
+# beer data test ----
+# get beer data from manual run at top of server
+beer_data_yr <- beer_data %>% 
+  group_by(cat_type, cyr) %>% 
+  summarize(netsales = sum(netsales),
+            litres = sum(litres)) %>% ungroup() %>%
+  mutate(yoy_ns = (netsales - lag(netsales))/lag(netsales),
+         yoy_l = (litres - lag(litres))/lag(litres))
+
+# beer data by subcat ----
+n_cats <- length(unique(beer_data$subcat))
+beer_data_yr_subcat <- beer_data %>%
+  group_by(cat_type, cyr, subcategory, subcat) %>%
+    summarize(netsales = sum(netsales),
+              litres = sum(litres)) %>% ungroup() %>%
+    mutate(yoy_ns = (netsales - lag(netsales, n=n_cats))/lag(netsales, n=n_cats),
+           yoy_l = (litres - lag(litres, n=n_cats))/lag(litres, n=n_cats)
+    )
+# bc_beer subcat
+bc_beer_subcat <- beer_data_yr_subcat %>% filter(str_detect(subcat, "BC"))
+bc_beer_yr <- bc_beer_subcat %>% group_by(cyr) %>% summarize(ttL_netsales = sum(netsales),
+                                                              ttl_litres = sum(litres)) %>% ungroup() 
+bc_beer_subcat_ttl <- left_join(bc_beer_subcat, bc_beer_yr, by="cyr") 
