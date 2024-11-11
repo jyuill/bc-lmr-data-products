@@ -271,8 +271,10 @@ function(input, output, session) {
     output$sales_yr_cat <- renderPlotly({
       x <- annual_data_cat()
       print(head(x))
-      #x$cat_type <- as.factor(x$cat_type)
       #x$cat_type <- reorder(x$cat_type, x$netsales, FUN = sum)
+      x <- x %>%
+        mutate(cat_type = fct_reorder(cat_type, netsales, .fun = sum, .desc = FALSE))
+      print(unique(x$cat_type))
       ch_title <- "Net $ Sales by Cat by Yr"
       p <- x %>%
         ggplot(aes(x = cyr, y = netsales, fill = cat_type)) +
@@ -285,9 +287,10 @@ function(input, output, session) {
               legend.position = "top",
               legend.title = element_blank(),
               plot.margin = unit(c(1, 0, 0, 0), "cm"))+
-        theme_xax +
-        tooltip_fmt('cat_type', "M", 'netsales')
-      p_plotly <- ggplotly(p, tooltip = "text")
+        theme_xax #+
+        #tooltip_fmt('cat_type', "M", 'netsales')
+      p_plotly <- ggplotly(p)
+      #p_plotly <- ggplotly(p, tooltip = "text")
       # Customize legend in plotly
       p_plotly <- p_plotly %>% layout(
         legend = list(
@@ -441,7 +444,8 @@ function(input, output, session) {
       n_cats <- length(input$beer_cat_check)
       beer_filtered_data() %>% group_by(cat_type, cyr, category) %>%
         summarize(netsales = sum(netsales)) %>% ungroup() %>%
-        mutate(yoy = (netsales - lag(netsales, n=n_cats))/lag(netsales, n=n_cats))
+        mutate(yoy = (netsales - lag(netsales, n=n_cats))/lag(netsales, n=n_cats),
+               cat_type = reorder(cat_type, netsales, FUN = sum))
     })
     beer_qtr_data_cat <- reactive({
       # need to base the qoq on the number of cats chosen in filter
