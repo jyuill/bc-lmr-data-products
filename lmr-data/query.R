@@ -68,6 +68,9 @@ lmr_data <- lmr_data %>% mutate(
 # get rid of extraneous col (could do this by specifying all the cols in the query but this is easy hack)
 lmr_data <- lmr_data %>% select(-c(fy_qtr..8))
 
+# save data
+#write_csv(lmr_data, "data/lmr-data.csv")
+
 return(lmr_data)
 
 
