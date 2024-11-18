@@ -158,7 +158,7 @@ fluidPage(
             # tabPanel 3: Refresh Bev ----
             tabPanel("Refresh Bev", value = 3,
                      fluidRow( ## fluidRow 1 ----
-                       tags$h2("Refreshment Beverage Sales by Year and Quarter (all categories)", class='section'),
+                       tags$h2("Refreshment Beverage Sales by Yr & Qtr", class='section'),
                        column(width = 6,
                               plotlyOutput("refresh_sales_yr")
                        ),
@@ -175,7 +175,7 @@ fluidPage(
                        )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 ----
-                       tags$h2("Refreshment Beverage Category Sales by Year and Quarter", class='section'),
+                       tags$h2("Refreshment Beverage Category Sales by Yr & Qtr", class='section'),
                        column(width = 6,
                               plotlyOutput("refresh_sales_yr_cat")
                        ),
