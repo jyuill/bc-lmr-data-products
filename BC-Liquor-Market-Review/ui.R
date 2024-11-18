@@ -158,36 +158,29 @@ fluidPage(
             # tabPanel 3: Refresh Bev ----
             tabPanel("Refresh Bev", value = 3,
                      fluidRow( ## fluidRow 1 ----
-                        tags$h2("COMING SOON", class='section'),
                        tags$h2("Refreshment Beverage Sales by Year and Quarter (all categories)", class='section'),
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_yr")
+                       column(width = 6,
+                              plotlyOutput("refresh_sales_yr")
                        ),
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_qtr")
+                       column(width = 6,
+                              plotlyOutput("refresh_sales_qtr")
                        )
                      ), # end fluidRow 1
                      fluidRow( ## fluidRow 2 ----
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_yoy", height = "200px")
+                       column(width = 6,
+                              plotlyOutput("refresh_sales_yoy", height = "200px")
                        ),
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_qoq", height = "200px")
+                       column(width = 6,
+                              plotlyOutput("refresh_sales_qoq", height = "200px")
                        )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 ----
                        tags$h2("Refreshment Beverage Category Sales by Year and Quarter", class='section'),
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_yr_cat")
+                       column(width = 6,
+                              plotlyOutput("refresh_sales_yr_cat")
                        ),
-                       column(width = 6
-                              #,
-                              #plotlyOutput("sales_qtr_cat")
+                       column(width = 6,
+                              plotlyOutput("refresh_sales_qtr_cat")
                        )
                      ), # end fluidRow 3
                      fluidRow( ## fluidRow 4 ----

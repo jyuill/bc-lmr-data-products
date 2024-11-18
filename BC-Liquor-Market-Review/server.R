@@ -32,6 +32,7 @@ qtr_color <- c("Q1"=qpal[5], "Q2"=qpal[7], "Q3"=qpal[8], "Q4"=qpal[9])
 beer_pal <- brewer.pal(n=11, name="RdYlGn")
 beer_cat_color <- c("BC"=beer_pal[11], "Other Prov"=beer_pal[7], "Import"=beer_pal[9])
 beer_bc_cat_color <- c("BC Major"=beer_pal[11], "BC Regional"=beer_pal[10], "BC Micro"=beer_pal[9])
+refresh_cat_color <- c("Cider"=beer_pal[10], "Coolers"=beer_pal[11])
 # drop incomplete calendar year at start
 #tbl_yq <- table(lmr_data$cyr, lmr_data$cqtr)
 #if(any(tbl_yq[1,] == 0)) {
@@ -77,6 +78,16 @@ function(input, output, session) {
   )
   ## refresh bev ----
   refresh_data <- lmr_data %>% filter(cat_type == "Refresh Bev")
+  # rename subcategories for brevity
+  refresh_data <- refresh_data %>% mutate(
+    subcat = case_when(
+      str_detect(subcategory,  "Domestic") ~ "Domestic",
+      str_detect(subcategory, "Import") ~ "Import",
+      str_detect(subcategory, "Malt") ~ "Malt-Based",
+      str_detect(subcategory,"Spirit") ~ "Spirit",
+      str_detect(subcategory, "Wine") ~ "Wine/Fruit"
+    )
+  )
   ## spirits ----
   spirits_data <- lmr_data %>% filter(cat_type == "Spirits")
   ## wine ----
@@ -117,6 +128,11 @@ function(input, output, session) {
                                     selected = unique(beer_data$category),
                                     inline = FALSE
   )
+  dynamic_refresh_cat <- checkboxGroupInput(inputId = "refresh_cat_check", "Select a Category", 
+                                         choices = unique(refresh_data$category), 
+                                         selected = unique(refresh_data$category),
+                                         inline = FALSE
+  )
   # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
   # dynamic sidebar ----
   output$dynamic_sidebar <- renderUI({
@@ -142,7 +158,13 @@ function(input, output, session) {
       )
     } else if (input$tabselected == 3) {
       tagList(
-        dynamic_cyr
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_refresh_cat,
+        tags$h4("Contents"),
+          tags$a(href="#refresh_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+          tags$a(href="#refresh_cat_sales", "Category Sales"), tags$br(),
+          tags$a(href="#refresh_subcat_sales","Subcategory Sales"), tags$br()
       )
     }
   })
@@ -561,6 +583,82 @@ function(input, output, session) {
       data <- beer_bc_yr_subcat()
       CatChart2("Beer Sales % by BC Category", 
                data, "cyr", "pct_sales","subcat", beer_bc_cat_color, "fill", theme_xax, "%")
+    })
+    
+  # REFRESH BEV ---------------------------------------------------------------
+  ## apply filters to data ---------------------------------------------------
+    cat("10 apply filters \n")
+    # Filter the data set based on the selected categories
+    refresh_filtered_data <- reactive({
+      req(input$cyr_picker, input$qtr_check, input$refresh_cat_check)
+      refresh_data %>% filter(cyr %in% input$cyr_picker) %>%
+        filter(cqtr %in% input$qtr_check) %>%
+        filter(category %in% input$refresh_cat_check)
+    })  
+    cat("11 aggregate annual & qtr totals \n")
+    ## annual and qtr totals ---------------------------------------------------
+    refresh_annual_data <- reactive({
+      AnnualData(refresh_filtered_data())
+    })
+    
+    refresh_qtr_data <- reactive({
+      QtrData(refresh_filtered_data(), length(input$qtr_check))
+    })
+    ## plots ----
+    ### sales - yr, qtr ----
+    # similar to overview but using functions to get plot, providing:
+    # - chart_title, dataset, bar col variable, list of theme modifications
+    # - for themes, can list joined by '+'
+    output$refresh_sales_yr <- renderPlotly({
+      TtlChart("Net Refresh Bev $ Sales by Year", 
+               refresh_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
+               theme_xax+theme_nleg, "M")
+    })
+    ## plot sales by quarter
+    output$refresh_sales_qtr <- renderPlotly({
+      TtlChart("Net Refresh Bev $ Sales by Qtr", 
+               refresh_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
+               theme_xax+theme_xaxq+theme_nleg, "M")
+    })
+    ### change in sales ----
+    # - uses x_var to set x variable - in this case, 'cyr'
+    output$refresh_sales_yoy <- renderPlotly({
+      PoPChart("% Chg Sales - Yr", refresh_annual_data(), "cyr", "yoy_sales", "cat_type", bar_col, 
+               theme_xax+theme_nleg, "%")
+    })
+    output$refresh_sales_qoq <- renderPlotly({
+      PoPChart("% Chg Sales - Qtr", refresh_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
+               theme_xax+theme_xaxq+theme_nleg, "%")
+    })
+    ## refresh - cat ----
+    ## data by cat ----
+    refresh_annual_data_cat <- reactive({
+      n_cats <- length(input$refresh_cat_check)
+      AnnualCatData(refresh_filtered_data(), n_cats)
+      # refresh_filtered_data() %>% group_by(cat_type, cyr, category) %>%
+      #   summarize(netsales = sum(netsales)) %>% ungroup() %>%
+      #   mutate(yoy = (netsales - lag(netsales, n=n_cats))/lag(netsales, n=n_cats),
+      #          cat_type = reorder(cat_type, netsales, FUN = sum))
+    })
+    refresh_qtr_data_cat <- reactive({
+      # need to base the qoq on the number of cats chosen in filter
+      n_cats <- length(input$refresh_cat_check)
+      n_qtr <- length(input$qtr_check)
+      QtrCatData(refresh_filtered_data(), n_cats, n_qtr)
+      #refresh_filtered_data() %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, category) %>%
+      #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
+      #  mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
+    })
+    ## plots by category ----
+    output$refresh_sales_yr_cat <- renderPlotly({
+      CatChart("Yrly Sales by Category", 
+               refresh_annual_data_cat(), "cyr", "netsales","category", refresh_cat_color, 
+               theme_xax,"M")
+    })
+    output$refresh_sales_qtr_cat <- renderPlotly({
+      CatChart("Qtrly Sales by Category", 
+               refresh_qtr_data_cat(), "cyr_qtr", "netsales", "category", refresh_cat_color, 
+               theme_xax+theme_xaxq, "M")
     })
 } # end server
 

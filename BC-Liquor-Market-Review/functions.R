@@ -1,5 +1,60 @@
 # Functions for patterns that recur over the categories
 
+# Summary data ----
+AnnualData <- function(dataset) {
+  dataset <- dataset %>% group_by(cat_type, cyr) %>% 
+    summarize(netsales = sum(netsales),
+              litres = sum(litres)) %>% ungroup() %>%
+    mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
+           yoy_litres = (litres - lag(litres))/lag(litres))
+  return(dataset)
+}
+# annual category data
+AnnualCatData <- function(dataset, n_cats) {
+  # number of categories selected use to calculate lag for yoy calcs
+  n_lag <- n_cats
+  dataset <- dataset %>% group_by(cat_type, cyr, category) %>% 
+    summarize(netsales = sum(netsales),
+              litres = sum(litres)) %>% ungroup() %>%
+    mutate(yoy_sales = (netsales - lag(netsales, n=n_lag))/lag(netsales, n=n_lag),
+           yoy_litres = (litres - lag(litres, n=n_lag))/lag(litres, n=n_lag),
+           cat_type = reorder(cat_type, netsales, FUN = sum)
+    )
+  return(dataset)
+}
+
+# Qtr smry data
+QtrData <- function(dataset, n_qtr) {
+  # takes n_qtr from number of quarters selected in input selector for calc yoy lag
+  dataset <- dataset %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
+    summarize(netsales = sum(netsales),
+              litres = sum(litres)) %>% ungroup() %>%
+    mutate(qoq_sales = (netsales - lag(netsales))/lag(netsales),
+           qoq_litres = (litres - lag(litres))/lag(litres),
+           yoy_qoq_sales = (netsales - lag(netsales, n=n_qtr))/lag(netsales, n=n_qtr),
+           # for same qtr prev yr comparisons
+           yoy_qoq_litres = (litres - lag(litres, n=n_qtr))/lag(litres, n=n_qtr),
+           yr_qtr = paste(cyr, cqtr, sep = "-")
+    )
+  return(dataset)
+}
+# Qtr category summary data
+QtrCatData <- function(dataset, n_cats, n_qtr) {
+  # takes data, number of categories from iput selector, number of quarters from input selector
+  # number of quarters used to calculate yoy_qoq_sales, yoy_qoq_litres
+  n_lag <- n_cats
+  dataset <- dataset %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, category) %>%
+    summarize(netsales = sum(netsales),
+              litres = sum(litres)) %>% ungroup() %>%
+    mutate(qoq_sales = (netsales - lag(netsales, n=n_lag))/lag(netsales, n=n_lag),
+           qoq_litres = (litres - lag(litres, n=n_lag))/lag(litres, n_lag),
+           yoy_qoq_sales = (netsales - lag(netsales, n=n_lag*n_qtr))/lag(netsales, n=n_lag*n_qtr),
+           yoy_qoq_litres = (litres - lag(litres, n=n_lag*n_qtr))/lag(litres, n=n_lag*n_qtr),
+           yr_qtr = paste(cyr, cqtr, sep = "-")
+    )
+  return(dataset)
+}
+
 # Plot Sales for Category ----
 TtlChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, theme_list, tunits) {
   x <- dataset
