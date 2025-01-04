@@ -50,6 +50,7 @@ function(input, output, session) {
   # query database via separate file for tidyness
   ## all data ----
   source('query.R')
+  ## RENAME categories ----
   ## beer ----
   beer_data <- lmr_data %>% filter(cat_type == "Beer")
   # rename categories for brevity
@@ -450,7 +451,7 @@ function(input, output, session) {
     # BEER ---------------------------------------------------------------
     ## beer: apply filters to data ---------------------------------------------------
     cat("01 apply beer filters \n")
-    # Filter the data set based on the selected categories
+    ## 1. Filter the data set based on the selected categories ----
     beer_filtered_data <- reactive({
       req(input$cyr_picker, input$qtr_check, input$beer_cat_check)
       beer_data
@@ -459,7 +460,7 @@ function(input, output, session) {
         filter(category %in% input$beer_cat_check)
     })
     cat("02 aggregate annual & qtr totals \n")
-    ## annual and qtr totals ---------------------------------------------------
+    ## 2. annual and qtr totals ---------------------------------------------------
     beer_annual_data <- reactive({
        beer_filtered_data() %>% group_by(cat_type, cyr) %>%
         summarize(netsales = sum(netsales)) %>%
@@ -472,7 +473,7 @@ function(input, output, session) {
                yr_qtr = paste(cyr, cqtr, sep = "-")
         )
     })
-    ## beer plots ----
+    ## BEER PLOTS ----
     ### sales - yr, qtr ----
     # similar to overview but using functions to get plot, providing:
     # - chart_title, dataset, bar col variable, list of theme modifications
@@ -517,14 +518,17 @@ function(input, output, session) {
         mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
     })
     ## plots by category (source / origin) ----
+    #CatChart("Beer Sales $ by BC Category", 
+    #         data, "cyr", "netsales","subcat", beer_bc_cat_color, "stack", theme_xax, "M")
+    
     output$beer_sales_yr_cat <- renderPlotly({
       CatChart("Yrly Beer Sales by Source", 
-               beer_annual_data_cat(), "cyr", "netsales","category", beer_cat_color, 
+               beer_annual_data_cat(), "cyr", "netsales","category", beer_cat_color, "stack",
                theme_xax,"M")
     })
     output$beer_sales_qtr_cat <- renderPlotly({
       CatChart("Qtrly Beer Sales by Source", 
-               beer_qtr_data_cat(), "cyr_qtr", "netsales", "category", beer_cat_color, 
+               beer_qtr_data_cat(), "cyr_qtr", "netsales", "category", beer_cat_color, "stack",
                theme_xax+theme_xaxq, "M")
     })
     ### facet: change by source ----
@@ -578,13 +582,13 @@ function(input, output, session) {
     ## plots by bc subcategory ----
     output$beer_sales_yr_bc_cat <- renderPlotly({
       data <- beer_bc_yr_subcat()
-      CatChart2("Beer Sales $ by BC Category", 
+      CatChart("Beer Sales $ by BC Category", 
                data, "cyr", "netsales","subcat", beer_bc_cat_color, "stack", theme_xax, "M")
     })
     output$beer_sales_yr_bc_cat_pc <- renderPlotly({
       #data <- beer_annual_data_subcat() %>% filter(str_detect(subcat, "BC"))
       data <- beer_bc_yr_subcat()
-      CatChart2("Beer Sales % by BC Category", 
+      CatChart("Beer Sales % by BC Category", 
                data, "cyr", "pct_sales","subcat", beer_bc_cat_color, "fill", theme_xax, "%")
     })
     
@@ -607,7 +611,7 @@ function(input, output, session) {
     refresh_qtr_data <- reactive({
       QtrData(refresh_filtered_data(), length(input$qtr_check))
     })
-    ## plots ----
+    ## PLOTS ----
     ### sales - yr, qtr ----
     # similar to overview but using functions to get plot, providing:
     # - chart_title, dataset, bar col variable, list of theme modifications
@@ -633,8 +637,8 @@ function(input, output, session) {
       PoPChart("% Chg Sales - Qtr", refresh_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "%")
     })
-    ## refresh - cat ----
-    ## data by cat ----
+    ### categories ----
+    #### data by cat ----
     refresh_annual_data_cat <- reactive({
       n_cats <- length(input$refresh_cat_check)
       AnnualCatData(refresh_filtered_data(), n_cats)
@@ -652,16 +656,16 @@ function(input, output, session) {
       #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
       #  mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
     })
-    ## plots by category ----
+    #### plots by category ----
     output$refresh_sales_yr_cat <- renderPlotly({
       CatChart("Yrly Sales by Category", 
                refresh_annual_data_cat(), "cyr", "netsales","category", refresh_cat_color, 
-               theme_xax,"M")
+               "stack", theme_xax,"M")
     })
     output$refresh_sales_qtr_cat <- renderPlotly({
       CatChart("Qtrly Sales by Category", 
                refresh_qtr_data_cat(), "cyr_qtr", "netsales", "category", refresh_cat_color, 
-               theme_xax+theme_xaxq, "M")
+               "stack",theme_xax+theme_xaxq, "M")
     })
 } # end server
 

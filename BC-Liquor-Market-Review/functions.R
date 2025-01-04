@@ -1,6 +1,8 @@
 # Functions for patterns that recur over the categories
 
 # Summary data ----
+# -- use for: annual data by category type (beer, refresh bev, spirits, wine)
+# -- - includes year-over-year changes in sales and litres
 AnnualData <- function(dataset) {
   dataset <- dataset %>% group_by(cat_type, cyr) %>% 
     summarize(netsales = sum(netsales),
@@ -10,6 +12,7 @@ AnnualData <- function(dataset) {
   return(dataset)
 }
 # annual category data
+# use for: annual data by category type and category
 AnnualCatData <- function(dataset, n_cats) {
   # number of categories selected use to calculate lag for yoy calcs
   n_lag <- n_cats
@@ -96,7 +99,7 @@ PoPChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, t
 
 # Category charts ----
 # plot for category metrics
-CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, theme_list, tunits) {
+CatChartx <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, theme_list, tunits) {
   x <- dataset
   x <- x %>% tooltip_fmt(dim = fill_var, units = tunits, y_var = y_var) %>% mutate(
     category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
@@ -131,7 +134,8 @@ CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, t
 # revised version uses 'pos' variable so that can be used for unit or % stack charts
 # - includes programattic setting of label scales based on units provided
 # - use going fwd; ideally, replace CatChart with this version (beer data)
-CatChart2 <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, pos, theme_list, tunits) {
+CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
+                     pos, theme_list, tunits) {
   x <- dataset
   x <- x %>% tooltip_fmt(dim = fill_var, units = tunits, y_var = y_var) %>% mutate(
     category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
