@@ -37,7 +37,7 @@ fluidPage(
             class = "sub"),
     # Sidebar with a slider input for number of bins
     sidebarLayout(
-      # sidebar ----
+      # sidebar panel ----
         sidebarPanel(
           class = "sidebar",
           # dynamic sidebar displays filter options depending on tab selected (courtesy of chatGPT)
@@ -301,8 +301,10 @@ fluidPage(
                               So the advantage here is that I have:"),
                        tags$ul(tags$li(tags$strong("consolidated data from all quarterly reports since 2015")),
                                tags$li("provided interactive visualizations with filtering, details on mouseover"),
-                               tags$li("shown year-over-year and quarter-over-quarter comparisons"),
-                               tags$li("consolidated data into total, category-level, and category-specific breakdowns")),
+                               tags$li("provided year-over-year and quarter-over-quarter comparisons, using ",
+                                       tags$strong("calendar yr")," (rather than fiscal yr) for convenience"),
+                               tags$li("consolidated data into total, category-level, and category-specific breakdowns")
+                               ),
                        tags$p("The Liquor Market Review breaks down",
                               tags$strong("wholesale sales data by net revenue and litres"),
                               " for alcoholic beverages in the following categories:"),

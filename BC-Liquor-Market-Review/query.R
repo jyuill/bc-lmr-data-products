@@ -47,8 +47,9 @@ con_aws <- dbConnect(RMariaDB::MariaDB(),
 #t_data <- dbGetQuery(con_aws, "SELECT * FROM bcbg.tblLDB_lmr LIMIT 10")
 #q_data <- dbGetQuery(con_aws, "SELECT * FROM bcbg.tblLDB_quarter LIMIT 10")
 # main query - all the data -> raw data joined with date dimensions
-lmr_data <- dbGetQuery(con_aws, "SELECT * FROM bcbg.tblLDB_lmr lmr
+lmr_data_db <- dbGetQuery(con_aws, "SELECT * FROM bcbg.tblLDB_lmr lmr
                            RIGHT JOIN bcbg.tblLDB_quarter qtr ON lmr.fy_qtr = qtr.fy_qtr;")
+lmr_data <- lmr_data_db
 #print(head(lmr_data))
 # close connection
 dbDisconnect(con_aws)
@@ -59,14 +60,15 @@ lmr_data$litres <- as.numeric(lmr_data$litres)
 lmr_data$cat_type <- as.factor(lmr_data$cat_type)
 lmr_data$cqtr <- as.factor(lmr_data$cqtr)
 lmr_data$cyr <- as.factor(lmr_data$cyr)
+# appears that there is process in qtrly update that results in duplicating fy_qtr column
+# - prior to Dec 2024, showed up as fy_qtr..8 and was removed below
+# lmr_data <- lmr_data %>% select(-c(fy_qtr..8))
+lmr_data <- lmr_data %>% select(-8)
 lmr_data <- lmr_data %>% mutate(
   cyr_qtr = paste(str_sub(cyr, start = 3, end = 4), cqtr, sep = "-")
   )
 lmr_data <- lmr_data %>% mutate(
   cat_type = str_replace(cat_type, "Refreshment Beverages", "Refresh Bev"))
-
-# get rid of extraneous col (could do this by specifying all the cols in the query but this is easy hack)
-lmr_data <- lmr_data %>% select(-c(fy_qtr..8))
 
 # save data
 #write_csv(lmr_data, "data/lmr-data.csv")

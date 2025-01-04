@@ -144,6 +144,9 @@ function(input, output, session) {
         tags$h4("Contents"),
         tags$a(href="#ttl_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
         tags$a(href="#cat_sales", "Category Sales: Yr & Qtr"),tags$br(),
+        tags$br(),
+        tags$h4("Notes"),
+        tags$p("Years & Quarters are calendar yr, not LDB fiscal year")
       )
     } else if (input$tabselected == 2) {
       tagList(
