@@ -99,39 +99,7 @@ PoPChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, t
 
 # Category charts ----
 # plot for category metrics
-CatChartx <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, theme_list, tunits) {
-  x <- dataset
-  x <- x %>% tooltip_fmt(dim = fill_var, units = tunits, y_var = y_var) %>% mutate(
-    category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
-    )
-  ch_title <- chart_title
-  p <- x %>%
-    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = category, text = tooltip_text)) +
-    geom_col(position = "stack") +
-    scale_y_continuous(labels = label_currency(scale = 1e-6, suffix = "M"),
-                       expand = expansion(mult=c(0,0.05))) +
-    scale_fill_manual(values=fill_color)+
-    labs(title=ch_title, x="", y="")+
-    theme(axis.ticks.x = element_blank(),
-          legend.position = "top",
-          legend.title = element_blank(),
-          plot.margin = unit(c(1, 0, 0, 0), "cm"))+
-    theme_list
-  p_plotly <- ggplotly(p, tooltip = "text")
-  # Customize legend in plotly
-  p_plotly <- p_plotly %>% layout(
-    legend = list(
-      orientation = "h",     # Horizontal legend
-      x = 0.5,               # Center legend horizontally
-      xanchor = "center",    # Align legend center with x position
-      y = 1,                 # Place legend at the top
-      yanchor = "bottom",    # Align legend bottom with y position
-      title = list(text = "")  # Remove legend title
-    )
-  )
-  return(p_plotly)
-}
-# revised version uses 'pos' variable so that can be used for unit or % stack charts
+# uses 'pos' variable so that can be used for unit or % stack charts (pos = 'stack' or 'dodge')
 # - includes programattic setting of label scales based on units provided
 # - use going fwd; ideally, replace CatChart with this version (beer data)
 CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
@@ -172,7 +140,8 @@ CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color,
 }
 
 # facet charts for change ----
-CatChgChart <- function (chart_title, dataset, x_var, y_var, fill_var, fill_color, strp_color, theme_list) {
+CatChgChart <- function (chart_title, dataset, x_var, y_var, fill_var, fill_color, strp_color,
+                         theme_list) {
   x <- dataset
   max_y <- max(x[[y_var]], na.rm = TRUE)
   min_y <- min(x[[y_var]], na.rm = TRUE)

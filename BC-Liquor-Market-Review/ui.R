@@ -157,7 +157,7 @@ fluidPage(
             ), # end tabPanel 2
             # tabPanel 3: Refresh Bev ----
             tabPanel("Refresh Bev", value = 3,
-                     fluidRow( ## fluidRow 1 ----
+                     fluidRow( ## fluidRow 1 total ----
                        tags$h2("Refreshment Beverage Sales by Yr & Qtr", class='section'),
                        column(width = 6,
                               plotlyOutput("refresh_sales_yr")
@@ -166,7 +166,7 @@ fluidPage(
                               plotlyOutput("refresh_sales_qtr")
                        )
                      ), # end fluidRow 1
-                     fluidRow( ## fluidRow 2 ----
+                     fluidRow( ## fluidRow 2 % chg----
                        column(width = 6,
                               plotlyOutput("refresh_sales_yoy", height = "200px")
                        ),
@@ -174,7 +174,7 @@ fluidPage(
                               plotlyOutput("refresh_sales_qoq", height = "200px")
                        )
                      ), # end fluidRow 2
-                     fluidRow( ## fluidRow 3 ----
+                     fluidRow( ## fluidRow 3 category ----
                        tags$h2("Refreshment Beverage Category Sales by Yr & Qtr", class='section'),
                        column(width = 6,
                               plotlyOutput("refresh_sales_yr_cat")
@@ -183,14 +183,14 @@ fluidPage(
                               plotlyOutput("refresh_sales_qtr_cat")
                        )
                      ), # end fluidRow 3
-                     fluidRow( ## fluidRow 4 ----
+                     fluidRow( ## fluidRow 4 % chg----
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yoy_cat", height = "500px")
+                              ,
+                              plotlyOutput("refresh_sales_yoy_cat_chg", height = "500px")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_qoq_cat", height = "500px")
+                              ,
+                              plotlyOutput("refresh_sales_qoq_cat_chg", height = "500px")
                        )
                      ) # end fluidRow 4
             ), # end tabPanel 3

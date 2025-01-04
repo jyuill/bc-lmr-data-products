@@ -502,6 +502,7 @@ function(input, output, session) {
     })
     ## beer - cat - origin ----
     ## data by cat ----
+    ## yoy = $ SALES ONLY
     beer_annual_data_cat <- reactive({
       n_cats <- length(input$beer_cat_check)
       beer_filtered_data() %>% group_by(cat_type, cyr, category) %>%
@@ -666,6 +667,24 @@ function(input, output, session) {
       CatChart("Qtrly Sales by Category", 
                refresh_qtr_data_cat(), "cyr_qtr", "netsales", "category", refresh_cat_color, 
                "stack",theme_xax+theme_xaxq, "M")
+    })
+    ### facet: change by category ----
+    output$refresh_sales_yoy_cat_chg <- renderPlotly({
+      x <- refresh_annual_data_cat()
+      CatChgChart("Yrly % Chg Sales by Category", 
+               x, x_var = "cyr", y_var = "yoy_sales", fill_var = "cat_type", 
+               fill_color = bar_col, 
+               strp_color = bar_col,
+               theme_xax+theme_nleg)
+    })
+    
+    output$refresh_sales_qoq_cat_chg <- renderPlotly({
+      x <- refresh_qtr_data_cat()
+      CatChgChart("Qtrly % Chg Sales by Category", 
+               x, x_var = "cyr_qtr", y_var = "qoq_sales", fill_var = "cqtr", 
+               fill_color = qtr_color, 
+               strp_color = bar_col,
+               theme_xax+theme_xaxq+theme_nleg)
     })
 } # end server
 
