@@ -401,6 +401,7 @@ stacked where relevant</li>
 <li>selection of category</li>
 <li>selection of period (year and/or quarter)</li>
 </ul></li>
+<li>filters are managed by dynamic filter section in server.R</li>
 </ul>
 </div>
 <div id="process" class="section level3">
@@ -430,15 +431,47 @@ filters, including
 <li>annual data and quarter data in separate datasets</li>
 </ul></li>
 <li>Consistent formatting for charts is applied using themes and other
-settings set in ‘PLOTS’ section server.R.</li>
+settings set in ‘PLOTS’ section server.R.
+<ul>
+<li>including facet plots for subcategory breakdowns</li>
+</ul></li>
+<li>Content of each tab is controlled by:
+<ul>
+<li>the dataset created for each category type</li>
+<li>the reactive objects created for each category type derived from the
+dataset</li>
+<li>the dynamic sidebar, with filters, that is created in the server.R
+file
+<ul>
+<li>filters are created based on the unique values in the dataset for
+each category type</li>
+<li>sidebar content is dynamic based tabset selected by the user</li>
+<li>main panel content is dynamic based on the filters selected by the
+user - including checks for existence of filters before displaying
+charts</li>
+</ul></li>
+<li>the key functions used to create the charts</li>
+</ul></li>
 </ol>
 </div>
 <div id="key-functions" class="section level3">
 <h3>Key functions</h3>
 <p>Functions are used as much as possible, since there are repetitive
-processes for each category type.</p>
+processes for each category type. Note that many of these functions were
+developed starting with the Refreshment Beverage category, based on what
+worked for Beer category.</p>
 <ul>
-<li><code>get_data()</code>: retrieves data from the database</li>
+<li>AnnualCatData() - creates a dataset for a category type with annual
+data</li>
+<li>QuarterCatData() - creates a dataset for a category type with
+quarterly data</li>
+<li>TtlChart() - creates a bar chart for a category type, with
+variations for annual and quarter data</li>
+<li>CatChart()/CatChart2() - creates a bar chart for categories within
+category type, with variations for annual and quarter data</li>
+<li>PoPChart() - creates a bar chart for period-over-period change % for
+categories within category type, with variations for annual and quarter
+data</li>
 </ul>
 </div>
 </div>

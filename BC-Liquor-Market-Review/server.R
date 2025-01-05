@@ -16,7 +16,7 @@ library(here)
 library(bslib)
 library(RColorBrewer)
 
-# colors etc ----
+### colors etc ----
 # set plot theme
 # - under 'plots' below
 # set color palette
@@ -33,6 +33,10 @@ beer_pal <- brewer.pal(n=11, name="RdYlGn")
 beer_cat_color <- c("BC"=beer_pal[11], "Other Prov"=beer_pal[7], "Import"=beer_pal[9])
 beer_bc_cat_color <- c("BC Major"=beer_pal[11], "BC Regional"=beer_pal[10], "BC Micro"=beer_pal[9])
 refresh_cat_color <- c("Cider"=beer_pal[10], "Coolers"=beer_pal[11])
+spirits_cat_color <- brewer.pal(n=12, name="Paired")
+# for wine categories, generate a custom color palette with 24 colors
+wine_cat_color <- colorRampPalette(brewer.pal(n=12, name="Paired"))(24)
+
 # drop incomplete calendar year at start
 #tbl_yq <- table(lmr_data$cyr, lmr_data$cqtr)
 #if(any(tbl_yq[1,] == 0)) {
@@ -79,7 +83,7 @@ function(input, output, session) {
   )
   ## refresh bev ----
   refresh_data <- lmr_data %>% filter(cat_type == "Refresh Bev")
-  # rename subcategories for brevity
+  # rename categories for brevity
   refresh_data <- refresh_data %>% mutate(
     subcat = case_when(
       str_detect(subcategory,  "Domestic") ~ "Domestic",
@@ -91,10 +95,34 @@ function(input, output, session) {
   )
   ## spirits ----
   spirits_data <- lmr_data %>% filter(cat_type == "Spirits")
+  # rename categories for brevity
+  spirits_data <- spirits_data %>% mutate(
+    category = case_when(
+      str_detect(category,  "Asian") ~ "Asian",
+      str_detect(category, "Other") ~ "Other",
+      str_detect(category, "Grape and Fruit") ~ "Brandy",
+      str_detect(category,"Liqueurs") ~ "Liqueur",
+      # default
+      TRUE ~ category
+    )
+  )
+  
   ## wine ----
   wine_data <- lmr_data %>% filter(cat_type == "Wine")
+  # rename categories for brevity
+  wine_data <- wine_data %>% mutate(
+    category = case_when(
+      str_detect(category,  "New Zealand") ~ "NZ",
+      str_detect(category, "Australia") ~ "Austrl",
+      str_detect(category, "Canada") ~ "Can",
+      str_detect(category, "Other") ~ "Other",
+      str_detect(category, "Wine") ~ str_replace(category, "Wine", ""),
+      # default
+      TRUE ~ category
+    )
+  )
   
-  # setup dynamic filters ----------------------------------------------------
+  # setup filters ----------------------------------------------------
   # Dynamically generate UI filters based on lmr_data
   # otherwise, app will crash because lmr_data not available for filters in ui.R
   # CHATGPT suggestion as alt to below
@@ -118,7 +146,7 @@ function(input, output, session) {
                                     selected = unique(lmr_data$cqtr),
                                     inline = FALSE
   )
-  ## overall category filter ----
+  ## cat filters ----
   dynamic_cat <- checkboxGroupInput(inputId = "cat_check", "Select a Category", 
                                     choices = unique(lmr_data$cat_type), 
                                     selected = unique(lmr_data$cat_type),
@@ -134,8 +162,54 @@ function(input, output, session) {
                                          selected = unique(refresh_data$category),
                                          inline = FALSE
   )
+  dynamic_spirits_cat <- checkboxGroupInput(inputId = "spirits_cat_check", "Select a Category", 
+                                            choices = unique(spirits_data$category), 
+                                            selected = unique(spirits_data$category),
+                                            inline = FALSE
+  )
+  dynamic_wine_cat <- checkboxGroupInput(inputId = "wine_cat_check", "Select a Category", 
+                                         choices = unique(wine_data$category), 
+                                         selected = unique(wine_data$category),
+                                         inline = FALSE
+  )
+  # drop-down picker: too many categories to shown in checkbox
+  dynamic_wine_cat_picker <- pickerInput(
+    inputId = "wine_cat_picker",
+    label = "Select a Category:",
+    choices = unique(wine_data$category),
+    selected = unique(wine_data$category),
+    multiple = TRUE,
+    options = list(
+      `actions-box` = TRUE,
+      `selected-text-format` = "count > 3",
+      `count-selected-text` = "{0} categories selected",
+      `live-search` = TRUE
+    )
+    )
+    ## additional drop-down for showing category charts
+    ## clunky but used to limit category charts while allowing for 
+    #  totals to be filtered by all categories
+    # get top 10 wine categories by sales
+    wine_cat_top <- wine_data %>% group_by(category) %>% 
+     summarize(netsales = sum(netsales)) %>% ungroup() %>%
+     arrange(desc(netsales)) %>% head(8)
+    
+    dynamic_wine_cat_chart_picker <- pickerInput(
+      inputId = "wine_cat_chart_picker",
+      label = "Select for Cat. Charts:",
+      choices = unique(wine_data$category),
+      selected = unique(wine_cat_top$category),
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 3",
+        `count-selected-text` = "{0} cat. selected",
+        `live-search` = TRUE
+      )
+    )
+  
   # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
-  # dynamic sidebar ----
+  # Dynamic Sidebar ----
   output$dynamic_sidebar <- renderUI({
     if (input$tabselected == 1) {
       tagList(
@@ -157,7 +231,7 @@ function(input, output, session) {
         tags$h4("Contents"),
           tags$a(href="#beer_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
           tags$a(href="#bsrc_sales", "Sales by Source"), tags$br(),
-          tags$a(href="#bcat_sales", "BC Sales by Category"), tags$br(),
+          tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
           tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br()
       )
     } else if (input$tabselected == 3) {
@@ -167,12 +241,30 @@ function(input, output, session) {
         dynamic_refresh_cat,
         tags$h4("Contents"),
           tags$a(href="#refresh_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-          tags$a(href="#refresh_cat_sales", "Category Sales"), tags$br(),
-          tags$a(href="#refresh_subcat_sales","Subcategory Sales"), tags$br()
+          tags$a(href="#refresh_cat_sales", "Category Sales"), tags$br()
+      )
+    } else if (input$tabselected == 4) {
+      tagList(
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_spirits_cat,
+        tags$h4("Contents"),
+          tags$a(href="#spirits_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+          tags$a(href="#spirits_cat_sales", "Category Sales"), tags$br()
+      )
+    } else if (input$tabselected == 5) {
+      tagList(
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_wine_cat_picker,
+        dynamic_wine_cat_chart_picker,
+        tags$h4("Contents"),
+          tags$a(href="#wine_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+          tags$a(href="#wine_cat_sales", "Category Sales"), tags$br()
       )
     }
   })
-  
+  # TOTALS --------------------------------------------------------------
   # apply filters to data ---------------------------------------------------
   cat("01 apply filters \n")
   # Filter the data set based on the selected categories
@@ -183,6 +275,7 @@ function(input, output, session) {
       filter(cat_type %in% input$cat_check)
   })
   cat("02 aggregate annual & qtr totals \n")
+  # Aggregate data ----
   # annual and qtr totals ---------------------------------------------------
   annual_data <- reactive({
     filtered_data() %>% group_by(cyr) %>%
@@ -219,7 +312,7 @@ function(input, output, session) {
       summarize(netsales = sum(netsales)) %>% ungroup() %>%
       mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
   })
-  # PLOTS --------------------------------------------------------------------
+  # PLOT THEMES--------------------------------------------------------------------
   # plot theme
   theme_set(theme_light()+theme(panel.grid.minor = element_blank(),
                                 panel.grid.major = element_line(color = 'grey90', linewidth=0.1)))
@@ -237,7 +330,7 @@ function(input, output, session) {
   text_mcat <- aes(text=paste0(cat_type, ": ", scales::dollar(netsales, scale = 1e-6, suffix = "M")))
   text_pc <- aes(text = paste0(cyr, ": ", label_percent(accuracy = 0.1)(yoy)))
   
-    # TTL SALES ------------------------------------------------------------------
+    # TTL PLOTS ------------------------------------------------------------------
     ## ttl sales ----
     # plot for sales by year
     output$sales_yr <- renderPlotly({
@@ -569,7 +662,7 @@ function(input, output, session) {
         summarize(netsales = sum(netsales)) %>% ungroup() %>%
         mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
     })
-    ## bc subcat ----
+    ## bc beer subcat ----
     beer_bc_yr_subcat <- reactive({
       data <- beer_yr_data_subcat() %>% filter(str_detect(subcat, "BC"))
       data_yr <- data %>% group_by(cyr) %>%
@@ -587,7 +680,6 @@ function(input, output, session) {
                data, "cyr", "netsales","subcat", beer_bc_cat_color, "stack", theme_xax, "M")
     })
     output$beer_sales_yr_bc_cat_pc <- renderPlotly({
-      #data <- beer_annual_data_subcat() %>% filter(str_detect(subcat, "BC"))
       data <- beer_bc_yr_subcat()
       CatChart("Beer Sales % by BC Category", 
                data, "cyr", "pct_sales","subcat", beer_bc_cat_color, "fill", theme_xax, "%")
@@ -653,9 +745,6 @@ function(input, output, session) {
       n_cats <- length(input$refresh_cat_check)
       n_qtr <- length(input$qtr_check)
       QtrCatData(refresh_filtered_data(), n_cats, n_qtr)
-      #refresh_filtered_data() %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, category) %>%
-      #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
-      #  mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
     })
     #### plots by category ----
     output$refresh_sales_yr_cat <- renderPlotly({
@@ -663,10 +752,10 @@ function(input, output, session) {
                refresh_annual_data_cat(), "cyr", "netsales","category", refresh_cat_color, 
                "stack", theme_xax,"M")
     })
-    output$refresh_sales_qtr_cat <- renderPlotly({
+    output$refresh_sales_yr_cat_pc <- renderPlotly({
       CatChart("Qtrly Sales by Category", 
-               refresh_qtr_data_cat(), "cyr_qtr", "netsales", "category", refresh_cat_color, 
-               "stack",theme_xax+theme_xaxq, "M")
+               refresh_annual_data_cat(), "cyr", "pct_ttl_sales", "category", refresh_cat_color, 
+               "fill",theme_xax+theme_xaxq, "%")
     })
     ### facet: change by category ----
     output$refresh_sales_yoy_cat_chg <- renderPlotly({
@@ -685,6 +774,194 @@ function(input, output, session) {
                fill_color = qtr_color, 
                strp_color = bar_col,
                theme_xax+theme_xaxq+theme_nleg)
+    })
+  # SPIRITS ---------------------------------------------------------------
+    cat("process spirits \n")
+  ## apply filters to data ---------------------------------------------------
+    cat("20 apply filters \n")
+    # Filter the data set based on the selected categories
+    spirits_filtered_data <- reactive({
+      req(input$cyr_picker, input$qtr_check, input$spirits_cat_check)
+      spirits_data %>% filter(cyr %in% input$cyr_picker) %>%
+        filter(cqtr %in% input$qtr_check) %>%
+        filter(category %in% input$spirits_cat_check)
+    })  
+    cat("21 aggregate annual & qtr totals \n")
+    ## annual and qtr totals ---------------------------------------------------
+    spirits_annual_data <- reactive({
+      AnnualData(spirits_filtered_data())
+    })
+    
+    spirits_qtr_data <- reactive({
+      QtrData(spirits_filtered_data(), length(input$qtr_check))
+    })
+    ## PLOTS ----
+    ### sales - yr, qtr ----
+    # similar to overview but using functions to get plot, providing:
+    # - chart_title, dataset, bar col variable, list of theme modifications
+    # - for themes, can list joined by '+'
+    output$spirits_sales_yr <- renderPlotly({
+      TtlChart("Net Spirits $ Sales by Year", 
+               spirits_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
+               theme_xax+theme_nleg, "M")
+    })
+    ## plot sales by quarter
+    output$spirits_sales_qtr <- renderPlotly({
+      TtlChart("Net Spirits $ Sales by Qtr", 
+               spirits_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
+               theme_xax+theme_xaxq+theme_nleg, "M")
+    })
+    ### change in sales ----
+    # - uses x_var to set x variable - in this case, 'cyr'
+    output$spirits_sales_yoy <- renderPlotly({
+      PoPChart("% Chg Sales - Yr", spirits_annual_data(), "cyr", "yoy_sales", "cat_type", bar_col, 
+               theme_xax+theme_nleg, "%")
+    })
+    output$spirits_sales_qoq <- renderPlotly({
+      PoPChart("% Chg Sales - Qtr", spirits_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
+               theme_xax+theme_xaxq+theme_nleg, "%")
+    })
+    ### categories ----
+    #### data by cat ----
+    spirits_annual_data_cat <- reactive({
+      n_cats <- length(input$spirits_cat_check)
+      AnnualCatData(spirits_filtered_data(), n_cats)
+    })
+    spirits_qtr_data_cat <- reactive({
+      # need to base the qoq on the number of cats chosen in filter
+      n_cats <- length(input$spirits_cat_check)
+      n_qtr <- length(input$qtr_check)
+      QtrCatData(spirits_filtered_data(), n_cats, n_qtr)
+    })
+    #### plots by category ----
+    output$spirits_sales_yr_cat <- renderPlotly({
+      CatChart("Yrly Sales by Category", 
+               spirits_annual_data_cat(), "cyr", "netsales","category", spirits_cat_color, 
+               "stack", theme_xax,"M") %>%
+      layout(legend = list(orientation = "v",  # Vertical legend
+                           x = 1.2,           # Position on the x-axis
+                           y = 1,
+                           yanchor='top',
+                           itemheight = 15))          # Position on the y-axis
+    })
+    output$spirits_sales_yr_cat_pc <- renderPlotly({
+      CatChart("Qtrly Sales by Category", 
+               spirits_annual_data_cat(), "cyr", "pct_ttl_sales", "category", spirits_cat_color, 
+               "fill",theme_xax+theme_xaxq, "%") %>%
+        layout(legend = list(orientation = "v",  # Vertical legend
+                             x = 1.2,           # Position on the x-axis
+                             y = 1,
+                             yanchor = 'top',
+                             itemheight = 15))          # Position on the y-axis
+    })
+    ### facet: change by category ----
+    output$spirits_sales_yoy_cat <- renderPlotly({
+      x <- spirits_annual_data_cat()
+      CatChgChart("Yrly % Chg Sales by Category", 
+               x, x_var = "cyr", y_var = "yoy_sales", fill_var = "cat_type", 
+               fill_color = bar_col, 
+               strp_color = bar_col,
+               theme_xax+theme_nleg)
+    })
+    # quarter-over-quarter change by category
+    output$spirits_sales_qoq_cat <- renderPlotly({
+      x <- spirits_qtr_data_cat()
+      CatChgChart("Qtrly % Chg Sales by Category", 
+               x, x_var = "cyr_qtr", y_var = "qoq_sales", fill_var = "cqtr", 
+               fill_color = qtr_color, 
+               strp_color = bar_col,
+               theme_xax+theme_xaxq+theme_nleg)
+    })
+  # WINE ---------------------------------------------------------------
+    cat("process wine \n")
+  ## apply filters to data ---------------------------------------------------
+    cat("30 apply filters \n")
+    # Filter the data set based on the selected categories
+    wine_filtered_data <- reactive({
+      req(input$cyr_picker, input$qtr_check, input$wine_cat_picker)
+      wine_data %>% filter(cyr %in% input$cyr_picker) %>%
+        filter(cqtr %in% input$qtr_check) %>%
+        filter(category %in% input$wine_cat_picker)
+    })  
+    ### cat duplicate -----
+    # duplicates of the above for wine categories -> using different cat filter
+    # filtered
+    wine_filtered_data_cat <- reactive({
+      req(input$cyr_picker, input$qtr_check, input$wine_cat_chart_picker)
+      wine_data %>% filter(cyr %in% input$cyr_picker) %>%
+        filter(cqtr %in% input$qtr_check) %>%
+        filter(category %in% input$wine_cat_chart_picker)
+    })
+    
+    cat("31 aggregate annual & qtr totals \n")
+    ## annual and qtr totals ---------------------------------------------------
+    wine_annual_data <- reactive({
+      AnnualData(wine_filtered_data())
+    })
+    
+    wine_qtr_data <- reactive({
+      QtrData(wine_filtered_data(), length(input$qtr_check))
+    })
+    
+    ## PLOTS ----
+    ### sales - yr, qtr ----
+    # similar to overview but using functions to get plot, providing:
+    # - chart_title, dataset, bar col variable, list of theme modifications
+    # - for themes, can list joined by '+'
+    output$wine_sales_yr <- renderPlotly({
+      TtlChart("Net Wine $ Sales by Year", 
+               wine_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
+               theme_xax+theme_nleg, "M")
+    })
+    ## plot sales by quarter
+    output$wine_sales_qtr <- renderPlotly({
+      TtlChart("Net Wine $ Sales by Qtr", 
+               wine_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
+               theme_xax+theme_xaxq+theme_nleg, "M")
+    })
+    ### change in sales ----
+    # - uses x_var to set x variable - in this case, 'cyr'
+    output$wine_sales_yoy <- renderPlotly({
+      PoPChart("% Chg Sales - Yr", wine_annual_data(), "cyr", "yoy_sales", "cat_type", bar_col, 
+               theme_xax+theme_nleg, "%")
+    })
+    output$wine_sales_qoq <- renderPlotly({
+      PoPChart("% Chg Sales - Qtr", wine_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
+               theme_xax+theme_xaxq+theme_nleg, "%")
+    })
+    ### categories ----
+    ## - need to find a way to show top 5 or so categories only
+    #### data by cat ----
+    wine_annual_data_cat <- reactive({
+      n_cats <- length(input$wine_cat_chart_picker)
+      AnnualCatData(wine_filtered_data_cat(), n_cats)
+    })
+    wine_qtr_data_cat <- reactive({
+      # need to base the qoq on the number of cats chosen in filter
+      n_cats <- length(input$wine_cat_chart_picker)
+      n_qtr <- length(input$qtr_check)
+      QtrCatData(wine_filtered_data_cat(), n_cats, n_qtr)
+    })
+    #### plots by category ----
+    output$wine_sales_yr_cat <- renderPlotly({
+      CatChart("Yrly Sales by Category", 
+               wine_annual_data_cat(), "cyr", "netsales","category", wine_cat_color, 
+               "stack", theme_xax,"M") %>%
+      layout(legend = list(orientation = "v",  # Vertical legend
+                           x = 1.2,           # Position on the x-axis
+                           y = 1,
+                           yanchor='top',
+                           itemheight = 15))          # Position on the y-axis
+    })
+    output$wine_sales_yr_cat_pc <- renderPlotly({
+      CatChart("Qtrly Sales by Category", 
+               wine_annual_data_cat(), "cyr", "pct_ttl_sales", "category", wine_cat_color, 
+               "fill",theme_xax+theme_xaxq, "%") %>%
+        layout(legend = list(orientation = "v",  # Vertical legend
+                             x = 1.2,           # Position on the x-axis
+                             y = 1,
+                             yanchor = 'top',
+                             itemheight = 15))          # Position on the y-axis
     })
 } # end server
 

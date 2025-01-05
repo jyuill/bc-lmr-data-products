@@ -180,7 +180,7 @@ fluidPage(
                               plotlyOutput("refresh_sales_yr_cat")
                        ),
                        column(width = 6,
-                              plotlyOutput("refresh_sales_qtr_cat")
+                              plotlyOutput("refresh_sales_yr_cat_pc")
                        )
                      ), # end fluidRow 3
                      fluidRow( ## fluidRow 4 % chg----
@@ -189,100 +189,102 @@ fluidPage(
                               plotlyOutput("refresh_sales_yoy_cat_chg", height = "500px")
                        ),
                        column(width = 6
-                              ,
-                              plotlyOutput("refresh_sales_qoq_cat_chg", height = "500px")
+                              #,
+                              #plotlyOutput("refresh_sales_qoq_cat_chg", height = "500px")
                        )
                      ) # end fluidRow 4
             ), # end tabPanel 3
             # tabPanel 4: Spirits ----
             tabPanel("Spirits", value = 4,
                      fluidRow( ## fluidRow 1 ----
-                        tags$h2("COMING SOON", class='section'),
-                       tags$h2("Spirits Sales by Year and Quarter (all categories)", class='section'),
+                        #tags$h2("COMING SOON", class='section'),
+                       tags$h2("Spirits Sales by Yr & Qtr (all categories)", 
+                               class='section'),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yr")
+                              ,
+                              plotlyOutput("spirits_sales_yr")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_qtr")
+                              ,
+                              plotlyOutput("spirits_sales_qtr")
                        )
                      ), # end fluidRow 1
                      fluidRow( ## fluidRow 2 ----
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yoy", height = "200px")
+                              ,
+                              plotlyOutput("spirits_sales_yoy", height = "200px")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_qoq", height = "200px")
+                              ,
+                              plotlyOutput("spirits_sales_qoq", height = "200px")
                        )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 ----
-                       tags$h2("Spirits Category Sales by Year and Quarter", class='section'),
+                       tags$h2("Spirits Category Sales by Yr & Qtr", class='section'),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yr_cat")
+                              ,
+                              plotlyOutput("spirits_sales_yr_cat")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_qtr_cat")
+                              ,
+                              plotlyOutput("spirits_sales_yr_cat_pc")
                        )
                      ), # end fluidRow 3
-                     fluidRow( ## fluidRow 4 ----
+                     fluidRow( ## fluidRow 4 % chg----
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yoy_cat", height = "500px")
+                              ,
+                              plotlyOutput("spirits_sales_yoy_cat", height = "1000px")
                        ),
                        column(width = 6
                               #,
-                              #plotlyOutput("sales_qoq_cat", height = "500px")
+                              #plotlyOutput("spirits_sales_qoq_cat", height = "1000px")
                        )
                      ) # end fluidRow 4
             ), # end tabPanel 4
             # tabPanel 5: Wine ----
             tabPanel("Wine", value = 5,
-                     fluidRow( ## fluidRow 1 ----
-                      tags$h2("COMING SOON", class='section'),
+                     fluidRow( ## fluidRow 1 totals ----
+                      tags$h4("MESSY - in progress ;)"),
                        tags$h2("Wine Sales by Year and Quarter (all categories)", class='section'),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yr")
+                              ,
+                              plotlyOutput("wine_sales_yr")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_qtr")
+                              ,
+                              plotlyOutput("wine_sales_qtr")
                        )
                      ), # end fluidRow 1
-                     fluidRow( ## fluidRow 2 ----
+                     fluidRow( ## fluidRow 2 %chg----
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yoy", height = "200px")
+                              ,
+                              plotlyOutput("wine_sales_yoy", height = "200px")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_qoq", height = "200px")
+                              ,
+                              plotlyOutput("wine_sales_qoq", height = "200px")
                        )
                      ), # end fluidRow 2
-                     fluidRow( ## fluidRow 3 ----
+                     fluidRow( ## fluidRow 3 cat----
                        tags$h2("Wine Category Sales by Year and Quarter", class='section'),
+                       tags$h4("Based on second category filter at left"),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yr_cat")
+                              ,
+                              plotlyOutput("wine_sales_yr_cat")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_qtr_cat")
+                              ,
+                              plotlyOutput("wine_sales_yr_cat_pc")
                        )
                      ), # end fluidRow 3
-                     fluidRow( ## fluidRow 4 ----
+                     fluidRow( ## fluidRow 4 % chg----
                        column(width = 6
-                              #,
-                              #plotlyOutput("sales_yoy_cat", height = "500px")
+                              ,
+                              plotlyOutput("wine_sales_yoy_cat", height = "500px")
                        ),
                        column(width = 6
                               #,
-                              #plotlyOutput("sales_qoq_cat", height = "500px")
+                              #plotlyOutput("wine_sales_qoq_cat", height = "500px")
                        )
                      ) # end fluidRow 4
             ), # end tabPanel 5

@@ -34,6 +34,7 @@ followed by tabs with deeper dives into each category, with subcategories
   * selection of category type
   * selection of category
   * selection of period (year and/or quarter)
+* filters are managed by dynamic filter section in server.R
 
 ### Process
 
@@ -49,7 +50,17 @@ including renaming of categories and subcategories for brevity.
 5. Reactive objects are used to apply changes based on user input from filters, including
    * annual data and quarter data in separate datasets
 6. Consistent formatting for charts is applied using themes and other settings set in 'PLOTS' section server.R.
-
+   * including facet plots for subcategory breakdowns
+7. Content of each tab is controlled by:
+   * the dataset created for each category type
+   * the reactive objects created for each category type derived from the dataset
+   * the dynamic sidebar, with filters, that is created in the server.R file
+      * filters are created based on the unique values in the dataset for each category type
+      * sidebar content is dynamic based tabset selected by the user
+      * main panel content is dynamic based on the filters selected by the user - including 
+      checks for existence of ALL filters before displaying charts 
+      (check sections in server.R for set up filters, dynamic sidebar, start of each category tab)
+   * the key functions used to create the charts
 
 ### Key functions
 
@@ -60,5 +71,5 @@ based on what worked for Beer category.
 * AnnualCatData() - creates a dataset for a category type with annual data
 * QuarterCatData() - creates a dataset for a category type with quarterly data
 * TtlChart() - creates a bar chart for a category type, with variations for annual and quarter data
-* CatChart()/CatChart2() - creates a bar chart for categories within category type, with variations for annual and quarter data
+* CatChart() - creates a bar chart for categories within category type, with variations for annual and quarter data
 * PoPChart() - creates a bar chart for period-over-period change % for categories within category type, with variations for annual and quarter data

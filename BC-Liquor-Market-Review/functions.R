@@ -23,6 +23,15 @@ AnnualCatData <- function(dataset, n_cats) {
            yoy_litres = (litres - lag(litres, n=n_lag))/lag(litres, n=n_lag),
            cat_type = reorder(cat_type, netsales, FUN = sum)
     )
+  # add percent of totals for each category
+  # - get totals for yr
+  dataset_yr <- dataset %>% group_by(cyr) %>% 
+    summarize(ttl_sales = sum(netsales),
+              ttl_litres = sum(litres)) %>% ungroup()
+  # - join totals to category data set and calculate percentages
+  dataset <- left_join(dataset, dataset_yr, by="cyr") %>%
+    mutate(pct_ttl_sales = netsales/ttl_sales,
+           pct_ttl_litres = litres/ttl_litres)
   return(dataset)
 }
 
