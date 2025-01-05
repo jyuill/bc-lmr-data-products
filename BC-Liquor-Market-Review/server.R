@@ -54,6 +54,13 @@ function(input, output, session) {
   # query database via separate file for tidyness
   ## all data ----
   source('query.R')
+  ## recent data ----
+  # apply to yr filter as default to avoid over-crowding
+  lmr_max <- max(lmr_data$cyr_num) # get current latest yr
+  lmr_yrs <- 6 # determine how many yrs back to go
+  lmr_recent <- lmr_data %>% filter(cyr_num > lmr_max-lmr_yrs)
+  lmr_max_date <- max(lmr_data$end_qtr_dt)
+  lmr_max_note <- paste0("As of: ", format(lmr_max_date, "%b %d %Y"))
   ## RENAME categories ----
   ## beer ----
   beer_data <- lmr_data %>% filter(cat_type == "Beer")
@@ -131,7 +138,7 @@ function(input, output, session) {
     inputId = "cyr_picker",
     label = "Select Calendar Year(s):",
     choices = unique(lmr_data$cyr),
-    selected = unique(lmr_data$cyr),
+    selected = unique(lmr_recent$cyr),
     multiple = TRUE,
     options = list(
       `actions-box` = TRUE,
@@ -213,6 +220,7 @@ function(input, output, session) {
   output$dynamic_sidebar <- renderUI({
     if (input$tabselected == 1) {
       tagList(
+        tags$h5(lmr_max_note, class="note"),
         dynamic_cyr,
         dynamic_qtr,
         dynamic_cat,

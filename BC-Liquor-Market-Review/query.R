@@ -59,7 +59,7 @@ lmr_data$netsales <- as.numeric(lmr_data$netsales)
 lmr_data$litres <- as.numeric(lmr_data$litres)
 lmr_data$cat_type <- as.factor(lmr_data$cat_type)
 lmr_data$cqtr <- as.factor(lmr_data$cqtr)
-lmr_data$cyr <- as.factor(lmr_data$cyr)
+lmr_data$cyr <- as.factor(lmr_data$cyr) # also saved as numeric at end below
 # appears that there is process in qtrly update that results in duplicating fy_qtr column
 # - prior to Dec 2024, showed up as fy_qtr..8 and was removed below
 # lmr_data <- lmr_data %>% select(-c(fy_qtr..8))
@@ -69,6 +69,8 @@ lmr_data <- lmr_data %>% mutate(
   )
 lmr_data <- lmr_data %>% mutate(
   cat_type = str_replace(cat_type, "Refreshment Beverages", "Refresh Bev"))
+# save cyr as numerical value for filtering
+lmr_data$cyr_num <- as.numeric(as.character(lmr_data$cyr))
 
 # save data
 #write_csv(lmr_data, "data/lmr-data.csv")

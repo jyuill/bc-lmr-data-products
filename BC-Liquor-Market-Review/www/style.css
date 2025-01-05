@@ -69,6 +69,19 @@ h4 {
     width: 100%;
     }
 
+/* for notes */
+.note {font-size: 0.9em;
+    text-align: center;
+    margin-top: 0em;
+    margin-bottom: 1em;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    width: 100%;
+    /* border: 1px solid black; */
+    color: #3D3;
+    background-color: gray;
+    }
+
 /* for bold text - override bootstrap theme */
 strong {color: #233E86;
         font-weight: bold !important;
