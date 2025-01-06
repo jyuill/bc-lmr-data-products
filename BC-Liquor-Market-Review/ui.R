@@ -158,7 +158,8 @@ fluidPage(
             # tabPanel 3: Refresh Bev ----
             tabPanel("Refresh Bev", value = 3,
                      fluidRow( ## fluidRow 1 total ----
-                       tags$h2("Refreshment Beverage Sales by Yr & Qtr", class='section'),
+                       tags$h2("Refreshment Beverage Sales by Yr & Qtr", class='section',
+                               id='refresh_sales'),
                        column(width = 6,
                               plotlyOutput("refresh_sales_yr")
                        ),
@@ -175,7 +176,9 @@ fluidPage(
                        )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 category ----
-                       tags$h2("Refreshment Beverage Category Sales by Yr & Qtr", class='section'),
+                       tags$h2("Refreshment Beverage Category Sales by Yr & Qtr", 
+                               class='section',
+                               id='refresh_cat_sales'),
                        column(width = 6,
                               plotlyOutput("refresh_sales_yr_cat")
                        ),
@@ -197,9 +200,9 @@ fluidPage(
             # tabPanel 4: Spirits ----
             tabPanel("Spirits", value = 4,
                      fluidRow( ## fluidRow 1 ----
-                        #tags$h2("COMING SOON", class='section'),
                        tags$h2("Spirits Sales by Yr & Qtr (all categories)", 
-                               class='section'),
+                               class='section',
+                               id='spirits_sales'),
                        column(width = 6
                               ,
                               plotlyOutput("spirits_sales_yr")
@@ -220,7 +223,9 @@ fluidPage(
                        )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 ----
-                       tags$h2("Spirits Category Sales by Yr & Qtr", class='section'),
+                       tags$h2("Spirits Category Sales by Yr & Qtr", 
+                               class='section',
+                               id='spirits_cat_sales'),
                        column(width = 6
                               ,
                               plotlyOutput("spirits_sales_yr_cat")
@@ -244,7 +249,9 @@ fluidPage(
             # tabPanel 5: Wine ----
             tabPanel("Wine", value = 5,
                      fluidRow( ## fluidRow 1 totals ----
-                       tags$h2("Wine Sales by Year and Quarter (all categories)", class='section'),
+                       tags$h2("Wine Sales by Year and Quarter (all categories)", 
+                               class='section',
+                               id='wine_sales'),
                        column(width = 6
                               ,
                               plotlyOutput("wine_sales_yr")
@@ -265,7 +272,9 @@ fluidPage(
                        )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 cat----
-                       tags$h2("Wine Category Sales by Year and Quarter", class='section'),
+                       tags$h2("Wine Category Sales by Year and Quarter", 
+                               class='section',
+                               id='wine_cat_sales'),
                        tags$h4("Based on second category filter at left"),
                        column(width = 6
                               ,
@@ -322,7 +331,8 @@ fluidPage(
                       tags$h3("Who did this?"),
                       tags$p("This dashboard was created by John Yuill, a data analyst and data product developer based in Vancouver, BC. 
                              "),
-                      tags$p("For more information, questions, or feedback, you can reach me on", 
+                      tags$p("For more information, questions, or feedback, 
+                             you can reach me on", 
                              tags$a(href="https://www.linkedin.com/in/johnyuill/", "LinkedIn.", class="non-tab")
                              )
                      ) # end fluidRow 1
@@ -331,7 +341,10 @@ fluidPage(
           # FOOTER ----
           tags$div(
             style = "margin-top: 20px; padding: 10px; border-top: 2px solid #ddd; text-align: center;",
-            "© 2025 A Catbird Analytics Production, John Yuill; see 'About' tab for details", class="footer")
+            "© 2025 A", 
+            tags$a(href="https://www.catbird-analytics.com/", 'Catbird Analytics'),
+            " Production, John Yuill; see 'About' tab for details", 
+            class="footer")
         ) # end mainPanel ----
     ) # end sidebarLayout ----
 ) # end shinyUI
