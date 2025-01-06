@@ -189,8 +189,8 @@ fluidPage(
                               plotlyOutput("refresh_sales_yoy_cat_chg", height = "500px")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("refresh_sales_qoq_cat_chg", height = "500px")
+                              ,
+                              plotlyOutput("refresh_sales_yoy_cat_chg_pcp", height = "500px")
                        )
                      ) # end fluidRow 4
             ), # end tabPanel 3
@@ -236,15 +236,14 @@ fluidPage(
                               plotlyOutput("spirits_sales_yoy_cat", height = "1000px")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("spirits_sales_qoq_cat", height = "1000px")
+                              ,
+                              plotlyOutput("spirits_sales_yoy_cat_chg_pcp", height = "1000px")
                        )
                      ) # end fluidRow 4
             ), # end tabPanel 4
             # tabPanel 5: Wine ----
             tabPanel("Wine", value = 5,
                      fluidRow( ## fluidRow 1 totals ----
-                      tags$h4("MESSY - in progress ;)"),
                        tags$h2("Wine Sales by Year and Quarter (all categories)", class='section'),
                        column(width = 6
                               ,
@@ -280,11 +279,11 @@ fluidPage(
                      fluidRow( ## fluidRow 4 % chg----
                        column(width = 6
                               ,
-                              plotlyOutput("wine_sales_yoy_cat", height = "500px")
+                              plotlyOutput("wine_sales_yoy_cat", height = "1000px")
                        ),
                        column(width = 6
-                              #,
-                              #plotlyOutput("wine_sales_qoq_cat", height = "500px")
+                              ,
+                              plotlyOutput("wine_sales_yoy_cat_chg_pcp", height = "1000px")
                        )
                      ) # end fluidRow 4
             ), # end tabPanel 5
@@ -328,7 +327,11 @@ fluidPage(
                              )
                      ) # end fluidRow 1
               ) # end tabPanel 6
-            ) # end tabsetPanel ----
+            ), # end tabsetPanel ----
+          # FOOTER ----
+          tags$div(
+            style = "margin-top: 20px; padding: 10px; border-top: 2px solid #ddd; text-align: center;",
+            "© 2025 A Catbird Analytics Production, John Yuill; see 'About' tab for details", class="footer")
         ) # end mainPanel ----
     ) # end sidebarLayout ----
 ) # end shinyUI

@@ -70,17 +70,30 @@ h4 {
     }
 
 /* for notes */
-.note {font-size: 0.9em;
+/*.note {font-size: 0.9em;
     text-align: center;
     margin-top: 0em;
     margin-bottom: 1em;
     padding-top: 4px;
     padding-bottom: 4px;
-    width: 100%;
+    width: 100%; */
     /* border: 1px solid black; */
-    color: #3D3;
+    /*color: #3D3;
     background-color: gray;
-    }
+    } */
+.note {
+  text-align: center;
+  background-color: #e9f2ff; /* Light blue background */
+  border-left: 2px solid #233E86; /* Accent border matching the primary text color */
+  border-right: 2px solid #233E86; /* Accent border matching the primary text color */
+  color: #233E86; /* Text color consistent with your site's text */
+  padding: 5px 0px 5px 0px;
+  margin: -4px 0px 8px 0px;
+  font-size: 0.9em;
+  font-style: bold;
+  border-radius: 4px; /* Slightly rounded corners */
+}
+
 
 /* for bold text - override bootstrap theme */
 strong {color: #233E86;

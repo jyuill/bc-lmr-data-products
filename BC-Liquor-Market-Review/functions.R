@@ -13,7 +13,13 @@ AnnualData <- function(dataset) {
 }
 # annual category data
 # use for: annual data by category type and category
-AnnualCatData <- function(dataset, n_cats) {
+AnnualCatData <- function(dataset, n_cats, dataset_all) {
+  # get totals for yr to use in % of total calculations
+  # - should change based on cat filters, since should be consistent % of total
+  dataset_yr <- dataset_all %>% group_by(cyr) %>% 
+    summarize(ttl_sales = sum(netsales),
+              ttl_litres = sum(litres)) %>% ungroup()
+  # add yoy calculations
   # number of categories selected use to calculate lag for yoy calcs
   n_lag <- n_cats
   dataset <- dataset %>% group_by(cat_type, cyr, category) %>% 
@@ -24,14 +30,16 @@ AnnualCatData <- function(dataset, n_cats) {
            cat_type = reorder(cat_type, netsales, FUN = sum)
     )
   # add percent of totals for each category
-  # - get totals for yr
-  dataset_yr <- dataset %>% group_by(cyr) %>% 
-    summarize(ttl_sales = sum(netsales),
-              ttl_litres = sum(litres)) %>% ungroup()
   # - join totals to category data set and calculate percentages
   dataset <- left_join(dataset, dataset_yr, by="cyr") %>%
     mutate(pct_ttl_sales = netsales/ttl_sales,
            pct_ttl_litres = litres/ttl_litres)
+  # add yoy chg calculations for % of total
+  dataset <- dataset %>% 
+    mutate(yoy_pcp_ttl_sales = pct_ttl_sales - lag(pct_ttl_sales, n=n_lag),
+           yoy_pcp_ttl_litres = pct_ttl_litres - lag(pct_ttl_litres, n=n_lag)) %>% 
+    ungroup()
+  
   return(dataset)
 }
 

@@ -42,11 +42,9 @@ followed by tabs with deeper dives into each category, with subcategories
 2. Datasets are created for each major category type (beer, wine, spirits, etc), 
 including renaming of categories and subcategories for brevity.
 4. For each category type, a dashboard tab is created with the following:
-   * a summary of the category type
-   * a bar chart of net sales $ and litre volume for the category type
-   * a bar chart of net sales $ and litre volume for each category within the category type
-   * a bar chart of net sales $ and litre volume for each subcategory within the category type
-   * a bar chart of net sales $ and litre volume for each subcategory within each category
+   * bar charts of net sales $ for the category type by year and quarter
+   * bar chart showing period-over-period change % for the category type by year and quarter
+   * additional category breakdowns, depending on the category type
 5. Reactive objects are used to apply changes based on user input from filters, including
    * annual data and quarter data in separate datasets
 6. Consistent formatting for charts is applied using themes and other settings set in 'PLOTS' section server.R.
@@ -54,9 +52,10 @@ including renaming of categories and subcategories for brevity.
 7. Content of each tab is controlled by:
    * the dataset created for each category type
    * the reactive objects created for each category type derived from the dataset
-   * the dynamic sidebar, with filters, that is created in the server.R file
-      * filters are created based on the unique values in the dataset for each category type
+   * the dynamic sidebar, with text and filters, created in the server.R file
+      * any text in sidebar is set in dynamic sidebar section in server.R for each tab
       * sidebar content is dynamic based tabset selected by the user
+      * filters are created based on the unique values in the dataset for each category type
       * main panel content is dynamic based on the filters selected by the user - including 
       checks for existence of ALL filters before displaying charts 
       (check sections in server.R for set up filters, dynamic sidebar, start of each category tab)
@@ -71,5 +70,10 @@ based on what worked for Beer category.
 * AnnualCatData() - creates a dataset for a category type with annual data
 * QuarterCatData() - creates a dataset for a category type with quarterly data
 * TtlChart() - creates a bar chart for a category type, with variations for annual and quarter data
-* CatChart() - creates a bar chart for categories within category type, with variations for annual and quarter data
-* PoPChart() - creates a bar chart for period-over-period change % for categories within category type, with variations for annual and quarter data
+* CatChart() - creates a bar chart for categories within category type, 
+with variations for annual and quarter data
+  * can be used for raw numbers or % of total
+  * with % of total, set pos parameter to 'stack' for actual % of ttl that doesn't change with category filters 
+  OR use 'fill' if you want % of items shown to always add up to 100% (potentially misleading)
+* PoPChart() - creates a bar chart for period-over-period change % for categories within category type, 
+with variations for annual and quarter data
