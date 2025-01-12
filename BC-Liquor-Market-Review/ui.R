@@ -13,9 +13,11 @@ library(tidyverse)
 library(plotly)
 library(bslib)
 library(RColorBrewer)
+library(shinyjs)
 
 # Define UI for application that draws a histogram
 fluidPage(
+  useShinyjs(), # for toggling side panel
   # apply bootstrap theme - set using 'preset'
   theme = bslib::bs_theme(version = 4,
                           preset = 'lux',
@@ -28,6 +30,11 @@ fluidPage(
     includeCSS("www/style.css"),
     tags$head(
       #  tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+      # style for toggle button
+      tags$style(
+        "#toggleSidebar {margin-bottom: 4px;
+        padding: 2px;}"
+      )
       ),
     
     # Application title
@@ -35,11 +42,15 @@ fluidPage(
     tags$h3("An (unofficial) consolidated view of quarterly BC Liquor Sales data, 
             compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources", class='non-tab'),
             class = "sub"),
+    # action button to toggle sidebar - abandoned for now
+    # - makes sidebar disappear/appear but mainPanel doesn't expand to fill the space
+    #column(12, actionButton('toggleSidebar', 'Toggle Sidebar'),),
     # Sidebar with a slider input for number of bins
     sidebarLayout(
       # sidebar panel ----
         sidebarPanel(
           class = "sidebar",
+          id = "sidebar", # needed for toggling
           # dynamic sidebar displays filter options depending on tab selected (courtesy of chatGPT)
           # - allows for re-use of same filter setup across multiple tabs
           # - conttrolled by dynamic_sidebar in server.R
@@ -143,15 +154,14 @@ fluidPage(
                                ),
                      ), # end fluidRow 5
                      fluidRow( ## fluidRow 6 import ----
-                       tags$h2("Import Beer Sales by Country: Yrly, Qtrly", 
+                       tags$h2("Import Beer Sales by Ctry/Region", 
                                class='section',
                                id="bimp_sales"),
-                       tags$p("Coming soon!"),
                        column(width = 6,
-                              
+                              plotlyOutput("beer_sales_yr_import_cat")
                        ),
                        column(width = 6,
-                              
+                              plotlyOutput("beer_sales_yr_import_cat_pc") 
                        )
                      ) # end fluidRow 6
             ), # end tabPanel 2
