@@ -90,7 +90,7 @@ fluidPage(
                               plotlyOutput("sales_yr_cat")
                        ),
                        column(width = 6,
-                              plotlyOutput("sales_qtr_cat")
+                              plotlyOutput("sales_yr_cat_pct")
                        )
                      ), # end fluidRow 3
                      fluidRow( ## fluidRow 4 ----
@@ -98,7 +98,7 @@ fluidPage(
                               plotlyOutput("sales_yoy_cat", height = "500px")
                        ),
                        column(width = 6,
-                              plotlyOutput("sales_qoq_cat", height = "500px")
+                              plotlyOutput("sales_yoy_cat_pcp", height = "500px")
                        )
                      ), # end fluidRow 4
             ), # end tabPanel 1
@@ -124,7 +124,7 @@ fluidPage(
                         )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 src sales ----
-                       tags$h2("Beer Sales by Source: Yearly and Quarterly", 
+                       tags$h2("Beer Sales by Source", 
                                class='section',
                                id="bsrc_sales"),
                        column(width = 6,

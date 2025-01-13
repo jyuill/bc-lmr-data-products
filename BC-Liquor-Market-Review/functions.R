@@ -3,32 +3,63 @@
 # Summary data ----
 # -- use for: annual data by category type (beer, refresh bev, spirits, wine)
 # -- - includes year-over-year changes in sales and litres
-AnnualData <- function(dataset) {
+AnnualCatTypeData <- function(dataset, dataset_all=lmr_data) {
+  cat("AnnualCatTypeData\n")
+  # summarize higher level data for % of ttl calculations
+  dataset_yr <- dataset_all %>% group_by(cyr) %>% 
+    summarize(ttl_sales = sum(netsales),
+              ttl_litres = sum(litres)) %>% ungroup() 
+  # summarize current level (cat_type)
   dataset <- dataset %>% group_by(cat_type, cyr) %>% 
     summarize(netsales = sum(netsales),
-              litres = sum(litres)) %>% ungroup() %>%
+              litres = sum(litres)) %>% 
+      #ungroup() %>%
     mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
            yoy_litres = (litres - lag(litres))/lag(litres))
+  # add percent of totals for each category type
+  # - join totals to category data set and calculate percentages
+  dataset <- left_join(dataset, dataset_yr, by=c("cyr")) %>%
+    mutate(pct_ttl_sales = netsales/ttl_sales,
+           pct_ttl_litres = litres/ttl_litres)
+  # add yoy chg calculations for % of total
+  dataset <- dataset %>% 
+    # convert cyr to number for lag calculation
+    mutate(cyr = as.numeric(as.character(cyr))) %>%
+    group_by(cat_type) %>% # only need to group for cat_type
+    # multiply by 100 to get point values - avoid confusion with %
+    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales))*100,
+           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres))*100) %>% 
+      ungroup()
+  # reset cyr to factor for plotting
+  dataset$cyr <- as.factor(dataset$cyr)
   return(dataset)
 }
 # annual category data
 # use for: annual data by category type and category
-AnnualCatData <- function(dataset, n_cats, dataset_all) {
+AnnualCatData <- function(dataset, dataset_all) {
   # get totals for yr to use in % of total calculations
   # - should not change based on cat filters, since should be consistent % of total
   dataset_yr <- dataset_all %>% group_by(cat_type, cyr) %>% 
     summarize(ttl_sales = sum(netsales),
               ttl_litres = sum(litres)) %>% ungroup()
-  # add yoy calculations
-  # number of categories selected use to calculate lag for yoy calcs
-  n_lag <- n_cats
-  dataset <- dataset %>% group_by(cat_type, cyr, category) %>% 
+  # summarize current level (category)
+  dataset <- dataset %>% 
+    group_by(cat_type, category, cyr) %>% 
     summarize(netsales = sum(netsales),
-              litres = sum(litres)) %>% ungroup() %>%
-    mutate(yoy_sales = (netsales - lag(netsales, n=n_lag))/lag(netsales, n=n_lag),
-           yoy_litres = (litres - lag(litres, n=n_lag))/lag(litres, n=n_lag),
-           cat_type = reorder(cat_type, netsales, FUN = sum)
-    )
+              litres = sum(litres)) %>% 
+    ungroup()
+  # get yoy calculations
+  dataset <- dataset %>% 
+    # convert cyr to number for lag calculation
+    mutate(cyr = as.numeric(as.character(cyr))) %>% 
+    group_by(cat_type, category) %>% 
+    mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
+           yoy_litres = (litres - lag(litres))/lag(litres),
+          # order cat_type by sales
+           category = reorder(category, netsales, FUN = sum)
+    ) %>% ungroup()
+  # restore cyr to factor
+  dataset$cyr <- as.factor(dataset$cyr)
   # add percent of totals for each category
   # - join totals to category data set and calculate percentages
   dataset <- left_join(dataset, dataset_yr, by=c("cat_type","cyr")) %>%
@@ -36,11 +67,11 @@ AnnualCatData <- function(dataset, n_cats, dataset_all) {
            pct_ttl_litres = litres/ttl_litres)
   # add yoy chg calculations for % of total
   dataset <- dataset %>% 
+    group_by(category) %>%
     # multiply by 100 to get point values - avoid confusion with %
-    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales, n=n_lag))*100,
-           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres, n=n_lag))*100) %>% 
+    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales))*100,
+           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres))*100) %>% 
     ungroup()
-  
   return(dataset)
 }
 
@@ -54,26 +85,35 @@ AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
     summarize(ttl_sales = sum(netsales),
               ttl_litres = sum(litres)) %>% ungroup()
   # add yoy calculations
-  # number of categories & subcategories selected use to calculate lag for yoy calcs
-  # - need to multiply n_subcats by n_cats to get correct lag
-  n_lag <- n_subcats * n_cats
-  dataset <- dataset %>% group_by(cat_type, cyr, category, subcategory) %>% 
+  dataset <- dataset %>% group_by(cat_type, category, subcategory, cyr) %>% 
     summarize(netsales = sum(netsales),
-              litres = sum(litres)) %>% ungroup() %>%
-    mutate(yoy_sales = (netsales - lag(netsales, n=n_lag))/lag(netsales, n=n_lag),
-           yoy_litres = (litres - lag(litres, n=n_lag))/lag(litres, n=n_lag),
-           category = reorder(category, netsales, FUN = sum)
-    )
+              litres = sum(litres)) %>% 
+      ungroup() 
+  dataset <- dataset %>%
+    # convert cyr to number for lag calculation
+    mutate(cyr = as.numeric(as.character(cyr))) %>%
+    # group by cat_type, category, subcategory for yoy calcs
+    group_by(cat_type, category, subcategory) %>%
+    mutate(yoy_sales = (netsales - lag(netsales, n=1))/lag(netsales, n=1),
+           yoy_litres = (litres - lag(litres, n=1))/lag(litres, n=1),
+           subcategory = reorder(subcategory, netsales, FUN = sum)
+    ) %>% ungroup()
+  # restore cyr as factor
+  dataset$cyr <- as.factor(dataset$cyr)
   # add percent of totals for each category
   # - join totals to category data set and calculate percentages
   dataset <- left_join(dataset, dataset_yr, by=c("cat_type","cyr","category")) %>%
     mutate(pct_ttl_sales = netsales/ttl_sales,
-           pct_ttl_litres = litres/ttl_litres)
+           pct_ttl_litres = litres/ttl_litres) %>% ungroup()
   # add yoy chg calculations for % of total
   dataset <- dataset %>% 
+    # convert cyr to number for lag calculation
+    mutate(cyr = as.numeric(as.character(cyr))) %>%
+    # group by subcategory for yoy calcs
+    group_by(cat_type, category, subcategory) %>%
     # multiply by 100 to get point values - avoid confusion with %
-    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales, n=n_lag))*100,
-           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres, n=n_lag))*100) %>% 
+    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales, n=1))*100,
+           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres, n=1))*100) %>% 
     ungroup()
   print(dataset)
   return(dataset)
@@ -193,8 +233,8 @@ CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color,
 }
 
 # facet charts for change ----
-CatChgChart <- function (chart_title, dataset, x_var, y_var, fill_var, facet_var, fill_color, strp_color,
-                         theme_list, tunits="%") {
+CatChgChart <- function (chart_title, dataset, x_var, y_var, fill_var, facet_var, 
+                         fill_color, strp_color, theme_list, tunits="%") {
   x <- dataset
   max_y <- max(x[[y_var]], na.rm = TRUE)
   min_y <- min(x[[y_var]], na.rm = TRUE)
