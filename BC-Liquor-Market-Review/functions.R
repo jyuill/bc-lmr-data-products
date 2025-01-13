@@ -36,8 +36,9 @@ AnnualCatData <- function(dataset, n_cats, dataset_all) {
            pct_ttl_litres = litres/ttl_litres)
   # add yoy chg calculations for % of total
   dataset <- dataset %>% 
-    mutate(yoy_pcp_ttl_sales = pct_ttl_sales - lag(pct_ttl_sales, n=n_lag),
-           yoy_pcp_ttl_litres = pct_ttl_litres - lag(pct_ttl_litres, n=n_lag)) %>% 
+    # multiply by 100 to get point values - avoid confusion with %
+    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales, n=n_lag))*100,
+           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres, n=n_lag))*100) %>% 
     ungroup()
   
   return(dataset)
@@ -70,8 +71,9 @@ AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
            pct_ttl_litres = litres/ttl_litres)
   # add yoy chg calculations for % of total
   dataset <- dataset %>% 
-    mutate(yoy_pcp_ttl_sales = pct_ttl_sales - lag(pct_ttl_sales, n=n_lag),
-           yoy_pcp_ttl_litres = pct_ttl_litres - lag(pct_ttl_litres, n=n_lag)) %>% 
+    # multiply by 100 to get point values - avoid confusion with %
+    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales, n=n_lag))*100,
+           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres, n=n_lag))*100) %>% 
     ungroup()
   print(dataset)
   return(dataset)
@@ -150,7 +152,7 @@ PoPChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, t
 # Category charts ----
 # plot for category metrics
 # uses 'pos' variable so that can be used for unit or % stack charts (pos = 'stack' or 'dodge')
-# - includes programattic setting of label scales based on units provided
+# - includes programattic setting of label scales based on units provided (tunits)
 # - use going fwd; ideally, replace CatChart with this version (beer data)
 CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
                      pos, theme_list, tunits) {
@@ -160,6 +162,7 @@ CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color,
   )
   ch_title <- chart_title
   # set scales based on units - function below
+  # applied in scale_y_continuous
   label_set <- label_fmt(tunits)
   
   p <- x %>%
@@ -190,22 +193,29 @@ CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color,
 }
 
 # facet charts for change ----
-CatChgChart <- function (chart_title, dataset, x_var, y_var, fill_var, fill_color, strp_color,
-                         theme_list) {
+CatChgChart <- function (chart_title, dataset, x_var, y_var, fill_var, facet_var, fill_color, strp_color,
+                         theme_list, tunits="%") {
   x <- dataset
   max_y <- max(x[[y_var]], na.rm = TRUE)
   min_y <- min(x[[y_var]], na.rm = TRUE)
   max_val <- max(abs(min_y), abs(max_y))
-  x <- x %>% tooltip_fmt(dim = x_var, units = '%', y_var = y_var) %>% mutate(
-    category = fct_reorder(category, !!sym(y_var), .fun = sum)
+  x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var) %>% mutate(
+    #category = fct_reorder(category, !!sym(y_var), .fun = sum)
+    !!sym(facet_var) := fct_reorder(!!sym(facet_var), !!sym(y_var), .fun = sum)
     )
   ch_title <- chart_title
+  
+  # set scales based on units - function below
+  # applied in scale_y_continuous
+  label_set <- label_fmt(tunits)
+  
   p <- x %>%
-    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = !!sym(fill_var), text = tooltip_text)) +
+    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = !!sym(fill_var), 
+               text = tooltip_text)) +
     geom_col() +
     geom_hline(yintercept = 0, linetype = "solid", color = "black") +
-    facet_grid(category~.) +
-    scale_y_continuous(labels = scales::label_percent(accuracy = 1),
+    facet_grid(as.formula(paste(facet_var, "~ ."))) +
+    scale_y_continuous(labels = label_set,
                        expand = expansion(mult=c(0,0.05)),
                        limits = c(0 - max_val, max_val)) +
     scale_fill_manual(values=fill_color) +
@@ -234,13 +244,24 @@ tooltip_fmt <- function(data, dim, units, y_var) {
       } else if (units == "%") {
         data <- data %>%
           mutate(tooltip_text = paste0(!!sym(dim), ": ", 
-                                       scales::percent_format(accuracy = 0.1)
+                                       scales::percent_format(accuracy = 1)
                                        (!!sym(y_var))))
-       } else {
+       } else if (units == "dol") {
+         data <- data %>%
+           mutate(tooltip_text = paste0(!!sym(dim), ": ", 
+                                       label_currency(scale = 1, 
+                                                      suffix = "", accuracy = 1)
+                                       (!!sym(y_var))))
+        } else if (units == "num") {
+          data <- data %>%
+            mutate(tooltip_text = paste0(!!sym(dim), ": ", 
+                                       scales::number_format(scale = 1, 
+                                                             suffix = "", accuracy = 0.1)
+                                       (!!sym(y_var))))
+        } else {
          data <- data %>%
            mutate(tooltip_text = paste0(!!sym(dim), ": ", !!sym(y_var)))
        }
-     
     return(data)
 }
 
@@ -254,8 +275,12 @@ label_fmt <- function(tunits) {
     label_set <- scales::label_currency(scale = 1e-6, suffix = "M")
   } else if (tunits == "%") {
     label_set <- scales::label_percent(accuracy = 1)
-  } else {
+  } else if (tunits == "dol") {
     label_set <- scales::label_currency(scale = 1, suffix = "")
+  } else if (tunits == "num") {
+    label_set <- scales::label_number(scale = 1, suffix = "")
+  } else {
+    label_set <- scales::label_number(scale = 1, suffix = "")
   }
   return(label_set)
 }
