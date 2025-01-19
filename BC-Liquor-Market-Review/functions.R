@@ -28,7 +28,9 @@ AnnualCatTypeData <- function(dataset, dataset_all=lmr_data) {
     group_by(cat_type) %>% # only need to group for cat_type
     # multiply by 100 to get point values - avoid confusion with %
     mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales))*100,
-           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres))*100) %>% 
+           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres))*100,
+           # creating dummy variable to enable color fill in facet plot
+           dummy_fill = 'x') %>% 
       ungroup()
   # reset cyr to factor for plotting
   dataset$cyr <- as.factor(dataset$cyr)
@@ -233,15 +235,15 @@ CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color,
 }
 
 # facet charts for change ----
-CatChgChart <- function (chart_title, dataset, x_var, y_var, fill_var, facet_var, 
+CatChgChart <- function (chart_title, dataset, x_var, y_var, sort_var = "netsales", fill_var, facet_var, 
                          fill_color, strp_color, theme_list, tunits="%") {
   x <- dataset
   max_y <- max(x[[y_var]], na.rm = TRUE)
   min_y <- min(x[[y_var]], na.rm = TRUE)
   max_val <- max(abs(min_y), abs(max_y))
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var) %>% mutate(
-    #category = fct_reorder(category, !!sym(y_var), .fun = sum)
-    !!sym(facet_var) := fct_reorder(!!sym(facet_var), !!sym(y_var), .fun = sum)
+    # sort categories by y_variable -> may not always want this
+    !!sym(facet_var) := fct_reorder(!!sym(facet_var), !!sym(sort_var), .fun = sum)
     )
   ch_title <- chart_title
   

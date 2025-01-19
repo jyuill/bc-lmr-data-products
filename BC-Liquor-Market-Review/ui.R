@@ -105,7 +105,7 @@ fluidPage(
             # tabPanel 2: Beer ----
             tabPanel("Beer", value = 2,
                      fluidRow( ## fluidRow 1 ttl sales----
-                       tags$h2("Beer Sales by Year and Quarter (all categories)", 
+                       tags$h2("Beer Sales by Year and Qtr (all cat.)", 
                                class='section',
                                id="beer_sales"),
                        column(width = 6,
@@ -171,7 +171,15 @@ fluidPage(
                        column(width = 6,
                               plotlyOutput("beer_sales_yr_import_cat_pc") 
                        )
-                     ) # end fluidRow 7
+                     ), # end fluidRow 7
+                     fluidRow( ## fluidRow 8 import % chg ----
+                       column(width = 6,
+                              plotlyOutput("beer_sales_yoy_import_cat_chg")
+                       ),
+                       column(width = 6,
+                              plotlyOutput("beer_sales_yoy_import_cat_chg_pt") 
+                       )
+                     ) # end fluidRow 8
             ), # end tabPanel 2
             # tabPanel 3: Refresh Bev ----
             tabPanel("Refresh Bev", value = 3,

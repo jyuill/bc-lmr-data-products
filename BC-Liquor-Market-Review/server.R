@@ -316,7 +316,7 @@ function(input, output, session) {
     #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
     #  mutate(qoq = (netsales - lag(netsales))/lag(netsales))
   })
-  # by cat -------------------------------------------------------------------
+  # agg by cat -------------------------------------------------------------------
   ## annual data by cat
   cat('03 aggregate annual data by cat \n')
   annual_data_cat <- reactive({
@@ -366,6 +366,12 @@ function(input, output, session) {
                        y = 1,
                        yanchor='top',
                        itemheight = 15)          # Position on the y-axis
+  ## plot titles ----
+  # consistent titles to apply across same charts
+  yr_sales_cat <-  "Yrly Sales by Category"
+  yr_sales_pc_cat <-  "% of Ttl Sales by Category"
+  yr_sales_pc_chg_cat <- "Yrly % Chg Sales by Category"
+  yr_sales_pcpt_chg_cat <-  "Yrly % Pt Chg Sales % of Ttl"
   
     # TTL PLOTS ------------------------------------------------------------------
     ## ttl sales ----
@@ -463,7 +469,7 @@ function(input, output, session) {
       print(head(x))
       
       print(unique(x$cat_type))
-      ch_title <- "Net $ Sales by Cat by Yr"
+      ch_title <- "Net $ Sales by Cat. by Yr"
       p <- x %>%
         ggplot(aes(x = cyr, y = netsales, fill = cat_type, text=tooltip_text)) +
         geom_col(position = "stack") +
@@ -553,8 +559,9 @@ function(input, output, session) {
     ## plot yoy chg by cat
     output$sales_yoy_cat <- renderPlotly({
       x <- annual_data_cat()
-      CatChgChart("Yrly % Chg Sales by Cat", 
-                  x, x_var = "cyr", y_var = "yoy_sales", fill_var = "bar_col", 
+      CatChgChart(yr_sales_pc_chg_cat, 
+                  x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales",
+                  fill_var = "dummy_fill", 
                   facet_var = "cat_type",
                   fill_color = bar_col, 
                   strp_color = bar_col,
@@ -563,15 +570,14 @@ function(input, output, session) {
     ## plot for % point change by category type
     output$sales_yoy_cat_pcp <- renderPlotly({
       x <- annual_data_cat()
-      CatChgChart("Yrly % Pt Chg Sales by Cat", 
-                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", fill_var = "bar_col", 
+      CatChgChart(yr_sales_pcpt_chg_cat, 
+                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales",
+                  fill_var = "dummy_fill", 
                   facet_var = "cat_type",
                   fill_color = bar_col, 
                   strp_color = bar_col,
                   theme_xax+theme_nleg, tunits="num")
     })
-    
-    
     
     ## plot qoq chg by cat - abandoned for % point change above
     output$sales_qoq_cat <- renderPlotly({
@@ -684,7 +690,7 @@ function(input, output, session) {
                theme_xax,"M")
     })
     output$beer_sales_yr_cat_pc <- renderPlotly({
-      CatChart("Yrly % Beer Sales by Source", 
+      CatChart("Yrly % Sales by Source", 
                beer_annual_data_cat(), "cyr", "pct_ttl_sales","category", 
                beer_cat_color, "fill",
                theme_xax,tunits="%")
@@ -698,8 +704,9 @@ function(input, output, session) {
     ### facet: % change by source ----
     output$beer_sales_yoy_cat_chg <- renderPlotly({
       x <- beer_annual_data_cat()
-      CatChgChart("Yrly % Chg Beer Sales by Source", 
-               x, x_var = "cyr", y_var = "yoy_sales", fill_var = "cat_type", 
+      CatChgChart("Yrly % Chg $ Sales by Src.", 
+               x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales",
+               fill_var = "cat_type", 
                facet_var = "category",
                fill_color = bar_col, 
                strp_color = bar_col,
@@ -718,7 +725,8 @@ function(input, output, session) {
     output$beer_sales_yoy_cat_chg_pt <- renderPlotly({
       x <- beer_annual_data_cat()
       CatChgChart("Yrly % Pt Chg in Share", 
-               x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", fill_var = "cat_type", 
+               x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales", 
+               fill_var = "cat_type", 
                facet_var = "category",
                fill_color = bar_col, 
                strp_color = bar_col,
@@ -728,7 +736,8 @@ function(input, output, session) {
     output$beer_sales_qoq_cat_chg <- renderPlotly({
       x <- beer_qtr_data_cat()
       CatChgChart("Qtrly % Chg Beer Sales by Source", 
-               x, x_var = "cyr_qtr", y_var = "qoq_sales", fill_var = "cqtr", 
+               x, x_var = "cyr_qtr", y_var = "qoq_sales", sort_var = "yoy_pcp_ttl_sales", 
+               fill_var = "cqtr", 
                facet_var = "category",
                fill_color = qtr_color, 
                strp_color = bar_col,
@@ -778,7 +787,8 @@ function(input, output, session) {
     output$beer_sales_yoy_bc_cat_chg <- renderPlotly({
       x <- beer_yr_data_subcat() %>% filter(str_detect(subcategory, "BC"))
       CatChgChart("Yrly % Chg Beer Sales by BC Category", 
-               x, x_var = "cyr", y_var = "yoy_sales", fill_var = "cat_type", 
+               x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales", 
+               fill_var = "cat_type", 
                facet_var = "subcategory",
                fill_color = bar_col, 
                strp_color = bar_col,
@@ -788,7 +798,8 @@ function(input, output, session) {
     output$beer_sales_yoy_bc_cat_chg_pt <- renderPlotly({
       x <- beer_yr_data_subcat() %>% filter(str_detect(subcategory, "BC"))
       CatChgChart("Yrly % Pt Chg in Share", 
-               x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", fill_var = "cat_type", 
+               x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales",
+               fill_var = "cat_type", 
                facet_var = "subcategory",
                fill_color = bar_col, 
                strp_color = bar_col,
@@ -815,6 +826,29 @@ function(input, output, session) {
                theme_xax, "%") %>%
         layout(legend = layout_legend_vr)
     }) 
+    
+    ## plots for import beer subcategory yoy change in facets
+    output$beer_sales_yoy_import_cat_chg <- renderPlotly({
+      x <- beer_yr_data_subcat() %>% filter(category=='Import')
+      CatChgChart(yr_sales_pc_chg_cat, 
+               x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales", 
+               fill_var = "cat_type", 
+               facet_var = "subcategory",
+               fill_color = bar_col, 
+               strp_color = bar_col,
+               theme_xax+theme_nleg)
+    })
+    ## % point chg by import subcat yoy
+    output$beer_sales_yoy_import_cat_chg_pt <- renderPlotly({
+      x <- beer_yr_data_subcat() %>% filter(category=='Import')
+      CatChgChart(yr_sales_pcpt_chg_cat, 
+               x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales", 
+               fill_var = "cat_type", 
+               facet_var = "subcategory",
+               fill_color = bar_col, 
+               strp_color = bar_col,
+               theme_xax+theme_nleg, tunits = "num")
+    })
     
   # REFRESH BEV ---------------------------------------------------------------
   ## apply filters to data ---------------------------------------------------
@@ -875,20 +909,21 @@ function(input, output, session) {
     })
     #### plots by category ----
     output$refresh_sales_yr_cat <- renderPlotly({
-      CatChart("Yrly Sales by Category", 
+      CatChart(yr_sales_cat, 
                refresh_annual_data_cat(), "cyr", "netsales","category", refresh_cat_color, 
                "stack", theme_xax,"M")
     })
     output$refresh_sales_yr_cat_pc <- renderPlotly({
-      CatChart("Qtrly Sales by Category", 
+      CatChart(yr_sales_pc_cat, 
                refresh_annual_data_cat(), "cyr", "pct_ttl_sales", "category", refresh_cat_color, 
-               "stack",theme_xax+theme_xaxq, "%")
+               "stack",theme_xax, "%")
     })
     #### facet: chg category ----
     output$refresh_sales_yoy_cat_chg <- renderPlotly({
       x <- refresh_annual_data_cat()
-      CatChgChart("Yrly % Chg Sales by Category", 
-               x, x_var = "cyr", y_var = "yoy_sales", fill_var = "cat_type", 
+      CatChgChart(yr_sales_pc_chg_cat, 
+               x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales",
+               fill_var = "cat_type", 
                facet_var = "category",
                fill_color = bar_col, 
                strp_color = bar_col,
@@ -897,8 +932,9 @@ function(input, output, session) {
     # % point chg in % of total yoy
     output$refresh_sales_yoy_cat_chg_pcp <- renderPlotly({
       x <- refresh_annual_data_cat()
-      CatChgChart("Yrly % Pt Chg Sales % of Ttl.", 
-                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", fill_var = "cat_type",
+      CatChgChart(yr_sales_pcpt_chg_cat,
+                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales",
+                  fill_var = "cat_type",
                   facet_var = "category",
                   fill_color = bar_col, 
                   strp_color = bar_col,
@@ -971,16 +1007,17 @@ function(input, output, session) {
       layout(legend = layout_legend_vr)          # Position on the y-axis
     })
     output$spirits_sales_yr_cat_pc <- renderPlotly({
-      CatChart("Qtrly Sales by Category", 
+      CatChart("% of Ttl Sales by Category", 
                spirits_annual_data_cat(), "cyr", "pct_ttl_sales", "category", spirits_cat_color, 
-               "stack",theme_xax+theme_xaxq, "%") %>%
+               "stack",theme_xax+theme_xax, "%") %>%
         layout(legend = layout_legend_vr)          # Position on the y-axis
     })
     ### facet: change by category ----
     output$spirits_sales_yoy_cat <- renderPlotly({
       x <- spirits_annual_data_cat()
       CatChgChart("Yrly % Chg Sales by Category", 
-               x, x_var = "cyr", y_var = "yoy_sales", fill_var = "cat_type", 
+               x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales",
+               fill_var = "cat_type", 
                facet_var = "category",
                fill_color = bar_col, 
                strp_color = bar_col,
@@ -990,7 +1027,8 @@ function(input, output, session) {
     output$spirits_sales_yoy_cat_chg_pcp <- renderPlotly({
       x <- spirits_annual_data_cat()
       CatChgChart("Yrly % Pt Chg Sales % of Ttl.", 
-                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", fill_var = "cat_type", 
+                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales",
+                  fill_var = "cat_type", 
                   facet_var = "category",
                   fill_color = bar_col, 
                   strp_color = bar_col,
@@ -1077,14 +1115,15 @@ function(input, output, session) {
     output$wine_sales_yr_cat_pc <- renderPlotly({
       CatChart("Qtrly Sales by Category", 
                wine_annual_data_cat(), "cyr", "pct_ttl_sales", "category", wine_cat_color, 
-               "stack",theme_xax+theme_xaxq, "%") %>%
+               "stack",theme_xax+theme_xax, "%") %>%
         layout(legend = layout_legend_vr)          # Position on the y-axis
     })
     ### facet: change by category ----
     output$wine_sales_yoy_cat <- renderPlotly({
       x <- wine_annual_data_cat()
       CatChgChart("Yrly % Chg Sales by Category", 
-                  x, x_var = "cyr", y_var = "yoy_sales", fill_var = "cat_type", 
+                  x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales",
+                  fill_var = "cat_type", 
                   facet_var = "category",
                   fill_color = bar_col, 
                   strp_color = bar_col,
@@ -1094,7 +1133,8 @@ function(input, output, session) {
     output$wine_sales_yoy_cat_chg_pcp <- renderPlotly({
       x <- wine_annual_data_cat()
       CatChgChart("Yrly % Pt Chg Sales % of Ttl.", 
-                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", fill_var = "cat_type", 
+                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales",
+                  fill_var = "cat_type", 
                   facet_var = "category",
                   fill_color = bar_col, 
                   strp_color = bar_col,
