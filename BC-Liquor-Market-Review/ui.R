@@ -320,7 +320,15 @@ fluidPage(
                               ,
                               plotlyOutput("wine_sales_yoy_cat_chg_pcp", height = "1000px")
                        )
-                     ) # end fluidRow 4
+                     ), # end fluidRow 4
+                     fluidRow( ## fluidRow 5 treempap ----
+                       tags$h2("$ Sales by Region and Type", 
+                               class='section',
+                               id='wcat_sales'),
+                       column(width = 12,
+                              plotOutput("wine_sales_country_treemap")
+                       )
+                     ), # end fluidRow 5
             ), # end tabPanel 5
             # tabPanel 6: About ----
             tabPanel("About", value = 6,

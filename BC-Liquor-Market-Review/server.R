@@ -16,6 +16,8 @@ library(plotly)
 library(here)
 library(bslib)
 library(RColorBrewer)
+library(treemap)
+library(treemapify)
 
 ### colors etc ----
 # set plot theme
@@ -1139,6 +1141,29 @@ function(input, output, session) {
                   fill_color = bar_col, 
                   strp_color = bar_col,
                   theme_xax+theme_nleg+theme_facet, tunits = "num")
+    })
+    ## treemap wine countries, categories ----
+    output$wine_sales_country_treemap <- renderPlot({
+      cat("wine_country \n")
+      # wine_filtered_data()
+      data <- wine_data
+      data <- data %>% filter(end_qtr_dt == max(data$end_qtr_dt))
+      # Create a treemap
+      ggplot(data, aes(
+        area = netsales, 
+        fill = category,
+        subgroup = category,
+        label = paste(subcategory, "\n$", netsales)
+      )) +
+        geom_treemap() +
+        geom_treemap_subgroup_border(color = "black", size = 1.5) + # Border for categories
+        geom_treemap_text(
+          color = "white", place = "center",
+          grow = TRUE
+        ) +
+        labs(title = "Sales by Category and Subcategory") +
+        theme_minimal()+
+        theme(legend.position = "none")
     })
 } # end server
 
