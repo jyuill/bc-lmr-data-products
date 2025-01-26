@@ -1143,6 +1143,8 @@ function(input, output, session) {
                   theme_xax+theme_nleg+theme_facet, tunits = "num")
     })
     ## treemap wine countries, categories ----
+    ## ggplot works nicely, but...plotly (below) MUCH better!
+    ## - this version NOT shown in app (no section in ui.R)
     output$wine_sales_country_treemap <- renderPlot({
       cat("wine_country \n")
       # wine_filtered_data()
@@ -1153,7 +1155,7 @@ function(input, output, session) {
         area = netsales, 
         fill = category,
         subgroup = category,
-        label = paste(subcategory, "\n$", netsales)
+        label = paste(subcategory, "\n", scales::dollar(netsales, scale=1e-3, suffix = "k", accuracy = 1))
       )) +
         geom_treemap() +
         geom_treemap_subgroup_border(color = "black", size = 1.5) + # Border for categories
@@ -1164,7 +1166,48 @@ function(input, output, session) {
         labs(title = "Sales by Category and Subcategory") +
         theme_minimal()+
         theme(legend.position = "none")
+      
     })
+    ## PLOTLY treemap wine countries, categories ----
+    output$wine_sales_country_treemap_plot <- renderPlotly({
+      cat("wine_country \n")
+      # wine_filtered_data()
+      data <- wine_data
+      data <- data %>% filter(end_qtr_dt == max(data$end_qtr_dt))
+      plotly_data <- rbind(
+        data.frame(
+          labels = unique(data$category),    # Top-level categories
+          parents = "",                      # No parent for top level
+          values = tapply(data$netsales, data$category, sum)  # Sum of sales per category
+        ),
+        data.frame(
+          labels = data$subcategory,         # Subcategories
+          parents = data$category,           # Parent is the category
+          values = data$netsales                # Sales for each subcategory
+        )
+      )
+      # Create a treemap
+        plot_ly(
+          plotly_data,
+          type = "treemap",
+          labels = ~labels,        # Labels for subcategories
+          parents = ~parents,          # Parent categories
+          values = ~values,              # Size of each rectangle
+          textinfo = "label+values+percent entry", # Information displayed
+          texttemplate = "%{label}<br>%{value:$,.0f} (% of ttl: %{percentRoot:0.0%})",
+          hovertemplate = 
+            "<b>%{label}</b> Sales: $%{value:,} (% of cat.: %{percentParent:.1%})<extra></extra>" # Value in dollar format
+        ) %>% layout(
+            title = list(
+              text = "Most Recent Quarter (filtered)",  # Add the chart title
+              font = list(size = 16, color = "black"),             # Customize font size and color
+              x = 0.5,                                             # Center-align the title
+              xanchor = "left"                                   # Ensure proper alignment
+            )
+          )
+      
+    })
+    ## add comparison with earliest quarter in filter -> same chart, different filter
 } # end server
 
 
