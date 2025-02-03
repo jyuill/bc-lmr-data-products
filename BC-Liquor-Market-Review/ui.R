@@ -324,7 +324,7 @@ fluidPage(
                      fluidRow( ## fluidRow 5 treemap intro and note ----
                        tags$h2("$ Sales by Region and Type", 
                                class='section',
-                               id='wcat_sales'),
+                               id='wine_treemaps'),
                        tags$p("The treemap plots show nested view of sales by type within region. 
                               The '% of cat.' refers to the parent category (usually country) the subcategory sits within, 
                               while '% overall' refers to the total sales for all regions.
@@ -350,7 +350,9 @@ fluidPage(
             # tabPanel 6: About ----
             tabPanel("About", value = 6,
                      fluidRow( ## fluidRow 1 ----
-                       tags$h2("About the BC Liquor Market Review Dashboard", class='section marginb'),
+                       tags$h2("About the BC Liquor Market Review Dashboard", 
+                               class='section marginb',
+                               id = 'about'),
                        tags$p("This collection of data visualizations provides a consolidated view of BC liquor sales, 
                        compiled from the ", 
                               tags$a(href="https://www.bcldb.com/publications/liquor-market-review", 
@@ -378,15 +380,31 @@ fluidPage(
                              Further, I offer", tags$strong("no guarantees"), "as to the accuracy of the data presented here. 
                              If in doubt or using this information for important purposes, 
                              please refer to the official Liquor Market Review."),
-                      tags$strong("Note: This is an unofficial, personal project and is not affiliated with the BC Liquor Distribution Branch."),
-                      tags$h3("Who did this?"),
+                      tags$p(tags$strong("Note: This is an unofficial, personal project and is 
+                                         not affiliated with the BC Liquor Distribution Branch.")),
+                      tags$h2("Who did this?", 
+                              class='section marginb',
+                              id='who'),
                       tags$p("This dashboard was created by John Yuill, a data analyst and data product developer based in Vancouver, BC. 
                              "),
                       tags$p("For more information, questions, or feedback, 
                              you can reach me on", 
                              tags$a(href="https://www.linkedin.com/in/johnyuill/", "LinkedIn.", class="non-tab")
-                             )
-                     ) # end fluidRow 1
+                             ),
+                      tags$h2("Release Notes", 
+                              class='section marginb',
+                              id='release'),
+                      tags$h4("2025-02-02"),
+                      tags$ul(tags$li("Wine: interactive treemaps for sales by region and type, with drilldown capability.")),
+                      tags$h4("2025-01-11"),
+                      tags$ul(tags$li("Additional category-specific visualizations, with category/region breakdowns.")),
+                      tags$h4("2024-01-05"),
+                      tags$ul(tags$li("First full version of the BC Liquor Market Review Dashboard,
+                                      full category coverage.")),
+                      tags$h4("2024-10-27"),
+                      tags$ul(tags$li("Initial version of the BC Liquor Market Review Dashboard,
+                                      starting with Beer category but framed up for scaling to other categories."))
+                      ) # end fluidRow 1
               ) # end tabPanel 6
             ), # end tabsetPanel ----
           # FOOTER ----

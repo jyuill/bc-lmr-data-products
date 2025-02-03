@@ -285,7 +285,16 @@ function(input, output, session) {
         dynamic_wine_cat_chart_picker,
         tags$h4("Contents"),
           tags$a(href="#wine_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-          tags$a(href="#wine_cat_sales", "Category Sales"), tags$br()
+          tags$a(href="#wine_cat_sales", "Category Sales"), tags$br(),
+          tags$a(href="#wine_treemaps", "Regions & Types"), tags$br()
+      )
+    } else if (input$tabselected == 6) {
+      tagList(
+        tags$h4("Contents"),
+          tags$a(href="#about", "What is this?"),tags$br(),
+          tags$a(href="#who", "Who did this?"),tags$br(),
+          tags$a(href="#release", "Release Notes"),tags$br(),
+          tags$br()
       )
     }
   })
