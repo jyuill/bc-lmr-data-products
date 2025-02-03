@@ -19,6 +19,8 @@ library(RColorBrewer)
 library(treemap)
 library(treemapify)
 
+scipen <- options(scipen=999) # suppress scientific notation
+
 ### colors etc ----
 # set plot theme
 # - under 'plots' below
@@ -1142,14 +1144,15 @@ function(input, output, session) {
                   strp_color = bar_col,
                   theme_xax+theme_nleg+theme_facet, tunits = "num")
     })
-    ## treemap wine countries, categories ----
+    ## treemaps wine countries, categories ----
     ## ggplot works nicely, but...plotly (below) MUCH better!
     ## - this version NOT shown in app (no section in ui.R)
     output$wine_sales_country_treemap <- renderPlot({
       cat("wine_country \n")
       # wine_filtered_data()
       data <- wine_data
-      data <- data %>% filter(end_qtr_dt == max(data$end_qtr_dt))
+      #data <- data %>% filter(end_qtr_dt == max(data$end_qtr_dt))
+      data <- data %>% filter(cyr == max(data$cyr))
       # Create a treemap
       ggplot(data, aes(
         area = netsales, 
@@ -1171,43 +1174,180 @@ function(input, output, session) {
     ## PLOTLY treemap wine countries, categories ----
     output$wine_sales_country_treemap_plot <- renderPlotly({
       cat("wine_country \n")
-      # wine_filtered_data()
-      data <- wine_data
-      data <- data %>% filter(end_qtr_dt == max(data$end_qtr_dt))
-      plotly_data <- rbind(
-        data.frame(
-          labels = unique(data$category),    # Top-level categories
-          parents = "",                      # No parent for top level
-          values = tapply(data$netsales, data$category, sum)  # Sum of sales per category
-        ),
-        data.frame(
-          labels = data$subcategory,         # Subcategories
-          parents = data$category,           # Parent is the category
-          values = data$netsales                # Sales for each subcategory
-        )
+      data <- wine_filtered_data()
+      # filter for most recent year in data set
+      #data <- data %>% filter(end_qtr_dt == max(data$end_qtr_dt))
+      data$cyr <- as.integer(as.character(data$cyr)) # need to convert cyr from factor
+      data <- data %>% filter(cyr == max(data$cyr))
+      # get most recent qtr for title
+      dynamic_title <- paste0(as.character(max(data$end_qtr_dt)), ": Most Recent Yr/Qtr (based on filters applied)")
+      # create shape needed for plotly treemap, based on 3 levels of hierarchy
+      # - each level, starting with cat_type is considered a child subcategory of a parent category
+      # - first level (cat_type) has blank parent category
+      # - everything else has category of one level above as parent
+      plotly_data <- bind_rows(
+        cat_type_data <- data %>% group_by(cat_type) %>% summarize(netsales = sum(netsales)) %>%
+          mutate(subcategory = cat_type, category = "") %>% select(subcategory, category, netsales),
+        cat_data <- data %>% group_by(cat_type, category) %>% summarize(netsales = sum(netsales)) %>%
+          mutate(subcategory = category, 
+                 category = cat_type) %>% ungroup() %>% select(subcategory, category, netsales),
+        subcat_data <- data %>% group_by(category, subcategory) %>% summarize(netsales = sum(netsales)) %>%
+          select(subcategory, category, netsales)
       )
+      
       # Create a treemap
         plot_ly(
           plotly_data,
           type = "treemap",
-          labels = ~labels,        # Labels for subcategories
-          parents = ~parents,          # Parent categories
-          values = ~values,              # Size of each rectangle
-          textinfo = "label+values+percent entry", # Information displayed
-          texttemplate = "%{label}<br>%{value:$,.0f} (% of ttl: %{percentRoot:0.0%})",
+          labels = ~subcategory,        # Labels for subcategories
+          parents = ~category,          # Parent categories
+          values = ~netsales,              # Size of each rectangle
+          #textinfo = "label+values+percent parent", # Information displayed - overridden by texttemplate
+          branchvalues = "total",  # critical for % to add up to parent category
+          texttemplate = "%{label}<br>%{value:$,.0f} (% of cat/overall: %{percentParent:0.0%} / %{percentRoot:0.1%})",
           hovertemplate = 
-            "<b>%{label}</b> Sales: $%{value:,} (% of cat.: %{percentParent:.1%})<extra></extra>" # Value in dollar format
+            "<b>%{label}</b> Sales: $%{value:,} (% of cat./overall: %{percentParent:.0%} / %{percentRoot:0.1%})<extra></extra>" # Value in dollar format
         ) %>% layout(
             title = list(
-              text = "Most Recent Quarter (filtered)",  # Add the chart title
+              text = dynamic_title,  # Chart title - set above to reflect most recent quarter selected
               font = list(size = 16, color = "black"),             # Customize font size and color
-              x = 0.5,                                             # Center-align the title
+              x = 0,                                             # Center-align the title
               xanchor = "left"                                   # Ensure proper alignment
             )
           )
       
-    })
+    }) # end first treemap 
     ## add comparison with earliest quarter in filter -> same chart, different filter
+    output$wine_sales_country_treemap_plot_earliest <- renderPlotly({
+      cat("wine_country \n")
+      data <- wine_filtered_data()
+      # filter for earliest quarter in data set
+      #data <- data %>% filter(end_qtr_dt == min(data$end_qtr_dt))
+      data$cyr <- as.integer(as.character(data$cyr)) # need to convert cyr from factor
+      data <- data %>% filter(cyr == min(data$cyr))
+      # get end_qtr_dt for title
+      dynamic_title <- paste0(as.character(max(data$end_qtr_dt)), " for Comparison (earliest yr based on filters applied)")
+      # create shape needed for plotly treemap, based on 3 levels of hierarchy
+      # - each level, starting with cat_type is considered a child subcategory of a parent category
+      # - first level (cat_type) has blank parent category
+      # - everything else has category of one level above as parent
+      plotly_data <- bind_rows(
+        cat_type_data <- data %>% group_by(cat_type) %>% summarize(netsales = sum(netsales)) %>%
+          mutate(subcategory = cat_type, category = "") %>% select(subcategory, category, netsales),
+        cat_data <- data %>% group_by(cat_type, category) %>% summarize(netsales = sum(netsales)) %>%
+          mutate(subcategory = category, 
+                 category = cat_type) %>% ungroup() %>% select(subcategory, category, netsales),
+        subcat_data <- data %>% group_by(category, subcategory) %>% summarize(netsales = sum(netsales)) %>%
+          select(subcategory, category, netsales)
+      )
+      
+      # Create a second treemap
+        plot_ly(
+          plotly_data,
+          type = "treemap",
+          labels = ~subcategory,        # Labels for subcategories
+          parents = ~category,          # Parent categories
+          values = ~netsales,              # Size of each rectangle
+          branchvalues = "total",  # critical for % to add up to parent category
+          texttemplate = "%{label}<br>%{value:$,.0f} (% of cat/overall: %{percentParent:0.0%} / %{percentRoot:0.1%})",
+          hovertemplate = 
+            "<b>%{label}</b> Sales: $%{value:,} (% of cat./overall: %{percentParent:.0%} / %{percentRoot:0.1%})<extra></extra>" # Value in dollar format
+        ) %>% layout(
+          title = list(
+            text = dynamic_title,  # title set above to reflect earliest quarter selected
+            font = list(size = 16, color = "black"),             # Customize font size and color
+            x = 0,                                             # Center-align the title
+            xanchor = "left"                                   # Ensure proper alignment
+          )
+        )
+    }) # end second treemap
+    # treemap for biggest gainers / losers in market share
+    output$wine_sales_country_treemap_plot_chg <- renderPlotly({
+      cat("wine_country \n")
+      data <- wine_filtered_data()
+      # filter for most recent year in data set
+      #data <- data %>% filter(end_qtr_dt == max(data$end_qtr_dt))
+      data <- data %>% filter(cyr_num == max(data$cyr_num) | cyr == min(data$cyr_num))
+      data <- data %>% group_by(cyr_num, cat_type, category, subcategory) %>% 
+        summarize(
+          end_qtr_dt = max(end_qtr_dt),
+          netsales = sum(netsales)) %>% ungroup()
+      # calculate % of total for each subcategory for each year
+      data <- data %>% group_by(cat_type, cyr_num) %>% 
+        mutate(pct_ttl_sales = netsales/sum(netsales)) %>% ungroup()
+      # test - each yr should add up to 1
+      #data %>% group_by(cyr_num) %>% summarize(pct_ttl_sales = sum(pct_ttl_sales, na.rm=TRUE))
+      #data %>% group_by(cyr_num, category) %>% summarize(pct_ttl_sales = sum(pct_ttl_sales, na.rm=TRUE))
+      data_chg_all <- data.frame()
+      for(s in 1:length(unique(data$subcategory))) {
+        subcat <- unique(data$subcategory)[s]
+        data_chg <- data %>% filter(subcategory == subcat) %>% 
+          mutate(pct_ttl_sales_chg = pct_ttl_sales - lag(pct_ttl_sales, n = 1))
+        data_chg_all <- bind_rows(data_chg_all, data_chg)
+      }
+      data_chg_all <- data_chg_all %>% filter(cyr_num == max(data_chg_all$cyr_num))
+      
+      # get most recent qtr for title
+      dynamic_title <- paste0("Rel. Chg in Mkt Share Pts ",
+                              as.character(max(data$end_qtr_dt)),
+                              " v ",
+                              as.character(min(data$end_qtr_dt))," (based on filters applied)")
+      # create shape needed for plotly treemap, based on 3 levels of hierarchy
+      # - each level, starting with cat_type is considered a child subcategory of a parent category
+      # - first level (cat_type) has blank parent category
+      # - everything else has category of one level above as parent
+      plotly_data <- bind_rows(
+        cat_type_data <- data_chg_all %>% group_by(cat_type) %>% 
+          summarize(pct_ttl_sales_chg = sum(pct_ttl_sales_chg, na.rm = TRUE)) %>%
+          mutate(subcategory = cat_type, category = "") %>% 
+          select(subcategory, category, pct_ttl_sales_chg),
+        cat_data <- data_chg_all %>% group_by(cat_type, category) %>% 
+          summarize(pct_ttl_sales_chg = sum(pct_ttl_sales_chg, na.rm = TRUE)) %>%
+          mutate(subcategory = category, 
+                 category = cat_type) %>% ungroup() %>% select(subcategory, category, pct_ttl_sales_chg),
+        subcat_data <- data_chg_all %>% group_by(category, subcategory) %>% 
+          summarize(pct_ttl_sales_chg = sum(pct_ttl_sales_chg, na.rm = TRUE)) %>%
+          select(subcategory, category, pct_ttl_sales_chg)
+      )
+      plotly_data <- plotly_data %>% mutate(
+        pct_ttl_sales_chg_up = pct_ttl_sales_chg*100
+      )
+      # need to rescale 0-1 -> treemap can't deal with giving size to negative number?
+      # - calls into question whether treemap is the right chart for this
+      # - maybe a heat map would be better?
+      plotly_data <- plotly_data %>% mutate(
+        pct_ttl_sales_chg_rs = scales::rescale(pct_ttl_sales_chg, to = c(0, 1))
+      )
+      # Create treemap
+      color_scale <- brewer.pal(6, "RdYlGn")
+      plot_ly(
+        plotly_data,
+        type = "treemap",
+        labels = ~subcategory,        # Labels for subcategories
+        parents = ~category,          # Parent categories
+        values = ~pct_ttl_sales_chg_rs,              # Size of each rectangle
+        text = ~paste0(round(pct_ttl_sales_chg_up, 1),"pts"), # Text to display on hover
+        textinfo = "label+text",
+        marker = list(colors = ~pct_ttl_sales_chg_rs, colorscale = list(
+          c(0, color_scale[1]),
+          c(0.25, color_scale[2]),
+            c(0.5, color_scale[3]),
+            c(0.75, color_scale[4]),
+            c(1, color_scale[5]))),
+        #branchvalues = "remainder",  # critical for % to add up to parent category
+        #texttemplate = "%{label}<br>%{value:.1%}", # Value in dollar format
+        hovertemplate = 
+          paste("<b>%{label}</b> Mkt Share % Pts:", round(plotly_data$pct_ttl_sales_chg_up, 1),"<extra></extra>")
+      ) %>% layout(
+        title = list(
+          text = dynamic_title,  # Chart title - set above to reflect most recent quarter selected
+          font = list(size = 16, color = "black"),             # Customize font size and color
+          x = 0,                                             # Center-align the title
+          xanchor = "left"                                   # Ensure proper alignment
+        )
+      )
+      
+    })
 } # end server
 
 

@@ -321,14 +321,31 @@ fluidPage(
                               plotlyOutput("wine_sales_yoy_cat_chg_pcp", height = "1000px")
                        )
                      ), # end fluidRow 4
-                     fluidRow( ## fluidRow 5 treemap plotly----
+                     fluidRow( ## fluidRow 5 treemap intro and note ----
                        tags$h2("$ Sales by Region and Type", 
                                class='section',
                                id='wcat_sales'),
+                       tags$p("The treemap plots show nested view of sales by type within region. 
+                              The '% of cat.' refers to the parent category (usually country) the subcategory sits within, 
+                              while '% overall' refers to the total sales for all regions.
+                              Click on a region to drill down to the next level. 
+                              ")
+                     ), # end fluidRow 5
+                     fluidRow( ## row 6 first treemap plotly --
                        column(width = 12,
                               plotlyOutput("wine_sales_country_treemap_plot", width="100%", height="100%")
                        )
-                     ) # end fluidRow 5
+                     ), # end row 6
+                     fluidRow( ## row 7 second treemap plotly --
+                       column(width = 12,
+                              plotlyOutput("wine_sales_country_treemap_plot_earliest", width="100%", height="100%")
+                              )
+                     ), # end row 7
+                     fluidRow( ## row 8 third treemap plotly --
+                       column(width = 12,
+                              plotlyOutput("wine_sales_country_treemap_plot_chg", width="100%", height="100%")
+                       )
+                     ) # end row 8)
             ), # end tabPanel 5
             # tabPanel 6: About ----
             tabPanel("About", value = 6,
