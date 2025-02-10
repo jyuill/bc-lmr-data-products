@@ -1,0 +1,112 @@
+
+/* Colors used
+#f8f9fa - light gray background from bootstrap 'lux'
+#233E86 - lightest blue from palette suggested by paletton.com
+#081D58 - chart blue based on RColorBrewer - used as basis for palette suggested by paletton.com
+*/
+body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+.sidebar {
+      width: 230px; /* Set the desired width for the sidebar 250 */
+      float: left; /* Float the sidebar to the left */
+      height: 100vh; /* Full height to fill the viewport */
+      background-color: #f8f9fa; /* Optional: background color */
+      position: fixed; /* Fix the sidebar to the left side */
+      /* top: 10; *//* Ensure it starts from the top */
+      /* bottom: 0; *//* Ensure it extends to the bottom */
+    }
+.main {
+      margin-left: 260px; /* Adjust this value to match the sidebar width */
+      padding: 20px;
+      overflow: hidden;
+    }
+/* for titlePanel */
+h2 {font-size: 2em;
+    text-align: center;
+    /* border: 1px solid black; */
+    color: #f8f9fa;
+    background-color: #233E86;
+    padding:12px;
+    margin-bottom: 0px;
+}   
+/* for regular section headings */
+h2.section {font-size: 1.6em; 
+    text-align: left;
+    margin-top: 0em;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 100%;
+    /* border: 1px solid black; */
+    color: #233E86;
+    background-color: #f8f9fa;
+    }
+/* larger margin bottom - mainly for About pg */
+h2.marginb {margin-bottom: 15px;
+    }
+/* for sub-title */
+h3.sub {font-size: 1em;
+    font-weight: normal;
+    text-transform: none;
+    text-align: center;
+    margin-top: 0em;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 100%;
+    /* border: 1px solid black; */
+    color: #3D3D3D;
+    background-color: #f8f9fa;
+    }
+h4 {
+    font-size: 1em;
+    text-align: left;
+    margin-top: 0em;
+    margin-bottom: 2px;
+    padding-top: 5px;
+    padding-bottom: 0px;
+    width: 100%;
+    }
+
+/* for notes */
+/*.note {font-size: 0.9em;
+    text-align: center;
+    margin-top: 0em;
+    margin-bottom: 1em;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    width: 100%; */
+    /* border: 1px solid black; */
+    /*color: #3D3;
+    background-color: gray;
+    } */
+.note {
+  text-align: center;
+  background-color: #e9f2ff; /* Light blue background */
+  border-left: 2px solid #233E86; /* Accent border matching the primary text color */
+  border-right: 2px solid #233E86; /* Accent border matching the primary text color */
+  color: #233E86; /* Text color consistent with your site's text */
+  padding: 5px 0px 5px 0px;
+  margin: -4px 0px 8px 0px;
+  font-size: 0.9em;
+  font-style: bold;
+  border-radius: 4px; /* Slightly rounded corners */
+}
+
+
+/* for bold text - override bootstrap theme */
+strong {color: #233E86;
+        font-weight: bold !important;
+        font-size: 1.1em;
+        }
+
+a.non-tab {color: #081D58;
+    text-decoration: underline;
+    }
+
+ul.sidebar-nav {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
