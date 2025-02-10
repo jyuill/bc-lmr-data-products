@@ -170,7 +170,8 @@ TtlChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, t
 
 # plot for period-over-period change in sales
 # - accommodates fill colors based on variable; use with single overall dimension if no breakdown
-PoPChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, theme_list, tunits) {
+PoPChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
+                     theme_list, tunits) {
   x <- dataset
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
   max_y <- max(x[[y_var]], na.rm = TRUE)
@@ -178,7 +179,8 @@ PoPChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, t
   max_val <- max(abs(min_y), abs(max_y))
   ch_title <- chart_title
   p <- x %>% 
-    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = !!sym(fill_var), text = tooltip_text)) +
+    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = !!sym(fill_var), 
+               text = tooltip_text)) +
     geom_col() +
     geom_hline(yintercept = 0, linetype = "solid", color = "black") +
     scale_y_continuous(labels = scales::label_percent(accuracy = 1),

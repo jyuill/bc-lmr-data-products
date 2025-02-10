@@ -62,8 +62,8 @@ fluidPage(
           class = "main",
           tabsetPanel( # tabsetPanel ----
             id = "tabselected",
-            # tabPanel 1: Beer ----
-            tabPanel("Beer", value = 1,
+            # tabPanel 1: Net $ ----
+            tabPanel("Net $ Sales", value = 1,
                      fluidRow( ## fluidRow 1 ttl sales----
                        tags$h2("Beer Sales by Year and Qtr (all cat.)", 
                                class='section',
@@ -141,9 +141,87 @@ fluidPage(
                        )
                      ) # end fluidRow 8
             ), # end tabPanel 1
-            
-            # tabPanel 2: About ----
-            tabPanel("About", value = 2,
+            # tabPanel 2: Litres $ ----
+            tabPanel("Litre Sales", value = 2,
+                     fluidRow( ## fluidRow 1 ttl sales----
+                               tags$h2("Litre Sales by Year and Qtr (all cat.)", 
+                                       class='section',
+                                       id="litre_sales"),
+                               column(width = 6,
+                                      plotlyOutput("litre_sales_yr")
+                               ),
+                               column(width = 6,
+                                      plotlyOutput("litre_sales_qtr")
+                               )
+                     ), # end fluidRow 1
+                     fluidRow( ## fluidRow 2 ----
+                               column(width = 6,
+                                      plotlyOutput("litre_sales_yoy", height = "200px")
+                               ),
+                               column(width = 6,
+                                      plotlyOutput("litre_sales_qoq", height = "200px")
+                               )
+                     ), # end fluidRow 2
+                     fluidRow( ## fluidRow 3 src sales ----
+                               tags$h2("Litre Sales by Source", 
+                                       class='section',
+                                       id="bsrc_sales"),
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yr_cat")
+                               ),
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yr_cat_pc")
+                               )
+                     ), # end fluidRow 3
+                     fluidRow( ## fluidRow 4 ----
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yoy_cat_chg", height = "500px")
+                               ),
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yoy_cat_chg_pt", height = "500px")
+                               )
+                     ), # end fluidRow 4
+                     fluidRow( ## fluidRow 5 bc cat ----
+                               tags$h2("BC-Produced Beer by Category: $ & %", 
+                                       class='section',
+                                       id="bcat_sales"),
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yr_bc_cat")
+                               ),
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yr_bc_cat_pc")
+                               ),
+                     ), # end fluidRow 5
+                     fluidRow( ## fluidRow 6 BC beer subcat % chg ----
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yoy_bc_cat_chg")
+                               ),
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yoy_bc_cat_chg_pt") 
+                               )
+                     ), # end fluidRow 6
+                     fluidRow( ## fluidRow 7 import ----
+                               tags$h2("Import Beer Sales by Ctry/Region", 
+                                       class='section',
+                                       id="bimp_sales"),
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yr_import_cat")
+                               ),
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yr_import_cat_pc") 
+                               )
+                     ), # end fluidRow 7
+                     fluidRow( ## fluidRow 8 import % chg ----
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yoy_import_cat_chg")
+                               ),
+                               column(width = 6,
+                                      #plotlyOutput("beer_sales_yoy_import_cat_chg_pt") 
+                               )
+                     ) # end fluidRow 8
+            ), # end tabPanel 2
+            # tabPanel 3: About ----
+            tabPanel("About", value = 3,
                      fluidRow( ## fluidRow 1 ----
                        tags$h2("About the BC Liquor Market Review Dashboard", 
                                class='section marginb',
@@ -200,7 +278,7 @@ fluidPage(
                       tags$ul(tags$li("Initial version of the BC Liquor Market Review Dashboard,
                                       starting with Beer category but framed up for scaling to other categories."))
                       ) # end fluidRow 1
-              ) # end tabPanel 2
+              ) # end tabPanel 3
             ), # end tabsetPanel ----
           # FOOTER ----
           tags$div(
