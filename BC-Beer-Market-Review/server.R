@@ -55,7 +55,7 @@ source('functions.R')
 function(input, output, session) {
   # experiment with different bs themes
   #bslib::bs_themer()
-  # toggle sidebar ----
+  # xtoggle sidebar ----
   # for toggling sidebar, using shinyjs 
   # - NOT USED - clunky
   # - makes sidebar disappear / appear but mainPanel doesn't expand - pointless
@@ -236,13 +236,12 @@ function(input, output, session) {
         tags$p(lmr_max_note, class="note"),
         dynamic_cyr,
         dynamic_qtr,
-        dynamic_cat,
+        dynamic_beer_cat,
         tags$h4("Contents"),
-        tags$a(href="#ttl_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-        tags$a(href="#cat_sales", "Category Sales: Yr & Qtr"),tags$br(),
-        tags$br(),
-        tags$h4("Notes"),
-        tags$p("Years & Quarters are calendar yr, not LDB fiscal year")
+        tags$a(href="#beer_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+        tags$a(href="#bsrc_sales", "Sales by Source"), tags$br(),
+        tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
+        tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br()
       )
     } else if (input$tabselected == 2) {
       tagList(
@@ -251,52 +250,20 @@ function(input, output, session) {
         dynamic_qtr,
         dynamic_beer_cat,
         tags$h4("Contents"),
-          tags$a(href="#beer_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-          tags$a(href="#bsrc_sales", "Sales by Source"), tags$br(),
+          tags$a(href="#beer_sales", "Ttl Litres by Yr & Qtr"),tags$br(),
+          tags$a(href="#bsrc_sales", "Litres by Source"), tags$br(),
           tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
-          tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br()
+          tags$a(href="#bimp_sales","Import Litres by Ctry"), tags$br()
       )
     } else if (input$tabselected == 3) {
       tagList(
-        tags$p(lmr_max_note, class="note"),
-        dynamic_cyr,
-        dynamic_qtr,
-        dynamic_refresh_cat,
         tags$h4("Contents"),
-          tags$a(href="#refresh_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-          tags$a(href="#refresh_cat_sales", "Category Sales"), tags$br()
+        tags$a(href="#about", "What is this?"),tags$br(),
+        tags$a(href="#who", "Who did this?"),tags$br(),
+        tags$a(href="#release", "Release Notes"),tags$br(),
+        tags$br()
       )
-    } else if (input$tabselected == 4) {
-      tagList(
-        tags$p(lmr_max_note, class="note"),
-        dynamic_cyr,
-        dynamic_qtr,
-        dynamic_spirits_cat,
-        tags$h4("Contents"),
-          tags$a(href="#spirits_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-          tags$a(href="#spirits_cat_sales", "Category Sales"), tags$br()
-      )
-    } else if (input$tabselected == 5) {
-      tagList(
-        tags$p(lmr_max_note, class="note"),
-        dynamic_cyr,
-        dynamic_qtr,
-        dynamic_wine_cat_picker,
-        dynamic_wine_cat_chart_picker,
-        tags$h4("Contents"),
-          tags$a(href="#wine_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-          tags$a(href="#wine_cat_sales", "Category Sales"), tags$br(),
-          tags$a(href="#wine_treemaps", "Regions & Types"), tags$br()
-      )
-    } else if (input$tabselected == 6) {
-      tagList(
-        tags$h4("Contents"),
-          tags$a(href="#about", "What is this?"),tags$br(),
-          tags$a(href="#who", "Who did this?"),tags$br(),
-          tags$a(href="#release", "Release Notes"),tags$br(),
-          tags$br()
-      )
-    }
+    } 
   })
   # TOTALS --------------------------------------------------------------
   # apply filters to data ---------------------------------------------------
@@ -404,20 +371,10 @@ function(input, output, session) {
     })
     cat("02 aggregate annual & qtr totals \n")
     ## 2. annual and qtr totals ---------------------------------------------------
-    #beer_annual_data <- reactive({
-    #   beer_filtered_data() %>% group_by(cat_type, cyr) %>%
-    #    summarize(netsales = sum(netsales)) %>%
-    #    mutate(yoy = (netsales - lag(netsales))/lag(netsales))
-    #})
     beer_annual_data <- reactive({
       AnnualCatTypeData(beer_filtered_data())
     })
     beer_qtr_data <- reactive({
-      #beer_filtered_data() %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
-      #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
-      #  mutate(qoq = (netsales - lag(netsales))/lag(netsales),
-      #         yr_qtr = paste(cyr, cqtr, sep = "-")
-      #  )
       QtrData(beer_filtered_data(), length(input$qtr_check))
     })
     ## PLOTS ----
@@ -464,9 +421,6 @@ function(input, output, session) {
       n_qtr <- length(input$qtr_check)
       n_cats <- length(input$beer_cat_check)
       QtrCatData(beer_filtered_data(), n_cats, n_qtr)
-      #beer_filtered_data() %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, category) %>%
-      #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
-      #  mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
     })
     ## PLOTS by category (source / origin) ----
     output$beer_sales_yr_cat <- renderPlotly({
@@ -534,7 +488,7 @@ function(input, output, session) {
     n_cats <- length(unique(beer_data$category))
     n_subcats <- length(unique(beer_data$subcategory))
     beer_annual_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_data)
-    ## bc beer subcat ----
+    ## BC subcat ----
     ## PLOTS by BC subcategory ----
     output$beer_sales_yr_bc_cat <- renderPlotly({
       #data <- beer_bc_yr_subcat()
@@ -572,7 +526,7 @@ function(input, output, session) {
                strp_color = bar_col,
                theme_xax+theme_nleg, tunits = "num")
     })
-    ## import beer subcat ----
+    ## IMPORT beer subcat ----
     
     ## plots by import country/region
     output$beer_sales_yr_import_cat <- renderPlotly({
@@ -617,7 +571,7 @@ function(input, output, session) {
                theme_xax+theme_nleg, tunits = "num")
     })
     
-    ## LITRES ----
+    # LITRES ----
     ## beer: apply filters to data ---------------------------------------------------
     cat("01 apply beer filters \n")
     ## 1. Filter the data set based on the selected categories ----
@@ -664,6 +618,175 @@ function(input, output, session) {
       PoPChart("% Chg Beer Sales - Qtr", beer_qtr_data(), "cyr_qtr", 
                "qoq_litres", "cqtr", qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "%")
+    })
+    ## CAT - origin ----
+    ## data by cat ----
+    ## yoy = $ SALES ONLY
+    beer_annual_data_cat <- reactive({
+      n_cats <- length(input$beer_cat_check)
+      AnnualCatData(beer_filtered_data(), beer_data)
+    })
+    # test annual category data
+    n_cats <- length(unique(beer_data$category))
+    beer_annual_test <- AnnualCatData(beer_data, beer_data)
+    
+    # qtr
+    beer_qtr_data_cat <- reactive({
+      # need to base the qoq on the number of cats chosen in filter
+      n_qtr <- length(input$qtr_check)
+      n_cats <- length(input$beer_cat_check)
+      QtrCatData(beer_filtered_data(), n_cats, n_qtr)
+    })
+    ## PLOTS by category (source / origin) ----
+    output$litre_sales_yr_cat <- renderPlotly({
+      CatChart("Yrly Beer Sales by Source", 
+               beer_annual_data_cat(), "cyr", "litres","category", 
+               beer_cat_color, "stack",
+               theme_xax,"M")
+    })
+    output$litre_sales_yr_cat_pc <- renderPlotly({
+      CatChart("Yrly % Sales by Source", 
+               beer_annual_data_cat(), "cyr", "pct_ttl_litres","category", 
+               beer_cat_color, "fill",
+               theme_xax,tunits="%")
+    })
+    # qtr - abandoned in favour of % of annual ttl
+    output$litre_sales_qtr_cat <- renderPlotly({
+      CatChart("Qtrly Litres by Source", 
+               beer_qtr_data_cat(), "cyr_qtr", "litres", "category", beer_cat_color, "stack",
+               theme_xax+theme_xaxq, "M")
+    })
+    ### facet: % change by source ----
+    output$litre_sales_yoy_cat_chg <- renderPlotly({
+      x <- beer_annual_data_cat()
+      CatChgChart("Yrly % Chg Litres by Src.", 
+                  x, x_var = "cyr", y_var = "yoy_litres", sort_var = "litres",
+                  fill_var = "cat_type", 
+                  facet_var = "category",
+                  fill_color = bar_col, 
+                  strp_color = bar_col,
+                  theme_xax+theme_nleg)
+    })
+    
+    # % point chg by src yoy
+    output$litre_sales_yoy_cat_chg_pt <- renderPlotly({
+      x <- beer_annual_data_cat()
+      CatChgChart("Yrly % Pt Chg in Share", 
+                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_litres", 
+                  sort_var = "litres", 
+                  fill_var = "cat_type", 
+                  facet_var = "category",
+                  fill_color = bar_col, 
+                  strp_color = bar_col,
+                  theme_xax+theme_nleg, tunits = "num")
+    })
+    # qtr % chg by src - abandoned in favour of % of annual total
+    output$litre_sales_qoq_cat_chg <- renderPlotly({
+      x <- beer_qtr_data_cat()
+      CatChgChart("Qtrly % Chg Beer Sales by Source", 
+                  x, x_var = "cyr_qtr", y_var = "qoq_litres", 
+                  sort_var = "yoy_pcp_ttl_litres", 
+                  fill_var = "cqtr", 
+                  facet_var = "category",
+                  fill_color = qtr_color, 
+                  strp_color = bar_col,
+                  theme_xax+theme_xaxq+theme_nleg)
+    })
+    ## SUBCAT data ----
+    # annual
+    beer_yr_data_subcat <- reactive({
+      cat("beer_subcat \n")
+      n_cats <- length(unique(beer_filtered_data()$category))
+      n_subcats <- length(unique(beer_filtered_data()$subcategory))
+      AnnualSubCatData(beer_filtered_data(), n_cats, n_subcats, beer_annual_data_cat())
+    })
+    # test
+    n_cats <- length(unique(beer_data$category))
+    n_subcats <- length(unique(beer_data$subcategory))
+    beer_annual_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_data)
+    ## BC subcat ----
+    ## PLOTS by BC subcategory ----
+    output$litre_sales_yr_bc_cat <- renderPlotly({
+      #data <- beer_bc_yr_subcat()
+      data <- beer_yr_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+      CatChart("Litres by BC Category", 
+               data, "cyr", "litres","subcategory", 
+               beer_bc_cat_color, "stack", theme_xax, "M")
+    })
+    ## plot % of total sales by bc subcategory
+    output$litre_sales_yr_bc_cat_pc <- renderPlotly({
+      data <- beer_yr_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+      CatChart("Beer Sales % by BC Category", 
+               data, "cyr", "pct_ttl_litres","subcategory", beer_bc_cat_color, "fill", 
+               theme_xax, "%")
+    })
+    ## plots for bc beer subcategory yoy change in facets
+    output$litre_sales_yoy_bc_cat_chg <- renderPlotly({
+      x <- beer_yr_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+      CatChgChart("Yrly % Chg Litres by BC Category", 
+                  x, x_var = "cyr", y_var = "yoy_litres", sort_var = "litres", 
+                  fill_var = "cat_type", 
+                  facet_var = "subcategory",
+                  fill_color = bar_col, 
+                  strp_color = bar_col,
+                  theme_xax+theme_nleg)
+    })
+    ## % point chg by bc subcat yoy
+    output$litre_sales_yoy_bc_cat_chg_pt <- renderPlotly({
+      x <- beer_yr_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+      CatChgChart("Yrly % Pt Chg in Share", 
+                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_litres", sort_var = "litres",
+                  fill_var = "cat_type", 
+                  facet_var = "subcategory",
+                  fill_color = bar_col, 
+                  strp_color = bar_col,
+                  theme_xax+theme_nleg, tunits = "num")
+    })
+    
+    ## IMPORT beer subcat ----
+    ## plots by import country/region
+    output$litre_sales_yr_import_cat <- renderPlotly({
+      cat('beer_import chart \n')
+      data <- beer_yr_data_subcat() %>% filter(category=='Import')
+      print(data)
+      CatChart("Beer $ by Import Ctry/Reg", 
+               data, "cyr", "litres","subcategory", beer_pal, "stack", 
+               theme_xax, "M") %>%
+        layout(legend = layout_legend_vr)
+    }) 
+    
+    output$litre_sales_yr_import_cat_pc <- renderPlotly({
+      cat('beer_import_pc chart \n')
+      data <- litre_yr_data_subcat() %>% filter(category=='Import')
+      CatChart("Litre % by Import Ctry/Reg", 
+               data, "cyr", "pct_ttl_litres","subcategory", beer_pal, "fill", 
+               theme_xax, "%") %>%
+        layout(legend = layout_legend_vr)
+    }) 
+    
+    ## plots for import beer subcategory yoy change in facets
+    output$litre_sales_yoy_import_cat_chg <- renderPlotly({
+      x <- beer_yr_data_subcat() %>% filter(category=='Import')
+      CatChgChart(yr_litres_pc_chg_cat, 
+                  x, x_var = "cyr", y_var = "yoy_sales", 
+                  sort_var = "litres", 
+                  fill_var = "cat_type", 
+                  facet_var = "subcategory",
+                  fill_color = bar_col, 
+                  strp_color = bar_col,
+                  theme_xax+theme_nleg)
+    })
+    ## % point chg by import subcat yoy
+    output$litre_sales_yoy_import_cat_chg_pt <- renderPlotly({
+      x <- beer_yr_data_subcat() %>% filter(category=='Import')
+      CatChgChart(yr_litres_pcpt_chg_cat, 
+                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_litres", 
+                  sort_var = "litres", 
+                  fill_var = "cat_type", 
+                  facet_var = "subcategory",
+                  fill_color = bar_col, 
+                  strp_color = bar_col,
+                  theme_xax+theme_nleg, tunits = "num")
     })
     
     ## WINE ---------------------------------------------------------------

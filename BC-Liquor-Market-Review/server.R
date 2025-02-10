@@ -55,7 +55,7 @@ source('functions.R')
 function(input, output, session) {
   # experiment with different bs themes
   #bslib::bs_themer()
-  # toggle sidebar ----
+  # xtoggle sidebar ----
   # for toggling sidebar, using shinyjs 
   # - NOT USED - clunky
   # - makes sidebar disappear / appear but mainPanel doesn't expand - pointless

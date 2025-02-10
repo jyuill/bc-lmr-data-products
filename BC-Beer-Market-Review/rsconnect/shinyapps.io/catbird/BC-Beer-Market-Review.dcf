@@ -1,0 +1,12 @@
+name: BC-Beer-Market-Review
+title: BC-Beer-Market-Review
+username: catbird
+account: catbird
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13951004
+bundleId: 9773387
+url: https://catbird.shinyapps.io/BC-Beer-Market-Review/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
