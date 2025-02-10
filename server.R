@@ -236,22 +236,67 @@ function(input, output, session) {
         tags$p(lmr_max_note, class="note"),
         dynamic_cyr,
         dynamic_qtr,
-        dynamic_beer_cat,
+        dynamic_cat,
         tags$h4("Contents"),
-        tags$a(href="#beer_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-        tags$a(href="#bsrc_sales", "Sales by Source"), tags$br(),
-        tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
-        tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br()
+        tags$a(href="#ttl_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+        tags$a(href="#cat_sales", "Category Sales: Yr & Qtr"),tags$br(),
+        tags$br(),
+        tags$h4("Notes"),
+        tags$p("Years & Quarters are calendar yr, not LDB fiscal year")
       )
     } else if (input$tabselected == 2) {
       tagList(
+        tags$p(lmr_max_note, class="note"),
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_beer_cat,
         tags$h4("Contents"),
-        tags$a(href="#about", "What is this?"),tags$br(),
-        tags$a(href="#who", "Who did this?"),tags$br(),
-        tags$a(href="#release", "Release Notes"),tags$br(),
-        tags$br()
+          tags$a(href="#beer_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+          tags$a(href="#bsrc_sales", "Sales by Source"), tags$br(),
+          tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
+          tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br()
       )
-    } 
+    } else if (input$tabselected == 3) {
+      tagList(
+        tags$p(lmr_max_note, class="note"),
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_refresh_cat,
+        tags$h4("Contents"),
+          tags$a(href="#refresh_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+          tags$a(href="#refresh_cat_sales", "Category Sales"), tags$br()
+      )
+    } else if (input$tabselected == 4) {
+      tagList(
+        tags$p(lmr_max_note, class="note"),
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_spirits_cat,
+        tags$h4("Contents"),
+          tags$a(href="#spirits_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+          tags$a(href="#spirits_cat_sales", "Category Sales"), tags$br()
+      )
+    } else if (input$tabselected == 5) {
+      tagList(
+        tags$p(lmr_max_note, class="note"),
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_wine_cat_picker,
+        dynamic_wine_cat_chart_picker,
+        tags$h4("Contents"),
+          tags$a(href="#wine_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
+          tags$a(href="#wine_cat_sales", "Category Sales"), tags$br(),
+          tags$a(href="#wine_treemaps", "Regions & Types"), tags$br()
+      )
+    } else if (input$tabselected == 6) {
+      tagList(
+        tags$h4("Contents"),
+          tags$a(href="#about", "What is this?"),tags$br(),
+          tags$a(href="#who", "Who did this?"),tags$br(),
+          tags$a(href="#release", "Release Notes"),tags$br(),
+          tags$br()
+      )
+    }
   })
   # TOTALS --------------------------------------------------------------
   # apply filters to data ---------------------------------------------------
