@@ -19,6 +19,9 @@ library(lubridate)
 library(scales)
 library(plotly)
 library(here)
+library(DBI)
+library(duckdb)
+library(duckplyr)
 
 # set color palette
 # - bar and line colors
@@ -41,7 +44,7 @@ openai_model <- "gpt-4o"
 # large database, you wouldn't want to retrieve all the data like this, but
 # instead either hand-write the schema or write your own routine that is more
 # efficient than system_prompt().
-system_prompt_str <- system_prompt(dbGetQuery(conn, "SELECT * FROM tips"), "tips")
+#system_prompt_str <- system_prompt(dbGetQuery(conn, "SELECT * FROM tips"), "tips")
 
 # This is the greeting that should initially appear in the sidebar when the app
 # loads.
@@ -55,12 +58,20 @@ function(input, output, session) {
   # query database via separate file for tidyness
   ## all data ----
   source('query.R')
+  lmr_data_bu <- lmr_data
+  # duckdb ---
+  con <- dbConnect(duckdb::duckdb())
+  #con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")  # Use in-memory DB
+  duckdb::dbWriteTable(con, "lmr_data_duck", lmr_data, overwrite = TRUE)
+  lmr_data <- dbReadTable(con, "lmr_data_duck")
+  duckdb::dbDisconnect(con)
+  
   # apply to yr filter as default to avoid over-crowding
   lmr_max <- max(lmr_data$cyr_num) # get current latest yr
   lmr_yrs <- 6 # determine how many yrs back to go
   lmr_recent <- lmr_data %>% filter(cyr_num > lmr_max-lmr_yrs)
+  # max date for top of sidebar on pg, set in dynamic sidebar
   lmr_max_date <- max(lmr_data$end_qtr_dt)
-  # for top of sidebar on pg, set in dynamic sidebar
   lmr_max_note <- paste0("Data as of: ", format(lmr_max_date, "%b %d %Y"))
   
   ## year filter ----
