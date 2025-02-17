@@ -28,19 +28,13 @@ fluidPage(
     # 2 ways to do this: 2) tags$link in tags$head or 1) includeCSS
     # - same effect; 2 more scalable but 1 allows to see the CSS file in the IDE, without needing browser
     includeCSS("www/style.css"),
-    tags$head(
-      #  tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
-      # style for toggle button
-      tags$style(
-        "#toggleSidebar {margin-bottom: 4px;
-        padding: 2px;}"
-      )
-    ),
     # Application title
-    titlePanel("BC Liquor Market Report LLM Dashboard"),
-    tags$h3("An (unofficial) consolidated view of quarterly BC Liquor Sales data, 
+    tags$div(class = "title-container",
+             tags$h1("BC Liquor Market Report LLM Dashboard", class='title'),
+             tags$h3("An (unofficial) consolidated view of quarterly BC Liquor Sales data, 
             compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources", class='non-tab'),
-            class = "sub"),
+                     class = "sub")
+    ),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(

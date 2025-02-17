@@ -9,12 +9,17 @@ body {
       margin: 0;
       padding: 0;
     }
+.container-fluid {
+  margin: 0;
+  padding: 0;
+}
 .sidebar {
       width: 230px; /* Set the desired width for the sidebar 250 */
       float: left; /* Float the sidebar to the left */
       height: 100vh; /* Full height to fill the viewport */
       background-color: #f8f9fa; /* Optional: background color */
       position: fixed; /* Fix the sidebar to the left side */
+      margin-left: 10px;
       /* top: 10; *//* Ensure it starts from the top */
       /* bottom: 0; *//* Ensure it extends to the bottom */
     }
@@ -24,6 +29,26 @@ body {
       overflow: hidden;
     }
 /* for titlePanel */
+.title-container {
+  background-color: #233E86;
+  padding: 0px;
+  margin: 0px 0px 6px 0px;
+  width: 100%; 
+  /*width: 100vw;*/
+  /*height: 100px;*/
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /*border: 1px solid red;*/
+}
+h1.title {
+  font-size: 2.6em;
+  color: #f8f9fa;
+  margin: 10px 0px 0px 0px;
+  padding: 22px 0px 14px 0px;
+  /*border: 1px solid red;*/
+}
 h2 {font-size: 2em;
     text-align: center;
     /* border: 1px solid black; */
@@ -37,7 +62,7 @@ h2.section {font-size: 1.6em;
     text-align: left;
     margin-top: 0em;
     padding-top: 5px;
-    padding-bottom: 5px;
+    padding-bottom: 0px;
     width: 100%;
     /* border: 1px solid black; */
     color: #233E86;
@@ -51,11 +76,13 @@ h3.sub {font-size: 1em;
     font-weight: normal;
     text-transform: none;
     text-align: center;
-    margin-top: 0em;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    margin-top: 5px;
+    margin-bottom: 0px;
+    padding-top: 10px;
+    padding-bottom: 12px;
     width: 100%;
-    /* border: 1px solid black; */
+    border: 1px solid #e9f2ff;
+    /*border-bottom: 1px solid #233E86;*/
     color: #3D3D3D;
     background-color: #f8f9fa;
     }

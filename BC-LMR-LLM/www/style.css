@@ -8,13 +8,19 @@ body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      /*border: 1px solid red;*/
     }
+.container-fluid {
+  margin: 0;
+  padding: 0;
+}
 .sidebar {
       width: 380px; /* Set the desired width for the sidebar 250 */
       /* float: left;*/ /* Float the sidebar to the left */
       /* height: 100vh; */ /* fill the viewport - not needed because you want to see chat input field */
       background-color: #f8f9fa; /* Optional: background color */
       position: fixed; /* Fix the sidebar to the left side */
+      margin-left: 8px;
       /* top: 10; *//* Ensure it starts from the top */
       /* bottom: 0; *//* Ensure it extends to the bottom */
     }
@@ -31,20 +37,36 @@ shiny-chat-message table th {
       overflow: hidden;
     }
 /* for titlePanel */
-h2 {font-size: 2em;
+.title-container {
+  background-color: #233E86;
+  padding: 0px;
+  margin: 0px 0px 6px 0px;
+  width: 100%; 
+  /*width: 100vw;*/
+  /*height: 100px;*/
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /*border: 1px solid red;*/
+}
+/* titlePanel - using h1 for more control; otherwise h2 */
+h1.title {font-size: 2.2em;
     text-align: center;
     /* border: 1px solid black; */
     color: #f8f9fa;
     background-color: #233E86;
-    padding:12px;
-    margin-bottom: 0px;
+    padding-top: 10px;
+    margin-top: 18px;
+    margin-bottom: 12px;
+    /*border: 1px solid orange;*/
 }   
 /* for regular section headings */
 h2.section {font-size: 1.6em; 
     text-align: left;
-    margin-top: 0em;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    margin-top: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
     width: 100%;
     /* border: 1px solid black; */
     color: #233E86;
@@ -58,9 +80,10 @@ h3.sub {font-size: 1em;
     font-weight: normal;
     text-transform: none;
     text-align: center;
-    margin-top: 0em;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    margin-top: 5px;
+    margin-bottom: 0px;
+    padding-top: 8px;
+    padding-bottom: 10px;
     width: 100%;
     border: 1px solid #e9f2ff;
     color: #3D3D3D;

@@ -87,7 +87,9 @@ Example of question answering:
 
 ## Task: Providing general help
 
-If the user provides a vague help request, like "Help" or "Show me instructions", describe your own capabilities in a helpful way, including examples of questions they can ask. Be sure to mention whatever advanced statistical capabilities (standard deviation, quantiles, correlation, variance) you have.
+If the user provides a vague help request, like "Help" or "Show me instructions", 
+describe your own capabilities in a helpful way, including examples of questions they can ask. 
+Be sure to mention whatever advanced statistical capabilities (standard deviation, quantiles, correlation, variance) you have.
 
 ## DuckDB SQL tips
 

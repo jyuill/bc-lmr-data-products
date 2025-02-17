@@ -40,25 +40,27 @@ qtr_color <- c("Q1"=qpal[5], "Q2"=qpal[7], "Q3"=qpal[8], "Q4"=qpal[9])
 # load functions used - mostly plots
 source('functions.R')
 
-## GPT integration -----------------------------------------------------------
+# SRC: get data from AWS ----
+# query database via separate file for tidyness
+## all data ----
+source('query.R')
+lmr_data_bu <- lmr_data
+
+# GPT integration -----------------------------------------------------------
 # gpt-4o does much better than gpt-4o-mini, especially at interpreting plots
 openai_model <- "gpt-4o"
 
-## DATA LLM -----------------------------------------------------------
+# DATA LLM -----------------------------------------------------------
 # connection set here and ended at end of session 
 con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:", read_only = TRUE)  # Use in-memory DB
 # close when done
 onStop(function() {
   dbDisconnect(con)
 })
-
-# get data ----
-# query database via separate file for tidyness
-## all data ----
-source('query.R')
-lmr_data_bu <- lmr_data
+## duckdb tbl ----
 # set up duckdb table
 duckdb::dbWriteTable(con, "lmr_data_duck", lmr_data, overwrite = TRUE)
+## for test queries see test-queries.R
 
 # system prompt ----
 # Dynamically create the system prompt, based on the real data. For an actually
@@ -75,26 +77,11 @@ greeting <- paste(readLines('greeting.md'), collapse = "\n")
 
 # Server logic -----
 function(input, output, session) {
-  # duckdb ---
-  # connection set here and ended at end of session (bottom)
-  #con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")  # Use in-memory DB
-  
-  # get data ----
-  # query database via separate file for tidyness
-  ## all data ----
-  #source('query.R')
-  #lmr_data_bu <- lmr_data
-  # set up duckdb table
-  #duckdb::dbWriteTable(con, "lmr_data_duck", lmr_data, overwrite = TRUE)
-  #lmr_data <- dbReadTable(con, "lmr_data_duck")
-  #duckdb::dbDisconnect(con) # leave connection open for session
-  # test duckdb
-  #lmr_test <- dbGetQuery(con, "SELECT * FROM lmr_data_duck LIMIT 10")
   
   # apply to yr filter as default to avoid over-crowding
-  lmr_max <- max(lmr_data$cyr_num) # get current latest yr
-  lmr_yrs <- 6 # determine how many yrs back to go
-  lmr_recent <- lmr_data %>% filter(cyr_num > lmr_max-lmr_yrs)
+  #lmr_max <- max(lmr_data$cyr_num) # get current latest yr
+  #lmr_yrs <- 6 # determine how many yrs back to go
+  #lmr_recent <- lmr_data %>% filter(cyr_num > lmr_max-lmr_yrs)
   # max date for top of sidebar on pg, set in dynamic sidebar
   lmr_max_date <- max(lmr_data$end_qtr_dt)
   lmr_max_note <- paste0("Data as of: ", format(lmr_max_date, "%b %d %Y"))
@@ -131,10 +118,6 @@ function(input, output, session) {
       mutate(qoq = (netsales - lag(netsales))/lag(netsales),
              yr_qtr = paste(cyr, cqtr, sep = "-")
       )
-    # for testing
-    #qtr_data <- lmr_data %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>% 
-    #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
-    #  mutate(qoq = (netsales - lag(netsales))/lag(netsales))
   })
   # agg by cat -------------------------------------------------------------------
   ## annual data by cat
@@ -473,7 +456,7 @@ function(input, output, session) {
     if (!is.null(title)) {
       current_title(title)
     }
-  }
+  } # end update_dashboard
   
   #' Perform a SQL query on the data, and return the results as JSON.
   #' @param query A DuckDB SQL query; must be a SELECT statement.

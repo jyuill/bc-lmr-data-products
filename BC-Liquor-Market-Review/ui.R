@@ -36,12 +36,13 @@ fluidPage(
         padding: 2px;}"
       )
       ),
-    
     # Application title
-    titlePanel("BC Liquor Market Report Dashboard"),
-    tags$h3("An (unofficial) consolidated view of quarterly BC Liquor Sales data, 
+    # using div and h1 rather than titlePanel for more control over styling
+    tags$div(class = "title-container", 
+        tags$h1("BC Liquor Market Statistics", class='title'),
+        tags$h3("An (unofficial) consolidated view of quarterly BC Liquor Sales data, 
             compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources", class='non-tab'),
-            class = "sub"),
+                class = "sub")),
     # action button to toggle sidebar - abandoned for now
     # - makes sidebar disappear/appear but mainPanel doesn't expand to fill the space
     #column(12, actionButton('toggleSidebar', 'Toggle Sidebar'),),
