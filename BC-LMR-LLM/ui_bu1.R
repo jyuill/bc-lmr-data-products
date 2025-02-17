@@ -37,7 +37,7 @@ fluidPage(
       )
     ),
     # Application title
-    titlePanel("BC Liquor Market Report LLM Dashboard"),
+    titlePanel("BC Liquor Market Report Dashboard"),
     tags$h3("An (unofficial) consolidated view of quarterly BC Liquor Sales data, 
             compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources", class='non-tab'),
             class = "sub"),
@@ -46,21 +46,23 @@ fluidPage(
     sidebarLayout(
       # sidebar panel ----
       sidebarPanel(
+        width = 6,
         class = "sidebar",
-        style = "height: 100%;",
+        id = "sidebar", # needed for toggling
         # CHAT UI ####
-        chat_ui("chat", height = "80%", fill = TRUE)
+        chat_ui("chat", height = "100%", fill = TRUE)
       ), # end sidebarPanel
         
       # main panel with content ----
       mainPanel(
+        width = 6,
         class = "main",
-        # header
-        textOutput("show_title", container = h3),
-        verbatimTextOutput("show_query") |>
-          tagAppendAttributes(style = "max-height: 100px; overflow: auto;"),
+        tabsetPanel( # tabsetPanel ----
+                     id = "tabselected",
+                     # tabPanel 1: Overview ----
+                     tabPanel("Overview", value = 1,
                               fluidRow( ## fluidRow 1 ----
-                                        tags$h2("Sales by Year and Quarter", 
+                                        tags$h2("Total Sales by Year and Quarter (all categories)", 
                                                 class='section',
                                                 id='ttl_sales'),
                                         column(width = 6,
@@ -95,7 +97,9 @@ fluidPage(
                                         column(width = 6,
                                                plotlyOutput("sales_yoy_cat_pcp", height = "500px")
                                         )
-                              ) # end fluidRow 4
+                              ), # end fluidRow 4
+                     ) # end tabPanel 1
+        ) # end tabsetPanel   
     ) # end mainPanel
     ) # end sidebarLayout  
 ) # end fluidPage

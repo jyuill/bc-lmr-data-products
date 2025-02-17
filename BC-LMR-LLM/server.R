@@ -9,19 +9,23 @@
 
 library(shiny)
 library(shinyWidgets)
+library(shinyjs)
 library(tidyverse)
 library(plotly)
 library(bslib)
 library(RColorBrewer)
-library(shinyjs)
-library(ellmer)
 library(lubridate)
 library(scales)
 library(plotly)
 library(here)
-library(DBI)
-library(duckdb)
-library(duckplyr)
+
+library(DBI) # needed for duckdb
+library(duckdb) # needed for duckdb
+library(duckplyr) # used for duckdb
+library(glue) # good for parameterized queries of duckdb
+library(ellmer) # needed for llm
+library(shinychat) # needed for llm
+library(promises) # needed for llm
 
 # set color palette
 # - bar and line colors
@@ -40,31 +44,52 @@ source('functions.R')
 # gpt-4o does much better than gpt-4o-mini, especially at interpreting plots
 openai_model <- "gpt-4o"
 
+## DATA LLM -----------------------------------------------------------
+# connection set here and ended at end of session 
+con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:", read_only = TRUE)  # Use in-memory DB
+# close when done
+onStop(function() {
+  dbDisconnect(con)
+})
+
+# get data ----
+# query database via separate file for tidyness
+## all data ----
+source('query.R')
+lmr_data_bu <- lmr_data
+# set up duckdb table
+duckdb::dbWriteTable(con, "lmr_data_duck", lmr_data, overwrite = TRUE)
+
+# system prompt ----
 # Dynamically create the system prompt, based on the real data. For an actually
 # large database, you wouldn't want to retrieve all the data like this, but
 # instead either hand-write the schema or write your own routine that is more
 # efficient than system_prompt().
-#system_prompt_str <- system_prompt(dbGetQuery(conn, "SELECT * FROM tips"), "tips")
+system_prompt_str <- system_prompt(dbGetQuery(con, "SELECT * FROM lmr_data_duck"), 
+                                   "lmr_data_duck")
 
-# This is the greeting that should initially appear in the sidebar when the app
-# loads.
-greeting <- paste(readLines(here("greeting.md")), collapse = "\n")
+# greeting ----
+# greeting that should initially appear in the sidebar when the app loads.
+#greeting <- paste(readLines(here("greeting.md")), collapse = "\n")
+greeting <- paste(readLines('greeting.md'), collapse = "\n")
 
-
-# Define server logic -----
+# Server logic -----
 function(input, output, session) {
-
+  # duckdb ---
+  # connection set here and ended at end of session (bottom)
+  #con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")  # Use in-memory DB
+  
   # get data ----
   # query database via separate file for tidyness
   ## all data ----
-  source('query.R')
-  lmr_data_bu <- lmr_data
-  # duckdb ---
-  con <- dbConnect(duckdb::duckdb())
-  #con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")  # Use in-memory DB
-  duckdb::dbWriteTable(con, "lmr_data_duck", lmr_data, overwrite = TRUE)
-  lmr_data <- dbReadTable(con, "lmr_data_duck")
-  duckdb::dbDisconnect(con)
+  #source('query.R')
+  #lmr_data_bu <- lmr_data
+  # set up duckdb table
+  #duckdb::dbWriteTable(con, "lmr_data_duck", lmr_data, overwrite = TRUE)
+  #lmr_data <- dbReadTable(con, "lmr_data_duck")
+  #duckdb::dbDisconnect(con) # leave connection open for session
+  # test duckdb
+  #lmr_test <- dbGetQuery(con, "SELECT * FROM lmr_data_duck LIMIT 10")
   
   # apply to yr filter as default to avoid over-crowding
   lmr_max <- max(lmr_data$cyr_num) # get current latest yr
@@ -74,80 +99,34 @@ function(input, output, session) {
   lmr_max_date <- max(lmr_data$end_qtr_dt)
   lmr_max_note <- paste0("Data as of: ", format(lmr_max_date, "%b %d %Y"))
   
-  ## year filter ----
-  dynamic_cyr <- pickerInput(
-    inputId = "cyr_picker",
-    label = "Select Calendar Year(s):",
-    choices = unique(lmr_data$cyr),
-    selected = unique(lmr_recent$cyr),
-    multiple = TRUE,
-    options = list(
-      `actions-box` = TRUE,
-      `selected-text-format` = "count > 3",
-      `count-selected-text` = "{0} years selected",
-      `live-search` = TRUE
-    )
-  )
-  ## qtr filters ----
-  dynamic_qtr <- checkboxGroupInput(inputId = "qtr_check", "Select a quarter", 
-                                    choices = sort(unique(lmr_data$cqtr)), 
-                                    selected = unique(lmr_data$cqtr),
-                                    inline = FALSE
-  )
-  ## cat filters ----
-  dynamic_cat <- checkboxGroupInput(inputId = "cat_check", "Select a Category", 
-                                    choices = unique(lmr_data$cat_type), 
-                                    selected = unique(lmr_data$cat_type),
-                                    inline = FALSE
-  )
-  
-  # dynamic sidebar ----
-  output$dynamic_sidebar <- renderUI({
-    if (input$tabselected == 1) {
-      tagList(
-        tags$p(lmr_max_note, class="note"),
-        dynamic_cyr,
-        dynamic_qtr,
-        dynamic_cat,
-        tags$h4("Contents"),
-        tags$a(href="#ttl_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-        tags$a(href="#cat_sales", "Category Sales: Yr & Qtr"),tags$br(),
-        tags$br(),
-        tags$h4("Notes"),
-        tags$p("Years & Quarters are calendar yr, not LDB fiscal year")
-      )
-    } else if (input$tabselected == 2) {
-      tagList(
-      )
-    } else if (input$tabselected == 3) {
-      tagList(
-        
-      )
-    } 
+  # DATA LLM ---- 
+  # This object must always be passed as the `.ctx` argument to query(), so that
+  # tool functions can access the context they need to do their jobs; in this
+  # case, the database connection that query() needs.
+  ctx <- list(con = con)
+  # initial data setup
+  current_title <- reactiveVal(NULL)
+  current_query <- reactiveVal("")
+  data_llm <- reactive({
+    qry <- current_query()
+    if (is.null(qry) || qry == "") {
+      qry <- "SELECT * FROM lmr_data_duck;"
+    }
+    dbGetQuery(con, qry)
   })
   
-  # TOTALS --------------------------------------------------------------
-  # apply filters to data ---------------------------------------------------
-  cat("01 apply filters \n")
-  # Filter the data set based on the selected categories
-  filtered_data <- reactive({
-    req(input$cyr_picker, input$qtr_check, input$cat_check)
-    lmr_data %>% filter(cyr %in% input$cyr_picker) %>%
-      filter(cqtr %in% input$qtr_check) %>%
-      filter(cat_type %in% input$cat_check)
-  })
   cat("02 aggregate annual & qtr totals \n")
   # Aggregate data ----
   # annual and qtr totals ---------------------------------------------------
   annual_data <- reactive({
-    filtered_data() %>% group_by(cyr) %>%
+    data_llm() %>% group_by(cyr) %>%
       summarize(netsales = sum(netsales),
                 litres = sum(litres)) %>%
       mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
              yoy_litres = (litres - lag(litres))/lag(litres))
   })
   qtr_data <- reactive({
-    filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
+    data_llm() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
       summarize(netsales = sum(netsales)) %>% ungroup() %>%
       mutate(qoq = (netsales - lag(netsales))/lag(netsales),
              yr_qtr = paste(cyr, cqtr, sep = "-")
@@ -161,7 +140,7 @@ function(input, output, session) {
   ## annual data by cat
   cat('03 aggregate annual data by cat \n')
   annual_data_cat <- reactive({
-    AnnualCatTypeData(filtered_data())
+    AnnualCatTypeData(data_llm())
   })
   # test
   #ancattype <- AnnualCatTypeData(lmr_data)
@@ -170,7 +149,7 @@ function(input, output, session) {
     # need to base the qoq on the number of cats chosen in filter
     n_qtr <- length(input$qtr_check)
     n_cats <- length(input$cat_check)
-    filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt, cat_type) %>%
+    data_llm() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt, cat_type) %>%
       summarize(netsales = sum(netsales)) %>% ungroup() %>%
       mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
   })
@@ -213,6 +192,14 @@ function(input, output, session) {
   yr_sales_pc_cat <-  "% of Ttl Sales by Category"
   yr_sales_pc_chg_cat <- "Yrly % Chg Sales by Category"
   yr_sales_pcpt_chg_cat <-  "Yrly % Pt Chg Sales % of Ttl"
+  
+  # CHAT Header Output -------------------------------------------------------------------
+  output$show_title <- renderText({
+    current_title()
+  })
+  output$show_query <- renderText({
+    current_query()
+  })
   
   # TTL PLOTS ------------------------------------------------------------------
   ## ttl sales ----
@@ -446,4 +433,102 @@ function(input, output, session) {
     ggplotly(p, tooltip = "text")
   })
 
-}
+  # CHAT -----------------------------------------------------------
+  # Key functions
+  # taken directly from original repo:
+  # - https://github.com/jcheng5/r-sidebot/blob/main/app.R#L44
+  append_output <- function(...) {
+    txt <- paste0(...)
+    shinychat::chat_append_message(
+      "chat",
+      list(role = "assistant", content = txt),
+      chunk = TRUE,
+      operation = "append",
+      session = session
+    )
+  }
+  
+  #' Modifies the data presented in the data dashboard, based on the given SQL
+  #' query, and also updates the title.
+  #' @param query A DuckDB SQL query; must be a SELECT statement.
+  #' @param title A title to display at the top of the data dashboard,
+  #'   summarizing the intent of the SQL query.
+  update_dashboard <- function(query, title) {
+    append_output("\n```sql\n", query, "\n```\n\n")
+    
+    tryCatch(
+      {
+        # Try it to see if it errors; if so, the LLM will see the error
+        dbGetQuery(con, query)
+      },
+      error = function(err) {
+        append_output("> Error: ", conditionMessage(err), "\n\n")
+        stop(err)
+      }
+    )
+    
+    if (!is.null(query)) {
+      current_query(query)
+    }
+    if (!is.null(title)) {
+      current_title(title)
+    }
+  }
+  
+  #' Perform a SQL query on the data, and return the results as JSON.
+  #' @param query A DuckDB SQL query; must be a SELECT statement.
+  #' @return The results of the query as a JSON string.
+  query <- function(query) {
+    # Do this before query, in case it errors
+    append_output("\n```sql\n", query, "\n```\n\n")
+    
+    tryCatch(
+      {
+        df <- dbGetQuery(con, query)
+      },
+      error = function(e) {
+        append_output("> Error: ", conditionMessage(e), "\n\n")
+        stop(e)
+      }
+    )
+    
+    tbl_html <- df_to_html(df, maxrows = 5)
+    append_output(tbl_html, "\n\n")
+    
+    df |> jsonlite::toJSON(auto_unbox = TRUE)
+  }
+  # instructions for chat model and setup
+  chat <- chat_openai(model = openai_model, system_prompt = system_prompt_str)
+  chat$register_tool(tool(
+    update_dashboard,
+    "Modifies the data presented in the data dashboard, based on the given SQL query, and also updates the title.",
+    query = type_string("A DuckDB SQL query; must be a SELECT statement."),
+    title = type_string("A title to display at the top of the data dashboard, summarizing the intent of the SQL query.")
+  ))
+  chat$register_tool(tool(
+    query,
+    "Perform a SQL query on the data, and return the results as JSON.",
+    query = type_string("A DuckDB SQL query; must be a SELECT statement.")
+  ))
+  
+  # Prepopulate the chat UI with a welcome message that appears to be from the
+  # chat model (but is actually hard-coded). This is just for the user, not for
+  # the chat model to see.
+  chat_append("chat", greeting)
+  
+  ## Handle user input ----
+  observeEvent(input$chat_user_input, {
+    # Add user message to the chat history
+    # need promises pkg
+    chat_append("chat", chat$stream_async(input$chat_user_input)) %...>% {
+       print(chat)
+    }
+  })
+  ## end chat -----------------------------------------------------------
+  # Ensure duckdb connection is closed when the session ends
+  # - using onStop() at top instead
+  #session$onSessionEnded(function() {
+  #  DBI::dbDisconnect(con, shutdown = TRUE)
+  #})
+
+} # END server -----------------------------------------------------------
