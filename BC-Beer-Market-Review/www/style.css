@@ -3,6 +3,7 @@
 #f8f9fa - light gray background from bootstrap 'lux'
 #233E86 - lightest blue from palette suggested by paletton.com
 #081D58 - chart blue based on RColorBrewer - used as basis for palette suggested by paletton.com
+#662506 - dark brown based on RColorBrewer; h2 for section headings
 */
 body {
       font-family: Arial, sans-serif;
@@ -28,7 +29,9 @@ h2 {font-size: 2em;
     text-align: center;
     /* border: 1px solid black; */
     color: #f8f9fa;
-    background-color: #233E86;
+    /* background-color: #233E86;*/
+    /* beer */
+    background-color: #CC4C02;
     padding:12px;
     margin-bottom: 0px;
 }   
@@ -40,7 +43,9 @@ h2.section {font-size: 1.6em;
     padding-bottom: 5px;
     width: 100%;
     /* border: 1px solid black; */
-    color: #233E86;
+    /*color: #233E86;*/
+    /* color: #662506; *//* shifting from blue to dark brown for beer */
+    color:  #CC4C02; /* #EC7014;*/
     background-color: #f8f9fa;
     }
 /* larger margin bottom - mainly for About pg */
@@ -56,7 +61,8 @@ h3.sub {font-size: 1em;
     padding-bottom: 5px;
     width: 100%;
     /* border: 1px solid black; */
-    color: #3D3D3D;
+    /*color: #3D3D3D;*/
+    color: brewer.pal(9, "YlOrBr")[8];
     background-color: #f8f9fa;
     }
 h4 {

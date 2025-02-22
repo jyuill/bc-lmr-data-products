@@ -115,10 +115,10 @@ fluidPage(
                      ), # end fluidRow 5
                      fluidRow( ## fluidRow 6 BC beer subcat % chg ----
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_bc_cat_chg")
+                              plotlyOutput("beer_sales_yoy_bc_cat_chg", height = "500px")
                        ),
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_bc_cat_chg_pt") 
+                              plotlyOutput("beer_sales_yoy_bc_cat_chg_pt", height = "500px") 
                        )
                      ), # end fluidRow 6
                      fluidRow( ## fluidRow 7 import ----
@@ -134,10 +134,10 @@ fluidPage(
                      ), # end fluidRow 7
                      fluidRow( ## fluidRow 8 import % chg ----
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_import_cat_chg")
+                              plotlyOutput("beer_sales_yoy_import_cat_chg", height = "600px")
                        ),
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_import_cat_chg_pt") 
+                              plotlyOutput("beer_sales_yoy_import_cat_chg_pt", height = "600px") 
                        )
                      ) # end fluidRow 8
             ), # end tabPanel 1

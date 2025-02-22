@@ -5,9 +5,8 @@ account: catbird
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13146168
-bundleId: 9739180
+bundleId: 9811162
 url: https://catbird.shinyapps.io/BC-Liquor-Market-Review/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: alt-filter-config-sidepanel.png|color-palette-01.png|color-palette-02.png|plotly-legend-issues.png|test-df.R|ui-orig-tabs.R

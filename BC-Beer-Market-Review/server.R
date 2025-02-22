@@ -25,22 +25,33 @@ scipen <- options(scipen=999) # suppress scientific notation
 # set plot theme
 # - under 'plots' below
 # set color palette
+# colors needed:
+# 1. bar and line colors
+# 2. beer category colors: BC, Other Prov, Import
+# 3. quarters: 4
+# 4. bc categories: 3
+# 5. countries: 5
+# base palette
+#RColorBrewer::display.brewer.all()
+base_pal <- "YlOrBr"
 # - bar and line colors
-bar_col <- brewer.pal(n=9, name='YlGnBu')[9] # #081D58
-# - palette for use with categories
-bpal <- brewer.pal(n=9, name="YlOrRd")
-cat_type_color <- c("Beer"=bpal[6], "Refresh Bev"=bpal[3], "Spirits"=bpal[4], "Wine"=bpal[8])
+bar_col <- brewer.pal(n=3, name=base_pal)[2]
+# for labels on facet
+strp_col <- brewer.pal(n=9, name='Greys')[6]
+strp_col <- brewer.pal(n=9, name=base_pal)[5]
 # - palette for quarters
-qpal <- brewer.pal(n=9, name="Blues")
-qtr_color <- c("Q1"=qpal[5], "Q2"=qpal[7], "Q3"=qpal[8], "Q4"=qpal[9])
+#qpal <- brewer.pal(n=9, name="YlGnBu")
+qpal <- brewer.pal(n=9, name="YlOrRd")
+qtr_color <- c("Q1"=qpal[3], "Q2"=qpal[4], "Q3"=qpal[5], "Q4"=qpal[6])
+qtr_color <- brewer.pal(n=5, name=base_pal)[2:5]
 # palette for beer categories
-beer_pal <- brewer.pal(n=11, name="RdYlGn")
-beer_cat_color <- c("BC"=beer_pal[11], "Other Prov"=beer_pal[7], "Import"=beer_pal[9])
-beer_bc_cat_color <- c("BC Major"=beer_pal[11], "BC Regional"=beer_pal[10], "BC Micro"=beer_pal[9])
-refresh_cat_color <- c("Cider"=beer_pal[10], "Coolers"=beer_pal[11])
-spirits_cat_color <- brewer.pal(n=12, name="Paired")
-# for wine categories, generate a custom color palette with 24 colors
-wine_cat_color <- colorRampPalette(brewer.pal(n=12, name="Paired"))(24)
+beer_pal <- brewer.pal(n=9, name="YlOrRd")
+beer_cat_color <- c("BC"=beer_pal[9], "Other Prov"=beer_pal[7], "Import"=beer_pal[5])
+beer_cat_color <- brewer.pal(n=4, name=base_pal)[2:4]
+beer_bc_cat_color <- c("BC Major"=beer_pal[9], "BC Regional"=beer_pal[7], "BC Micro"=beer_pal[5])
+beer_bc_cat_color <- beer_cat_color
+beer_imp_color2 <- beer_pal[5:9]
+beer_imp_color <- brewer.pal(n=6, name=base_pal)[2:6]
 
 # drop incomplete calendar year at start
 #tbl_yq <- table(lmr_data$cyr, lmr_data$cqtr)
@@ -48,10 +59,10 @@ wine_cat_color <- colorRampPalette(brewer.pal(n=12, name="Paired"))(24)
 #  lmr_data <- lmr_data %>% filter(cyr != rownames(tbl_yq)[1])
 #}
 
-# load functions used - mostly plots
+# load functions used - mostly plots ----
 source('functions.R')
 
-# Define server logic
+# Define server logic ----
 function(input, output, session) {
   # experiment with different bs themes
   #bslib::bs_themer()
@@ -62,9 +73,9 @@ function(input, output, session) {
   observeEvent(input$toggleSidebar, {
     toggle("sidebar")
   })
-  # get data ----
-  # query database via separate file for tidyness
-  ## all data ----
+# get data ----
+# query database via separate file for tidyness
+## all data ----
   source('query.R')
   ## recent data ----
   # apply to yr filter as default to avoid over-crowding
@@ -449,7 +460,7 @@ function(input, output, session) {
                fill_var = "cat_type", 
                facet_var = "category",
                fill_color = bar_col, 
-               strp_color = bar_col,
+               strp_color = strp_col,
                theme_xax+theme_nleg)
     })
     
@@ -461,19 +472,8 @@ function(input, output, session) {
                fill_var = "cat_type", 
                facet_var = "category",
                fill_color = bar_col, 
-               strp_color = bar_col,
+               strp_color = strp_col,
                theme_xax+theme_nleg, tunits = "num")
-    })
-    # qtr % chg by src - abandoned in favour of % of annual total
-    output$beer_sales_qoq_cat_chg <- renderPlotly({
-      x <- beer_qtr_data_cat()
-      CatChgChart("Qtrly % Chg Beer Sales by Source", 
-               x, x_var = "cyr_qtr", y_var = "qoq_sales", sort_var = "yoy_pcp_ttl_sales", 
-               fill_var = "cqtr", 
-               facet_var = "category",
-               fill_color = qtr_color, 
-               strp_color = bar_col,
-               theme_xax+theme_xaxq+theme_nleg)
     })
     
     ## SUBCAT data ----
@@ -512,7 +512,7 @@ function(input, output, session) {
                fill_var = "cat_type", 
                facet_var = "subcategory",
                fill_color = bar_col, 
-               strp_color = bar_col,
+               strp_color = strp_col,
                theme_xax+theme_nleg)
     })
     ## % point chg by bc subcat yoy
@@ -523,7 +523,7 @@ function(input, output, session) {
                fill_var = "cat_type", 
                facet_var = "subcategory",
                fill_color = bar_col, 
-               strp_color = bar_col,
+               strp_color = strp_col,
                theme_xax+theme_nleg, tunits = "num")
     })
     ## IMPORT beer subcat ----
@@ -534,7 +534,7 @@ function(input, output, session) {
       data <- beer_yr_data_subcat() %>% filter(category=='Import')
       print(data)
       CatChart("Beer $ by Import Ctry/Reg", 
-               data, "cyr", "netsales","subcategory", beer_pal, "stack", 
+               data, "cyr", "netsales","subcategory", beer_imp_color, "stack", 
                theme_xax, "M") %>%
         layout(legend = layout_legend_vr)
     }) 
@@ -543,7 +543,7 @@ function(input, output, session) {
       cat('beer_import_pc chart \n')
       data <- beer_yr_data_subcat() %>% filter(category=='Import')
       CatChart("Beer $ % by Import Ctry/Reg", 
-               data, "cyr", "pct_ttl_sales","subcategory", beer_pal, "fill", 
+               data, "cyr", "pct_ttl_sales","subcategory", beer_imp_color, "fill", 
                theme_xax, "%") %>%
         layout(legend = layout_legend_vr)
     }) 
@@ -556,8 +556,8 @@ function(input, output, session) {
                fill_var = "cat_type", 
                facet_var = "subcategory",
                fill_color = bar_col, 
-               strp_color = bar_col,
-               theme_xax+theme_nleg)
+               strp_color = strp_col,
+               theme_xax+theme_nleg+theme_facet)
     })
     ## % point chg by import subcat yoy
     output$beer_sales_yoy_import_cat_chg_pt <- renderPlotly({
@@ -567,10 +567,10 @@ function(input, output, session) {
                fill_var = "cat_type", 
                facet_var = "subcategory",
                fill_color = bar_col, 
-               strp_color = bar_col,
-               theme_xax+theme_nleg, tunits = "num")
+               strp_color = strp_col,
+               theme_xax+theme_nleg+theme_facet, tunits = "num")
     })
-    
+
     # LITRES ----
     ## beer: apply filters to data ---------------------------------------------------
     cat("01 apply beer filters \n")
