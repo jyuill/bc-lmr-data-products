@@ -5,7 +5,7 @@ account: catbird
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13951004
-bundleId: 9773387
+bundleId: 9987762
 url: https://catbird.shinyapps.io/BC-Beer-Market-Review/
 version: 1
 asMultiple: FALSE

@@ -1,11 +1,5 @@
 #
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    https://shiny.posit.co/
-#
+# User Interface for BC Beer Sales Dashboard
 
 library(shiny)
 library(shinyWidgets)
@@ -38,13 +32,11 @@ fluidPage(
       ),
     
     # Application title
-    titlePanel("BC Beer Sales"),
-    tags$h3("An (unofficial) consolidated view of quarterly BC Beer Sales data, 
-            compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources", class='non-tab'),
-            class = "sub"),
-    # action button to toggle sidebar - abandoned for now
-    # - makes sidebar disappear/appear but mainPanel doesn't expand to fill the space
-    #column(12, actionButton('toggleSidebar', 'Toggle Sidebar'),),
+    # Removed for embedding in www.bcbeer.ca
+    #titlePanel("BC Beer Sales"),
+    #tags$h3("An (unofficial) consolidated view of quarterly BC Beer Sales data, 
+    #        compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources", class='non-tab'),
+    #        class = "sub"),
     # Sidebar with a slider input for number of bins
     sidebarLayout(
       # sidebar panel ----
@@ -165,7 +157,7 @@ fluidPage(
                      fluidRow( ## fluidRow 3 src sales ----
                                tags$h2("Litre Sales by Source", 
                                        class='section',
-                                       id="bsrc_sales"),
+                                       id="bsrc_sales_litre"),
                                column(width = 6,
                                       plotlyOutput("litre_sales_yr_cat")
                                ),
@@ -184,7 +176,7 @@ fluidPage(
                      fluidRow( ## fluidRow 5 bc cat ----
                                tags$h2("BC-Produced Litres by Category: $ & %", 
                                        class='section',
-                                       id="bcat_sales"),
+                                       id="bcat_sales_litre"),
                                column(width = 6,
                                       plotlyOutput("litre_sales_yr_bc_cat")
                                ),
@@ -203,7 +195,7 @@ fluidPage(
                      fluidRow( ## fluidRow 7 import ----
                                tags$h2("Import Litres by Ctry/Region", 
                                        class='section',
-                                       id="bimp_sales"),
+                                       id="bimp_sales_litre"),
                                column(width = 6,
                                       plotlyOutput("litre_sales_yr_import_cat")
                                ),
@@ -223,10 +215,10 @@ fluidPage(
             # tabPanel 3: About ----
             tabPanel("About", value = 3,
                      fluidRow( ## fluidRow 1 ----
-                       tags$h2("About the BC Liquor Market Review Dashboard", 
+                       tags$h2("About the BC Beer Sales Dashboard", 
                                class='section marginb',
                                id = 'about'),
-                       tags$p("This collection of data visualizations provides a consolidated view of BC liquor sales, 
+                       tags$p("This collection of data visualizations provides a consolidated view of BC beer sales, 
                        compiled from the ", 
                               tags$a(href="https://www.bcldb.com/publications/liquor-market-review", 
                                      "BC Liquor Market Review", class="non-tab"), 
@@ -236,47 +228,19 @@ fluidPage(
                               plus previous 4 quarters."), "with limited visualizations. 
                               So the advantage here is that I have:"),
                        tags$ul(tags$li(tags$strong("consolidated data from all quarterly reports since 2015")),
-                               tags$li("provided interactive visualizations with filtering, details on mouseover"),
+                               tags$li("provided interactive visualizations with filtering, details when hovering over the charts"),
                                tags$li("provided year-over-year and quarter-over-quarter comparisons, using ",
                                        tags$strong("calendar yr")," (rather than fiscal yr) for convenience"),
                                tags$li("consolidated data into total, category-level, and category-specific breakdowns")
                                ),
-                       tags$p("The Liquor Market Review breaks down",
-                              tags$strong("wholesale sales data by net revenue and litres"),
-                              " for alcoholic beverages in the following categories:"),
-                       tags$ul(tags$li("Beer"), 
-                               tags$li("Refreshment Beverages"), 
-                               tags$li("Spirits"), 
-                               tags$li("Wine")),
-                      tags$p("In addition, each category has beverage type and geographic depending on the category. 
-                             Not all of the detail available in the official version of the Liquor Market Review may be captured here. 
+                          tags$p("Not all of the detail available in the official version of the Liquor Market Review may be captured here. 
                              Further, I offer", tags$strong("no guarantees"), "as to the accuracy of the data presented here. 
                              If in doubt or using this information for important purposes, 
                              please refer to the official Liquor Market Review."),
                       tags$p(tags$strong("Note: This is an unofficial, personal project and is 
                                          not affiliated with the BC Liquor Distribution Branch.")),
-                      tags$h2("Who did this?", 
-                              class='section marginb',
-                              id='who'),
-                      tags$p("This dashboard was created by John Yuill, a data analyst and data product developer based in Vancouver, BC. 
-                             "),
-                      tags$p("For more information, questions, or feedback, 
-                             you can reach me on", 
-                             tags$a(href="https://www.linkedin.com/in/johnyuill/", "LinkedIn.", class="non-tab")
-                             ),
-                      tags$h2("Release Notes", 
-                              class='section marginb',
-                              id='release'),
-                      tags$h4("2025-02-02"),
-                      tags$ul(tags$li("Wine: interactive treemaps for sales by region and type, with drilldown capability.")),
-                      tags$h4("2025-01-11"),
-                      tags$ul(tags$li("Additional category-specific visualizations, with category/region breakdowns.")),
-                      tags$h4("2024-01-05"),
-                      tags$ul(tags$li("First full version of the BC Liquor Market Review Dashboard,
-                                      full category coverage.")),
-                      tags$h4("2024-10-27"),
-                      tags$ul(tags$li("Initial version of the BC Liquor Market Review Dashboard,
-                                      starting with Beer category but framed up for scaling to other categories."))
+                      tags$p("For more info, check out the site's ", 
+                             tags$a(href="https://www.bcbeer.ca/about.html", "About", class="non-tab"), " page.")
                       ) # end fluidRow 1
               ) # end tabPanel 3
             ), # end tabsetPanel ----

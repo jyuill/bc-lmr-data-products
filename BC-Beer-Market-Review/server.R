@@ -241,6 +241,8 @@ function(input, output, session) {
   
   # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
   # Dynamic Sidebar ----
+  # in ui: sidebarPanel(id = "sidebar", ...)
+  # hrefs below refer to ids of h2 tags in ui 
   output$dynamic_sidebar <- renderUI({
     if (input$tabselected == 1) {
       tagList(
@@ -261,17 +263,28 @@ function(input, output, session) {
         dynamic_qtr,
         dynamic_beer_cat,
         tags$h4("Contents"),
-          tags$a(href="#beer_sales", "Ttl Litres by Yr & Qtr"),tags$br(),
-          tags$a(href="#bsrc_sales", "Litres by Source"), tags$br(),
-          tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
-          tags$a(href="#bimp_sales","Import Litres by Ctry"), tags$br()
+          tags$a(href="#litre_sales", "Ttl Litres by Yr & Qtr"),tags$br(),
+          tags$a(href="#bsrc_sales_litre", "Litres by Source"), tags$br(),
+          tags$a(href="#bcat_sales_litre", "BC Litres by Category"), tags$br(),
+          tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br()
       )
     } else if (input$tabselected == 3) {
       tagList(
-        tags$h4("Contents"),
-        tags$a(href="#about", "What is this?"),tags$br(),
-        tags$a(href="#who", "Who did this?"),tags$br(),
-        tags$a(href="#release", "Release Notes"),tags$br(),
+        tags$h4("Contact"),
+          # Placeholder span for the email address
+          tags$span(id = "email-container"),
+          # JavaScript to dynamically build and insert the email link
+          tags$script(HTML("
+            const user = 'john';
+            const domain = 'bcbeer.ca';
+            const email = `${user}@${domain}`;
+            const link = document.createElement('a');
+            link.href = `mailto:${email}`;
+            link.textContent = email;
+            document.getElementById('email-container').appendChild(link);
+          ")),
+        tags$p("LinkedIn: ",
+               tags$a(href="https://www.linkedin.com/in/johnyuill/", "John Yuill")),
         tags$br()
       )
     } 
@@ -757,7 +770,7 @@ function(input, output, session) {
     
     output$litre_sales_yr_import_cat_pc <- renderPlotly({
       cat('beer_import_pc chart \n')
-      data <- litre_yr_data_subcat() %>% filter(category=='Import')
+      data <- beer_yr_data_subcat() %>% filter(category=='Import')
       CatChart("Litre % by Import Ctry/Reg", 
                data, "cyr", "pct_ttl_litres","subcategory", beer_pal, "fill", 
                theme_xax, "%") %>%
@@ -767,7 +780,7 @@ function(input, output, session) {
     ## plots for import beer subcategory yoy change in facets
     output$litre_sales_yoy_import_cat_chg <- renderPlotly({
       x <- beer_yr_data_subcat() %>% filter(category=='Import')
-      CatChgChart(yr_litres_pc_chg_cat, 
+      CatChgChart(yr_litre_pc_chg_cat, 
                   x, x_var = "cyr", y_var = "yoy_sales", 
                   sort_var = "litres", 
                   fill_var = "cat_type", 
@@ -779,7 +792,7 @@ function(input, output, session) {
     ## % point chg by import subcat yoy
     output$litre_sales_yoy_import_cat_chg_pt <- renderPlotly({
       x <- beer_yr_data_subcat() %>% filter(category=='Import')
-      CatChgChart(yr_litres_pcpt_chg_cat, 
+      CatChgChart(yr_litre_pcpt_chg_cat, 
                   x, x_var = "cyr", y_var = "yoy_pcp_ttl_litres", 
                   sort_var = "litres", 
                   fill_var = "cat_type", 
@@ -789,7 +802,7 @@ function(input, output, session) {
                   theme_xax+theme_nleg, tunits = "num")
     })
     
-    ## WINE ---------------------------------------------------------------
+    ## treemap example ---------------------------------------------------------------
     ## PLOTLY treemap wine countries, categories ----
     output$wine_sales_country_treemap_plot <- renderPlotly({
       cat("wine_country \n")
