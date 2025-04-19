@@ -12,6 +12,7 @@ body {
 .container-fluid {
   margin: 0;
   padding: 0;
+  /*border: 2px dotted green;*/
 }
 .sidebar {
       width: 230px; /* Set the desired width for the sidebar 250 */
@@ -20,13 +21,20 @@ body {
       background-color: #f8f9fa; /* Optional: background color */
       position: fixed; /* Fix the sidebar to the left side */
       margin-left: 10px;
+      margin-top: 2px;
+      padding: 1.2rem;
       /* top: 10; *//* Ensure it starts from the top */
       /* bottom: 0; *//* Ensure it extends to the bottom */
     }
 .main {
       margin-left: 260px; /* Adjust this value to match the sidebar width */
-      padding: 20px;
+      margin-right: 0px;
+      padding-top: 0px;
+      padding-right: 20px;
+      padding-left: 20px;
+      padding-bottom: 20px;
       overflow: hidden;
+      /*border: 1px solid red;*/
     }
 /* for titlePanel */
 .title-container {

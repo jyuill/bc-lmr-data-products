@@ -65,6 +65,7 @@ function(input, output, session) {
   # get data ----
   # query database via separate file for tidyness
   ## all data ----
+  cat("00 query db from query.R \n")
   source('query.R')
   ## recent data ----
   # apply to yr filter as default to avoid over-crowding

@@ -19,24 +19,20 @@ library(dotenv)
 #apwd <- Sys.getenv("APWD")
 #aport <- as.numeric(Sys.getenv("APORT"))
 
-# from config.yml
-# Load the config.yml from the shiny_app subfolder
-#config_file_path <- file.path("lmr-data", "config.yml")
+# Using config.yml for credentials
+# Load the config.yml from subfolder for current app
+# - needed for each app
+# NOTE: config.yml is in .gitignore for security
+cat("load config \n")
+#config_file_path <- file.path("config.yml")
 #db_config <- config::get(file = config_file_path, config = "db")
-#endpt <- db_config$db$endpt
-#apwd <- db_config$db$apwd
-#aport <- db_config$db$aport
-#user <- db_config$db$user
-
-cat("get db_config \n")
 db_config <- config::get(config = "db")
-print(db_config)
 endpt <- db_config$db$endpt
 apwd <- db_config$db$apwd
 aport <- db_config$db$aport
 user <- db_config$db$user
 
-print('connecting to db')
+print('connecting to db...')
 # connect to the database
 con_aws <- dbConnect(RMariaDB::MariaDB(),
                      host=endpt,

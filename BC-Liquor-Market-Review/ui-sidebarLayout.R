@@ -46,8 +46,10 @@ fluidPage(
     # action button to toggle sidebar - abandoned for now
     # - makes sidebar disappear/appear but mainPanel doesn't expand to fill the space
     #column(12, actionButton('toggleSidebar', 'Toggle Sidebar'),),
+    # Sidebar with a slider input for number of bins
+    sidebarLayout(
       # sidebar panel ----
-        div(
+        sidebarPanel(
           class = "sidebar",
           id = "sidebar", # needed for toggling
           # dynamic sidebar displays filter options depending on tab selected (courtesy of chatGPT)
@@ -57,7 +59,7 @@ fluidPage(
         ), # end sidebarPanel
 
         # main panel with content ----
-        div(
+        mainPanel(width = 9, # compromise - not great on small screens, or very large
           class = "main",
           tabsetPanel( # tabsetPanel ----
             id = "tabselected",
@@ -413,5 +415,6 @@ fluidPage(
             tags$a(href="https://www.catbird-analytics.com/", 'Catbird Analytics'),
             " Production, John Yuill; see 'About' tab for details", 
             class="footer")
-        ) # end mainPanel div ----
+        ) # end mainPanel ----
+    ) # end sidebarLayout ----
 ) # end shinyUI
