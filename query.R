@@ -30,7 +30,7 @@ library(dotenv)
 
 cat("get db_config \n")
 db_config <- config::get(config = "db")
-print(db_config)
+#print(db_config)
 endpt <- db_config$db$endpt
 apwd <- db_config$db$apwd
 aport <- db_config$db$aport
@@ -52,6 +52,7 @@ lmr_data_db <- dbGetQuery(con_aws, "SELECT * FROM bcbg.tblLDB_lmr lmr
 lmr_data <- lmr_data_db
 #print(head(lmr_data))
 # close connection
+print('closing connection')
 dbDisconnect(con_aws)
 
 # cleanup: convert from integer64 to numeric, etc
