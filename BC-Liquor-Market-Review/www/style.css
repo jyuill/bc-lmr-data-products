@@ -116,6 +116,20 @@ h4 {
     /*color: #3D3;
     background-color: gray;
     } */
+    
+.highlight-text {
+  color: #2c3e50;                /* dark slate (less harsh than black) */
+  font-weight: 500;
+  font-style: italic;
+  background-color: #eef2f7;     /* very light blue-gray background */
+  padding: 6px 10px;
+  border-left: 4px solid #6c8ebf;  /* muted steel blue accent */
+  border-radius: 4px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+
 .note {
   text-align: center;
   background-color: #e9f2ff; /* Light blue background */

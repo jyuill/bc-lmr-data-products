@@ -194,7 +194,8 @@ PoPChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, t
 # Category charts ----
 # plot for category metrics
 # uses 'pos' variable so that can be used for unit or % stack charts (pos = 'stack' or 'dodge')
-# - includes programattic setting of label scales based on units provided (tunits)
+# - use pos = 'fill' for % stack charts
+# - includes programmatic setting of label scales based on units provided (tunits)
 # - use going fwd; ideally, replace CatChart with this version (beer data)
 CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
                      pos, theme_list, tunits) {

@@ -135,10 +135,12 @@ fluidPage(
                      ), # end fluidRow 3
                      fluidRow( ## fluidRow 4 ----
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_cat_chg", height = "500px")
+                              plotlyOutput("beer_sales_yoy_cat_chg", 
+                                           height = "500px")
                        ),
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_cat_chg_pt", height = "500px")
+                              plotlyOutput("beer_sales_yoy_cat_chg_pt", 
+                                           height = "500px")
                        )
                      ), # end fluidRow 4
                      fluidRow( ## fluidRow 5 bc cat ----
@@ -154,10 +156,13 @@ fluidPage(
                      ), # end fluidRow 5
                      fluidRow( ## fluidRow 6 BC beer subcat % chg ----
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_bc_cat_chg")
+                              plotlyOutput("beer_sales_yoy_bc_cat_chg", 
+                                           height = "500px"
+                              )
                        ),
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_bc_cat_chg_pt") 
+                              plotlyOutput("beer_sales_yoy_bc_cat_chg_pt", 
+                                           height = "500px") 
                        )
                      ), # end fluidRow 6
                      fluidRow( ## fluidRow 7 import ----
@@ -173,10 +178,12 @@ fluidPage(
                      ), # end fluidRow 7
                      fluidRow( ## fluidRow 8 import % chg ----
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_import_cat_chg")
+                              plotlyOutput("beer_sales_yoy_import_cat_chg",
+                                           height = "600px")
                        ),
                        column(width = 6,
-                              plotlyOutput("beer_sales_yoy_import_cat_chg_pt") 
+                              plotlyOutput("beer_sales_yoy_import_cat_chg_pt",
+                                           height = "600px") 
                        )
                      ) # end fluidRow 8
             ), # end tabPanel 2
@@ -274,7 +281,7 @@ fluidPage(
             # tabPanel 5: Wine ----
             tabPanel("Wine", value = 5,
                      fluidRow( ## fluidRow 1 totals ----
-                       tags$h2("Wine Sales by Year and Quarter (all categories)", 
+                       tags$h2("Wine Sales by Year and Quarter (all country/cat.)", 
                                class='section',
                                id='wine_sales'),
                        column(width = 6
@@ -297,10 +304,10 @@ fluidPage(
                        )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 cat----
-                       tags$h2("Wine Category Sales by Year and Quarter", 
+                       tags$h2("Wine Country Sales by Year and Quarter", 
                                class='section',
                                id='wine_cat_sales'),
-                       tags$h4("Based on second category filter at left"),
+                       tags$h4(class="highlight-text","\u2190 Use second country filter at left"),
                        column(width = 6
                               ,
                               plotlyOutput("wine_sales_yr_cat")
@@ -410,7 +417,7 @@ fluidPage(
           tags$div(
             style = "margin-top: 20px; padding: 10px; border-top: 2px solid #ddd; text-align: center;",
             "© 2025 A", 
-            tags$a(href="https://www.catbird-analytics.com/", 'Catbird Analytics'),
+            tags$a(href="https://www.fig4.com/", 'Figure 4'),
             " Production, John Yuill; see 'About' tab for details", 
             class="footer")
         ) # end mainPanel div ----
