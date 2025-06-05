@@ -238,17 +238,34 @@ fluidPage(
                              If in doubt or using this information for important purposes, 
                              please refer to the official Liquor Market Review."),
                       tags$p(tags$strong("Note: This is an unofficial, personal project and is 
-                                         not affiliated with the BC Liquor Distribution Branch.")),
-                      tags$p("For more info, check out the site's ", 
-                             tags$a(href="https://www.bcbeer.ca/about.html", "About", class="non-tab"), " page.")
-                      ) # end fluidRow 1
+                                         not affiliated with the BC Liquor Distribution Branch."))
+                      #,
+                      #tags$p("For more info, check out the site's ", 
+                      #       tags$a(href="https://www.bcbeer.ca/about.html", "About", class="non-tab"), " page.")
+                      ), # end fluidRow 1
+                     fluidRow( ## fluidRow 2: change log ----
+                       tags$h3("Change Log", class="subabout"),
+                       tags$p("Latest changes, developments, improvements"),
+                       tags$h4("2025-06-05", class='sub'),
+                       tags$p("Fixed the way filters work relative to % of total charts, to ensure that the charts show 
+                              % of total among the filtered data, rather than the total of all data."),
+                       tags$h4("2025-06-02"),
+                       tags$p("Updated with latest ",
+                        tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F24_25_Q4_March_2025.pdf",
+                        "Liquor Market Review data", class="non-tab")," for quarter ended ",tags$strong("Mar 31, 2025")),
+                       tags$h4("2025-03"),
+                       tags$p("Added new tab for Litre Sales, with same visualizations as Net $ Sales tab, 
+                                 but using litre as the unit of measure. 
+                                 This provides  more complete view of beer sales in BC, 
+                                 aligning with the reports in the Liquor Market Review."),
+                     ), # end fluidRow 2
               ) # end tabPanel 3
             ), # end tabsetPanel ----
           # FOOTER ----
           tags$div(
             style = "margin-top: 20px; padding: 10px; border-top: 2px solid #ddd; text-align: center;",
             "© 2025 A", 
-            tags$a(href="https://www.catbird-analytics.com/", 'Catbird Analytics'),
+            tags$a(href="https://www.fig4.com", 'Figure 4'),
             " Production, John Yuill; see 'About' tab for details", 
             class="footer")
         ) # end mainPanel ----

@@ -65,6 +65,17 @@ h3.sub {font-size: 1em;
     color: brewer.pal(9, "YlOrBr")[8];
     background-color: #f8f9fa;
     }
+/* for sub-title in About page */
+h3.subabout {font-size: 1.2em;
+    margin-top: 0em;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 100%;
+    /* border: 1px solid black; */
+    /*color: #3D3D3D;*/
+    color: brewer.pal(9, "YlOrBr")[8];
+    background-color: #f8f9fa;
+    }
 h4 {
     font-size: 1em;
     text-align: left;
