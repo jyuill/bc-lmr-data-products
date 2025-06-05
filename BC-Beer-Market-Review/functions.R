@@ -3,8 +3,8 @@
 # Summary data ----
 # -- use for: annual data by category type (beer, refresh bev, spirits, wine)
 # -- - includes year-over-year changes in sales and litres
-AnnualCatTypeData <- function(dataset, dataset_all=lmr_data) {
-  cat("AnnualCatTypeData\n")
+AnnualCatTypeData <- function(dataset, dataset_all) {
+  cat("fn: AnnualCatTypeData\n")
   # summarize higher level data for % of ttl calculations
   dataset_yr <- dataset_all %>% group_by(cyr) %>% 
     summarize(ttl_sales = sum(netsales),
@@ -39,6 +39,7 @@ AnnualCatTypeData <- function(dataset, dataset_all=lmr_data) {
 # annual category data
 # use for: annual data by category type and category
 AnnualCatData <- function(dataset, dataset_all) {
+  cat("fn: AnnualCatData \n")
   # get totals for yr to use in % of total calculations
   # - should not change based on cat filters, since should be consistent % of total
   dataset_yr <- dataset_all %>% group_by(cat_type, cyr) %>% 
@@ -81,6 +82,7 @@ AnnualCatData <- function(dataset, dataset_all) {
 # - use for: annual data by category type and subcategory
 # - yoy calcs for subcategory account for multiple categories
 AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
+  cat("fn: AnnualSubCatData \n")
   # get totals for yr to use in % of total calculations
   # - should NOT change based on cat filters, since should be consistent % of total
   dataset_yr <- dataset_all %>% group_by(cyr, cat_type, category) %>% 
@@ -122,6 +124,7 @@ AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
 }
 # Qtr smry data
 QtrData <- function(dataset, n_qtr) {
+  cat("fn: Qtr data \n")
   # takes n_qtr from number of quarters selected in input selector for calc yoy lag
   dataset <- dataset %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
     summarize(netsales = sum(netsales),
@@ -137,6 +140,7 @@ QtrData <- function(dataset, n_qtr) {
 }
 # Qtr category summary data
 QtrCatData <- function(dataset, n_cats, n_qtr) {
+  cat("fn: QtrCatData \n")
   # takes data, number of categories from iput selector, number of quarters from input selector
   # number of quarters used to calculate yoy_qoq_sales, yoy_qoq_litres
   n_lag <- n_cats

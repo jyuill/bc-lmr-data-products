@@ -112,47 +112,7 @@ function(input, output, session) {
       str_detect(subcategory, "Other Country") ~ "Other Ctry"
     )
   )
-  ## refresh bev ----
-  refresh_data <- lmr_data %>% filter(cat_type == "Refresh Bev")
-  # rename categories for brevity
-  refresh_data <- refresh_data %>% mutate(
-    subcategory = case_when(
-      str_detect(subcategory,  "Domestic") ~ "Domestic",
-      str_detect(subcategory, "Import") ~ "Import",
-      str_detect(subcategory, "Malt") ~ "Malt-Based",
-      str_detect(subcategory,"Spirit") ~ "Spirit",
-      str_detect(subcategory, "Wine") ~ "Wine/Fruit"
-    )
-  )
-  ## spirits ----
-  spirits_data <- lmr_data %>% filter(cat_type == "Spirits")
-  # rename categories for brevity
-  spirits_data <- spirits_data %>% mutate(
-    category = case_when(
-      str_detect(category,  "Asian") ~ "Asian",
-      str_detect(category, "Other") ~ "Other",
-      str_detect(category, "Grape and Fruit") ~ "Brandy",
-      str_detect(category,"Liqueurs") ~ "Liqueur",
-      # default
-      TRUE ~ category
-    )
-  )
-  
-  ## wine ----
-  wine_data <- lmr_data %>% filter(cat_type == "Wine")
-  # rename categories for brevity
-  wine_data <- wine_data %>% mutate(
-    category = case_when(
-      str_detect(category,  "New Zealand") ~ "NZ",
-      str_detect(category, "Australia") ~ "Austrl",
-      str_detect(category, "Canada") ~ str_replace(category, "Canada","Can"),
-      str_detect(category, "Other") ~ "Other",
-      str_detect(category, "Wine") ~ str_replace(category, "Wine", ""),
-      # default
-      TRUE ~ category
-    )
-  )
-  
+  print(head(beer_data))
   # setup filters ----------------------------------------------------
   # Dynamically generate UI filters based on lmr_data
   # otherwise, app will crash because lmr_data not available for filters in ui.R
@@ -188,56 +148,6 @@ function(input, output, session) {
                                     selected = unique(beer_data$category),
                                     inline = FALSE
   )
-  dynamic_refresh_cat <- checkboxGroupInput(inputId = "refresh_cat_check", "Select a Category", 
-                                         choices = unique(refresh_data$category), 
-                                         selected = unique(refresh_data$category),
-                                         inline = FALSE
-  )
-  dynamic_spirits_cat <- checkboxGroupInput(inputId = "spirits_cat_check", "Select a Category", 
-                                            choices = unique(spirits_data$category), 
-                                            selected = unique(spirits_data$category),
-                                            inline = FALSE
-  )
-  dynamic_wine_cat <- checkboxGroupInput(inputId = "wine_cat_check", "Select a Category", 
-                                         choices = unique(wine_data$category), 
-                                         selected = unique(wine_data$category),
-                                         inline = FALSE
-  )
-  # drop-down picker: too many categories to shown in checkbox
-  dynamic_wine_cat_picker <- pickerInput(
-    inputId = "wine_cat_picker",
-    label = "Select a Category:",
-    choices = unique(wine_data$category),
-    selected = unique(wine_data$category),
-    multiple = TRUE,
-    options = list(
-      `actions-box` = TRUE,
-      `selected-text-format` = "count > 3",
-      `count-selected-text` = "{0} categories selected",
-      `live-search` = TRUE
-    )
-    )
-    ## additional drop-down for showing category charts
-    ## clunky but used to limit category charts while allowing for 
-    #  totals to be filtered by all categories
-    # get top 10 wine categories by sales
-    wine_cat_top <- wine_data %>% group_by(category) %>% 
-     summarize(netsales = sum(netsales)) %>% ungroup() %>%
-     arrange(desc(netsales)) %>% head(8)
-    
-    dynamic_wine_cat_chart_picker <- pickerInput(
-      inputId = "wine_cat_chart_picker",
-      label = "Select for Cat. Charts:",
-      choices = unique(wine_data$category),
-      selected = unique(wine_cat_top$category),
-      multiple = TRUE,
-      options = list(
-        `actions-box` = TRUE,
-        `selected-text-format` = "count > 3",
-        `count-selected-text` = "{0} cat. selected",
-        `live-search` = TRUE
-      )
-    )
   
   # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
   # Dynamic Sidebar ----
@@ -289,54 +199,7 @@ function(input, output, session) {
       )
     } 
   })
-  # TOTALS --------------------------------------------------------------
-  # apply filters to data ---------------------------------------------------
-  cat("01 apply filters \n")
-  # Filter the data set based on the selected categories
-  filtered_data <- reactive({
-    req(input$cyr_picker, input$qtr_check, input$cat_check)
-    lmr_data %>% filter(cyr %in% input$cyr_picker) %>%
-      filter(cqtr %in% input$qtr_check) %>%
-      filter(cat_type %in% input$cat_check)
-  })
-  cat("02 aggregate annual & qtr totals \n")
-  # Aggregate data ----
-  # annual and qtr totals ---------------------------------------------------
-  annual_data <- reactive({
-    filtered_data() %>% group_by(cyr) %>%
-    summarize(netsales = sum(netsales),
-              litres = sum(litres)) %>%
-    mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
-           yoy_litres = (litres - lag(litres))/lag(litres))
-  })
-  qtr_data <- reactive({
-    filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
-      summarize(netsales = sum(netsales)) %>% ungroup() %>%
-      mutate(qoq = (netsales - lag(netsales))/lag(netsales),
-             yr_qtr = paste(cyr, cqtr, sep = "-")
-      )
-    # for testing
-    #qtr_data <- lmr_data %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>% 
-    #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
-    #  mutate(qoq = (netsales - lag(netsales))/lag(netsales))
-  })
-  # agg by cat -------------------------------------------------------------------
-  ## annual data by cat
-  cat('03 aggregate annual data by cat \n')
-  annual_data_cat <- reactive({
-    AnnualCatTypeData(filtered_data())
-  })
-  # test
-  #ancattype <- AnnualCatTypeData(lmr_data)
   
-  qtr_data_cat <- reactive({
-    # need to base the qoq on the number of cats chosen in filter
-    n_qtr <- length(input$qtr_check)
-    n_cats <- length(input$cat_check)
-    filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt, cat_type) %>%
-      summarize(netsales = sum(netsales)) %>% ungroup() %>%
-      mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
-  })
   # PLOT THEMES--------------------------------------------------------------------
   ## ggplot themes ----
   theme_set(theme_light()+theme(panel.grid.minor = element_blank(),
@@ -384,20 +247,23 @@ function(input, output, session) {
   
     # $ SALES ---------------------------------------------------------------
     ## beer: apply filters to data ---------------------------------------------------
-    cat("01 apply beer filters \n")
+    cat("297: 01 apply beer filters \n")
     ## 1. Filter the data set based on the selected categories ----
     beer_filtered_data <- reactive({
       req(input$cyr_picker, input$qtr_check, input$beer_cat_check)
-      beer_data
+      #beer_data
       beer_data %>% filter(cyr %in% input$cyr_picker) %>%
         filter(cqtr %in% input$qtr_check) %>%
         filter(category %in% input$beer_cat_check)
     })
-    cat("02 aggregate annual & qtr totals \n")
+  
+    cat("306: 02 aggregate annual & qtr totals \n")
     ## 2. annual and qtr totals ---------------------------------------------------
+    cat("308: annual data \n")
     beer_annual_data <- reactive({
-      AnnualCatTypeData(beer_filtered_data())
+      AnnualCatTypeData(beer_filtered_data(), beer_filtered_data())
     })
+    cat("312: qtr data \n")
     beer_qtr_data <- reactive({
       QtrData(beer_filtered_data(), length(input$qtr_check))
     })
@@ -431,15 +297,17 @@ function(input, output, session) {
     ## CAT - origin ----
     ## data by cat ----
     ## yoy = $ SALES ONLY
+    cat("346: annual data \n")
     beer_annual_data_cat <- reactive({
       n_cats <- length(input$beer_cat_check)
-      AnnualCatData(beer_filtered_data(), beer_data)
+      AnnualCatData(beer_filtered_data(), beer_filtered_data())
     })
     # test annual category data
-    n_cats <- length(unique(beer_data$category))
-    beer_annual_test <- AnnualCatData(beer_data, beer_data)
+    #n_cats <- length(unique(beer_data$category))
+    #beer_annual_test <- AnnualCatData(beer_data, beer_filtered_data())
     
     # qtr
+    cat("356: quarterly data \n")
     beer_qtr_data_cat <- reactive({
       # need to base the qoq on the number of cats chosen in filter
       n_qtr <- length(input$qtr_check)
@@ -492,15 +360,15 @@ function(input, output, session) {
     ## SUBCAT data ----
     # annual
     beer_yr_data_subcat <- reactive({
-      cat("beer_subcat \n")
+      cat("409: beer_subcat \n")
       n_cats <- length(unique(beer_filtered_data()$category))
       n_subcats <- length(unique(beer_filtered_data()$subcategory))
       AnnualSubCatData(beer_filtered_data(), n_cats, n_subcats, beer_annual_data_cat())
     })
     # test
-    n_cats <- length(unique(beer_data$category))
-    n_subcats <- length(unique(beer_data$subcategory))
-    beer_annual_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_data)
+    #n_cats <- length(unique(beer_data$category))
+    #n_subcats <- length(unique(beer_data$subcategory))
+    #beer_annual_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_data)
     ## BC subcat ----
     ## PLOTS by BC subcategory ----
     output$beer_sales_yr_bc_cat <- renderPlotly({
@@ -586,7 +454,7 @@ function(input, output, session) {
 
     # LITRES ----
     ## beer: apply filters to data ---------------------------------------------------
-    cat("01 apply beer filters \n")
+    cat("503: 01 litres apply beer filters \n")
     ## 1. Filter the data set based on the selected categories ----
     beer_filtered_data <- reactive({
       req(input$cyr_picker, input$qtr_check, input$beer_cat_check)
@@ -595,10 +463,10 @@ function(input, output, session) {
         filter(cqtr %in% input$qtr_check) %>%
         filter(category %in% input$beer_cat_check)
     })
-    cat("02 aggregate annual & qtr totals \n")
+    cat("513: 02 litres aggregate annual & qtr totals \n")
     ## 2. annual and qtr totals ---------------------------------------------------
     beer_annual_data <- reactive({
-      AnnualCatTypeData(beer_filtered_data())
+      AnnualCatTypeData(beer_filtered_data(), beer_filtered_data())
     })
     beer_qtr_data <- reactive({
       QtrData(beer_filtered_data(), length(input$qtr_check))
@@ -635,13 +503,16 @@ function(input, output, session) {
     ## CAT - origin ----
     ## data by cat ----
     ## yoy = $ SALES ONLY
+    cat("552: yoy cat annual data \n")
     beer_annual_data_cat <- reactive({
       n_cats <- length(input$beer_cat_check)
-      AnnualCatData(beer_filtered_data(), beer_data)
+      #AnnualCatData(beer_filtered_data(), beer_data) # works -> questionable data
+      AnnualCatData(beer_filtered_data(), beer_filtered_data())
+      #AnnualCatData(beer_filtered_data()) # errors -> needs another data set
     })
     # test annual category data
-    n_cats <- length(unique(beer_data$category))
-    beer_annual_test <- AnnualCatData(beer_data, beer_data)
+    #n_cats <- length(unique(beer_data$category))
+    #beer_annual_test <- AnnualCatData(beer_data, beer_data)
     
     # qtr
     beer_qtr_data_cat <- reactive({
@@ -714,9 +585,9 @@ function(input, output, session) {
       AnnualSubCatData(beer_filtered_data(), n_cats, n_subcats, beer_annual_data_cat())
     })
     # test
-    n_cats <- length(unique(beer_data$category))
-    n_subcats <- length(unique(beer_data$subcategory))
-    beer_annual_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_data)
+    #n_cats <- length(unique(beer_data$category))
+    #n_subcats <- length(unique(beer_data$subcategory))
+    #beer_annual_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_data)
     ## BC subcat ----
     ## PLOTS by BC subcategory ----
     output$litre_sales_yr_bc_cat <- renderPlotly({
@@ -800,185 +671,6 @@ function(input, output, session) {
                   fill_color = bar_col, 
                   strp_color = bar_col,
                   theme_xax+theme_nleg, tunits = "num")
-    })
-    
-    ## treemap example ---------------------------------------------------------------
-    ## PLOTLY treemap wine countries, categories ----
-    output$wine_sales_country_treemap_plot <- renderPlotly({
-      cat("wine_country \n")
-      data <- wine_filtered_data()
-      # filter for most recent year in data set
-      #data <- data %>% filter(end_qtr_dt == max(data$end_qtr_dt))
-      data$cyr <- as.integer(as.character(data$cyr)) # need to convert cyr from factor
-      data <- data %>% filter(cyr == max(data$cyr))
-      # get most recent qtr for title
-      dynamic_title <- paste0(as.character(max(data$end_qtr_dt)), ": Most Recent Yr/Qtr (based on filters applied)")
-      # create shape needed for plotly treemap, based on 3 levels of hierarchy
-      # - each level, starting with cat_type is considered a child subcategory of a parent category
-      # - first level (cat_type) has blank parent category
-      # - everything else has category of one level above as parent
-      plotly_data <- bind_rows(
-        cat_type_data <- data %>% group_by(cat_type) %>% summarize(netsales = sum(netsales)) %>%
-          mutate(subcategory = cat_type, category = "") %>% select(subcategory, category, netsales),
-        cat_data <- data %>% group_by(cat_type, category) %>% summarize(netsales = sum(netsales)) %>%
-          mutate(subcategory = category, 
-                 category = cat_type) %>% ungroup() %>% select(subcategory, category, netsales),
-        subcat_data <- data %>% group_by(category, subcategory) %>% summarize(netsales = sum(netsales)) %>%
-          select(subcategory, category, netsales)
-      )
-      
-      # Create a treemap
-        plot_ly(
-          plotly_data,
-          type = "treemap",
-          labels = ~subcategory,        # Labels for subcategories
-          parents = ~category,          # Parent categories
-          values = ~netsales,              # Size of each rectangle
-          #textinfo = "label+values+percent parent", # Information displayed - overridden by texttemplate
-          branchvalues = "total",  # critical for % to add up to parent category
-          texttemplate = "%{label}<br>%{value:$,.0f} (% of cat/overall: %{percentParent:0.0%} / %{percentRoot:0.1%})",
-          hovertemplate = 
-            "<b>%{label}</b> Sales: $%{value:,} (% of cat./overall: %{percentParent:.0%} / %{percentRoot:0.1%})<extra></extra>" # Value in dollar format
-        ) %>% layout(
-            title = list(
-              text = dynamic_title,  # Chart title - set above to reflect most recent quarter selected
-              font = list(size = 16, color = "black"),             # Customize font size and color
-              x = 0,                                             # Center-align the title
-              xanchor = "left"                                   # Ensure proper alignment
-            )
-          )
-      
-    }) # end first treemap 
-    ## add comparison with earliest quarter in filter -> same chart, different filter
-    output$wine_sales_country_treemap_plot_earliest <- renderPlotly({
-      cat("wine_country \n")
-      data <- wine_filtered_data()
-      # filter for earliest quarter in data set
-      #data <- data %>% filter(end_qtr_dt == min(data$end_qtr_dt))
-      data$cyr <- as.integer(as.character(data$cyr)) # need to convert cyr from factor
-      data <- data %>% filter(cyr == min(data$cyr))
-      # get end_qtr_dt for title
-      dynamic_title <- paste0(as.character(max(data$end_qtr_dt)), " for Comparison (earliest yr based on filters applied)")
-      # create shape needed for plotly treemap, based on 3 levels of hierarchy
-      # - each level, starting with cat_type is considered a child subcategory of a parent category
-      # - first level (cat_type) has blank parent category
-      # - everything else has category of one level above as parent
-      plotly_data <- bind_rows(
-        cat_type_data <- data %>% group_by(cat_type) %>% summarize(netsales = sum(netsales)) %>%
-          mutate(subcategory = cat_type, category = "") %>% select(subcategory, category, netsales),
-        cat_data <- data %>% group_by(cat_type, category) %>% summarize(netsales = sum(netsales)) %>%
-          mutate(subcategory = category, 
-                 category = cat_type) %>% ungroup() %>% select(subcategory, category, netsales),
-        subcat_data <- data %>% group_by(category, subcategory) %>% summarize(netsales = sum(netsales)) %>%
-          select(subcategory, category, netsales)
-      )
-      
-      # Create a second treemap
-        plot_ly(
-          plotly_data,
-          type = "treemap",
-          labels = ~subcategory,        # Labels for subcategories
-          parents = ~category,          # Parent categories
-          values = ~netsales,              # Size of each rectangle
-          branchvalues = "total",  # critical for % to add up to parent category
-          texttemplate = "%{label}<br>%{value:$,.0f} (% of cat/overall: %{percentParent:0.0%} / %{percentRoot:0.1%})",
-          hovertemplate = 
-            "<b>%{label}</b> Sales: $%{value:,} (% of cat./overall: %{percentParent:.0%} / %{percentRoot:0.1%})<extra></extra>" # Value in dollar format
-        ) %>% layout(
-          title = list(
-            text = dynamic_title,  # title set above to reflect earliest quarter selected
-            font = list(size = 16, color = "black"),             # Customize font size and color
-            x = 0,                                             # Center-align the title
-            xanchor = "left"                                   # Ensure proper alignment
-          )
-        )
-    }) # end second treemap
-    # treemap for biggest gainers / losers in market share
-    output$wine_sales_country_treemap_plot_chg <- renderPlotly({
-      cat("wine_country \n")
-      data <- wine_filtered_data()
-      # filter for most recent year in data set
-      #data <- data %>% filter(end_qtr_dt == max(data$end_qtr_dt))
-      data <- data %>% filter(cyr_num == max(data$cyr_num) | cyr == min(data$cyr_num))
-      data <- data %>% group_by(cyr_num, cat_type, category, subcategory) %>% 
-        summarize(
-          end_qtr_dt = max(end_qtr_dt),
-          netsales = sum(netsales)) %>% ungroup()
-      # calculate % of total for each subcategory for each year
-      data <- data %>% group_by(cat_type, cyr_num) %>% 
-        mutate(pct_ttl_sales = netsales/sum(netsales)) %>% ungroup()
-      # test - each yr should add up to 1
-      #data %>% group_by(cyr_num) %>% summarize(pct_ttl_sales = sum(pct_ttl_sales, na.rm=TRUE))
-      #data %>% group_by(cyr_num, category) %>% summarize(pct_ttl_sales = sum(pct_ttl_sales, na.rm=TRUE))
-      data_chg_all <- data.frame()
-      for(s in 1:length(unique(data$subcategory))) {
-        subcat <- unique(data$subcategory)[s]
-        data_chg <- data %>% filter(subcategory == subcat) %>% 
-          mutate(pct_ttl_sales_chg = pct_ttl_sales - lag(pct_ttl_sales, n = 1))
-        data_chg_all <- bind_rows(data_chg_all, data_chg)
-      }
-      data_chg_all <- data_chg_all %>% filter(cyr_num == max(data_chg_all$cyr_num))
-      
-      # get most recent qtr for title
-      dynamic_title <- paste0("Rel. Chg in Mkt Share Pts ",
-                              as.character(max(data$end_qtr_dt)),
-                              " v ",
-                              as.character(min(data$end_qtr_dt))," (based on filters applied)")
-      # create shape needed for plotly treemap, based on 3 levels of hierarchy
-      # - each level, starting with cat_type is considered a child subcategory of a parent category
-      # - first level (cat_type) has blank parent category
-      # - everything else has category of one level above as parent
-      plotly_data <- bind_rows(
-        cat_type_data <- data_chg_all %>% group_by(cat_type) %>% 
-          summarize(pct_ttl_sales_chg = sum(pct_ttl_sales_chg, na.rm = TRUE)) %>%
-          mutate(subcategory = cat_type, category = "") %>% 
-          select(subcategory, category, pct_ttl_sales_chg),
-        cat_data <- data_chg_all %>% group_by(cat_type, category) %>% 
-          summarize(pct_ttl_sales_chg = sum(pct_ttl_sales_chg, na.rm = TRUE)) %>%
-          mutate(subcategory = category, 
-                 category = cat_type) %>% ungroup() %>% select(subcategory, category, pct_ttl_sales_chg),
-        subcat_data <- data_chg_all %>% group_by(category, subcategory) %>% 
-          summarize(pct_ttl_sales_chg = sum(pct_ttl_sales_chg, na.rm = TRUE)) %>%
-          select(subcategory, category, pct_ttl_sales_chg)
-      )
-      plotly_data <- plotly_data %>% mutate(
-        pct_ttl_sales_chg_up = pct_ttl_sales_chg*100
-      )
-      # need to rescale 0-1 -> treemap can't deal with giving size to negative number?
-      # - calls into question whether treemap is the right chart for this
-      # - maybe a heat map would be better?
-      plotly_data <- plotly_data %>% mutate(
-        pct_ttl_sales_chg_rs = scales::rescale(pct_ttl_sales_chg, to = c(0, 1))
-      )
-      # Create treemap
-      color_scale <- brewer.pal(6, "RdYlGn")
-      plot_ly(
-        plotly_data,
-        type = "treemap",
-        labels = ~subcategory,        # Labels for subcategories
-        parents = ~category,          # Parent categories
-        values = ~pct_ttl_sales_chg_rs,              # Size of each rectangle
-        text = ~paste0(round(pct_ttl_sales_chg_up, 1),"pts"), # Text to display on hover
-        textinfo = "label+text",
-        marker = list(colors = ~pct_ttl_sales_chg_rs, colorscale = list(
-          c(0, color_scale[1]),
-          c(0.25, color_scale[2]),
-            c(0.5, color_scale[3]),
-            c(0.75, color_scale[4]),
-            c(1, color_scale[5]))),
-        #branchvalues = "remainder",  # critical for % to add up to parent category
-        #texttemplate = "%{label}<br>%{value:.1%}", # Value in dollar format
-        hovertemplate = 
-          paste("<b>%{label}</b> Mkt Share % Pts:", round(plotly_data$pct_ttl_sales_chg_up, 1),"<extra></extra>")
-      ) %>% layout(
-        title = list(
-          text = dynamic_title,  # Chart title - set above to reflect most recent quarter selected
-          font = list(size = 16, color = "black"),             # Customize font size and color
-          x = 0,                                             # Center-align the title
-          xanchor = "left"                                   # Ensure proper alignment
-        )
-      )
-      
     })
 } # end server
 

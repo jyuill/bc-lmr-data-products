@@ -31,7 +31,7 @@ library(dotenv)
 # get config that has been set using config.yml (only needs to be done once)
 cat("get db_config \n")
 db_config <- config::get(config = "db")
-print(db_config)
+#print(db_config)
 endpt <- db_config$db$endpt
 apwd <- db_config$db$apwd
 aport <- db_config$db$aport
