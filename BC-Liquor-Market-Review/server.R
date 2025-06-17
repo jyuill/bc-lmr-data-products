@@ -1,10 +1,8 @@
-#
-# This is the server logic of a Shiny web application. You can run the
+# BC Liquor Market Review - server logic for Shiny web app
+# - LMR dashboard
+# You can run the
 # application by clicking 'Run App' above.
 #
-# Find out more about building applications with Shiny here:
-#
-#    https://shiny.posit.co/
 #
 cat("load libraries \n")
 library(shiny)
@@ -42,6 +40,13 @@ spirits_cat_color <- brewer.pal(n=12, name="Paired")
 # for wine categories, generate a custom color palette with 24 colors
 wine_cat_color <- colorRampPalette(brewer.pal(n=12, name="Paired"))(24)
 
+# get data ----
+# query database via separate file for tidyness
+# load here - only needed once per session
+# returns lmr_data frm cloud db with some cleaning 
+cat("00 query db from query.R \n")
+source('query_pg.R')
+
 # drop incomplete calendar year at start
 #tbl_yq <- table(lmr_data$cyr, lmr_data$cqtr)
 #if(any(tbl_yq[1,] == 0)) {
@@ -51,7 +56,7 @@ wine_cat_color <- colorRampPalette(brewer.pal(n=12, name="Paired"))(24)
 # load functions used - mostly plots
 source('functions.R')
 
-# Define server logic
+# Define server logic ----
 function(input, output, session) {
   # experiment with different bs themes
   #bslib::bs_themer()
@@ -62,11 +67,7 @@ function(input, output, session) {
   observeEvent(input$toggleSidebar, {
     toggle("sidebar")
   })
-  # get data ----
-  # query database via separate file for tidyness
-  ## all data ----
-  cat("00 query db from query.R \n")
-  source('query.R')
+  
   ## recent data ----
   # apply to yr filter as default to avoid over-crowding
   lmr_max <- max(lmr_data$cyr_num) # get current latest yr

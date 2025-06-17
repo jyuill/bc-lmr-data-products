@@ -1,28 +1,23 @@
 # Query cloud db for LMR dataset
+library(RPostgres)
 library(tidyverse) 
-library(RMariaDB) ## best way to access MySQL from R
-library(dotenv) # not sure if this actually does anything in this setup
 library(here)
 
 cat("load config \n")
 # Using config.yml for credentials
 # - (alternative to .Renviron file)
 # - system will automatically look for config.yml in parent folder
-# - needed for each app
+# - 
 # NOTE: config.yml is in .gitignore for security
-db_config <- config::get(config = "db")
-endpt <- db_config$db$endpt
-apwd <- db_config$db$apwd
-aport <- db_config$db$aport
-user <- db_config$db$user
-
+db_config <- config::get()
 print('connecting to db...')
 # connect to the database
-con_aws <- dbConnect(RMariaDB::MariaDB(),
-                     host=endpt,
-                     user='admin',
-                     password=apwd,
-                     port=aport)
+con_aws <- dbConnect(RPostgres::Postgres(),
+                     host=db_config$db_pg$endpt,
+                     dbname=db_config$db_pg$adb,
+                     user=db_config$db_pg$user,
+                     password=db_config$db_pg$apwd,
+                     port=db_config$db_pg$aport)
 # check underlying tables
 #t_data <- dbGetQuery(con_aws, "SELECT * FROM bcbg.tblLDB_lmr LIMIT 10")
 #q_data <- dbGetQuery(con_aws, "SELECT * FROM bcbg.tblLDB_quarter LIMIT 10")
@@ -40,8 +35,8 @@ lmr_data_db <- dbGetQuery(con_aws, "SELECT
                           , qtr.cyr
                           , qtr.season
                           , qtr.cqtr 
-                          FROM bcbg.tblLDB_lmr lmr 
-                          LEFT JOIN bcbg.tblLDB_quarter qtr 
+                          FROM public.lmr_data lmr 
+                          LEFT JOIN public.lmr_quarters qtr 
                           ON lmr.fy_qtr = qtr.fy_qtr;")
 
 # close connection
