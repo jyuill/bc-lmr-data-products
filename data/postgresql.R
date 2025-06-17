@@ -26,7 +26,7 @@ lmr_qtr_pg <- dbGetQuery(con,
 ## upload table data
 # Connect to AWS RDS
 # get credentials from config.yml
-db_config <- config::get(config = "db_pg")
+db_config <- config::get()
 endpt <- db_config$db_pg$endpt
 apwd <- db_config$db_pg$apwd
 aport <- db_config$db_pg$aport
