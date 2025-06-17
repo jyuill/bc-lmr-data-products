@@ -77,7 +77,7 @@ function(input, output, session) {
 # query database via separate file for tidyness
 # postgresql as of Jun 2025
 ## all data ----
-  source('query_pg.R')
+  source('query.R')
   ## recent data ----
   # apply to yr filter as default to avoid over-crowding
   lmr_max <- max(lmr_data$cyr_num) # get current latest yr
