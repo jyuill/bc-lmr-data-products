@@ -64,9 +64,9 @@ function(input, output, session) {
   # for toggling sidebar, using shinyjs 
   # - NOT USED - clunky
   # - makes sidebar disappear / appear but mainPanel doesn't expand - pointless
-  observeEvent(input$toggleSidebar, {
-    toggle("sidebar")
-  })
+  #observeEvent(input$toggleSidebar, {
+  #  toggle("sidebar")
+  #})
   
   ## recent data ----
   # apply to yr filter as default to avoid over-crowding

@@ -70,14 +70,15 @@ function(input, output, session) {
   # for toggling sidebar, using shinyjs 
   # - NOT USED - clunky
   # - makes sidebar disappear / appear but mainPanel doesn't expand - pointless
-  observeEvent(input$toggleSidebar, {
-    toggle("sidebar")
-  })
+  #observeEvent(input$toggleSidebar, {
+  #  toggle("sidebar")
+  #})
 # get data ----
 # query database via separate file for tidyness
 # postgresql as of Jun 2025
 ## all data ----
-  source('query.R')
+  #source('query.R')
+  source('query_pg.R')
   ## recent data ----
   # apply to yr filter as default to avoid over-crowding
   lmr_max <- max(lmr_data$cyr_num) # get current latest yr
