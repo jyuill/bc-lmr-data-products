@@ -9,7 +9,7 @@ cat("load config \n")
 # - system will automatically look for config.yml in parent folder
 # NOTE: config.yml is in .gitignore for security
 db_config <- config::get()
-print('connecting to db...')
+print('connecting to pg db...')
 # connect to the database
 con_aws <- dbConnect(RPostgres::Postgres(),
                      host=db_config$db_pg$endpt,
