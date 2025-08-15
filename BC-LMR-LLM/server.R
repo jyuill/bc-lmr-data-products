@@ -43,7 +43,7 @@ source('functions.R')
 # SRC: get data from AWS ----
 # query database via separate file for tidyness
 ## all data ----
-source('query.R')
+source(here('BC-LMR-LLM','query_pg.R'))
 lmr_data_bu <- lmr_data
 
 # GPT integration -----------------------------------------------------------

@@ -3,9 +3,15 @@
 library(DBI) # needed for duckdb
 library(duckdb) # needed for duckdb
 library(duckplyr) # used for duckdb
+library(glue) # good for parameterized queries of duckdb
+library(here)
 
 ## get src data ----
-data_src <- source('query.R')
+# run query to postgres database to get lmr_data
+source(here('BC-LMR-LLM','query_pg.R'))
+# not sure what this is for?
+#data_src <- source('query.R')
+data_src <- source(here('BC-LMR-LLM','query_pg.R'))
 data <- data_src$value
 
 # DuckDB connection
@@ -14,8 +20,8 @@ con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:", read_only = TRUE)  #
 #dbDisconnect(con)
 
 # DuckDB table
-# set up duckdb table
-duckdb::dbWriteTable(con, "duckdb_test", data, overwrite = TRUE)
+# set up duckdb table by loading in lmr_data
+duckdb::dbWriteTable(con, "duckdb_test", lmr_data, overwrite = TRUE)
 
 ## test queries ----
 test_db <- dbGetQuery(con, "SELECT * FROM duckdb_test LIMIT 10")
