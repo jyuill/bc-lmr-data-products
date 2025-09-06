@@ -1,6 +1,7 @@
 # Working with PostgreSQL database
 # installed on macbook via homebrew: (brew install postgresql)
 #install.packages("RPostgres")
+# for local db use pgAdmin to manage the database and make sure server is running
 
 library(RPostgres)
 library(tidyverse)
@@ -22,6 +23,7 @@ lmr_pg <- dbGetQuery(con,
   "SELECT * FROM public.lmr_data;")
 lmr_qtr_pg <- dbGetQuery(con,
   "SELECT * FROM public.lmr_quarters;")
+dbDisconnect(con)
 
 ## upload table data
 # Connect to AWS RDS
