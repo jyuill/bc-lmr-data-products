@@ -7,12 +7,13 @@ The data used is from the BC Liquor Market Review produced quarterly by the BC L
 the government agency responsible for liquor control within the province. 
 The dataset contains the sales data of BC Liquor Stores, in net Canadian dollars and litre volume, starting in 2015. 
 
-### Data source
+### Data source & Updates
 
 * source data is from the BC Liquor Distribution Branch collection of pdf reports: [BC Liquor Market Review reports](https://www.bcldb.com/publications/liquor-market-review)
-* data is extracted from pdf tables, cleaned, compiled and stored in a database on AWS RDS. Currently MySQL database.
+* data is extracted from pdf tables, cleaned, compiled and stored in a database on AWS RDS. Currently PostgreSQL database, originally MySQL.
 * database contains complete data going back to 2015, 
-while quarterly reports from LDB are in pdf format with only the most recent 5 quarters reported
+while quarterly reports from LDB are in pdf format with only the most recent 5 quarters reported.
+* **bc-lmr-update-explore** is a separate project (github repo) with code for data extraction from PDF report. When new report is published, this is the project used to extract data from pdf and update database.
 
 There are several component products in this project:
 
