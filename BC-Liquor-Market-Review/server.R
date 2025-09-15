@@ -324,7 +324,7 @@ function(input, output, session) {
     filtered_data() %>% group_by(cyr) %>%
     summarize(netsales = sum(netsales),
               litres = sum(litres),
-              max_qtr = max(as.character(cqtr)), # for yr flag
+              max_qtr = max(as.character(cqtr)) # for yr flag
             ) %>%
     mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
            yoy_litres = (litres - lag(litres))/lag(litres),
@@ -389,7 +389,7 @@ function(input, output, session) {
                        itemheight = 15)          # Position on the y-axis
   ## plot titles ----
   # consistent titles to apply across same charts
-  yr_sales <- "Net $ Sales"
+  yr_sales <- "Net $ Sales (grey = partial yr)"
   qtr_sales <- "Net $ Sales by Quarter"
   pop_chg_sales <- "% Chg in Sales - by Year"
   pop_chg_sales_qtr <- "% Chg in Sales by Qtr"
@@ -649,20 +649,10 @@ function(input, output, session) {
     })
     cat("02 aggregate annual & qtr totals \n")
     ## 2. annual and qtr totals ---------------------------------------------------
-    #beer_annual_data <- reactive({
-    #   beer_filtered_data() %>% group_by(cat_type, cyr) %>%
-    #    summarize(netsales = sum(netsales)) %>%
-    #    mutate(yoy = (netsales - lag(netsales))/lag(netsales))
-    #})
     beer_annual_data <- reactive({
       AnnualCatTypeData(beer_filtered_data())
     })
     beer_qtr_data <- reactive({
-      #beer_filtered_data() %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
-      #  summarize(netsales = sum(netsales)) %>% ungroup() %>%
-      #  mutate(qoq = (netsales - lag(netsales))/lag(netsales),
-      #         yr_qtr = paste(cyr, cqtr, sep = "-")
-      #  )
       QtrData(beer_filtered_data(), length(input$qtr_check))
     })
     ## BEER PLOTS ----
@@ -673,11 +663,11 @@ function(input, output, session) {
     output$beer_sales_yr <- renderPlotly({
       TtlChart(yr_sales, 
                beer_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
-               theme_xax+theme_nleg, "M")
+               theme_xax+theme_nleg, "M", yr_flag_color)
     })
     ## plot sales by quarter
     output$beer_sales_qtr <- renderPlotly({
-      TtlChart(qtr_sales, 
+      QtrChart(qtr_sales, 
                beer_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "M")
     })
@@ -882,13 +872,13 @@ function(input, output, session) {
     # - chart_title, dataset, bar col variable, list of theme modifications
     # - for themes, can list joined by '+'
     output$refresh_sales_yr <- renderPlotly({
-      TtlChart("Net Refresh Bev $ Sales by Year", 
+      TtlChart(yr_sales, 
                refresh_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
-               theme_xax+theme_nleg, "M")
+               theme_xax+theme_nleg, "M", yr_flag_color)
     })
     ## plot sales by quarter
     output$refresh_sales_qtr <- renderPlotly({
-      TtlChart("Net Refresh Bev $ Sales by Qtr", 
+      QtrChart(qtr_sales, 
                refresh_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "M")
     })
@@ -975,13 +965,13 @@ function(input, output, session) {
     # - chart_title, dataset, bar col variable, list of theme modifications
     # - for themes, can list joined by '+'
     output$spirits_sales_yr <- renderPlotly({
-      TtlChart("Net Spirits $ Sales by Year", 
+      TtlChart(yr_sales, 
                spirits_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
-               theme_xax+theme_nleg, "M")
+               theme_xax+theme_nleg, "M", yr_flag_color)
     })
     ## plot sales by quarter
     output$spirits_sales_qtr <- renderPlotly({
-      TtlChart("Net Spirits $ Sales by Qtr", 
+      QtrChart(qtr_sales, 
                spirits_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "M")
     })
@@ -1080,13 +1070,13 @@ function(input, output, session) {
     # - chart_title, dataset, bar col variable, list of theme modifications
     # - for themes, can list joined by '+'
     output$wine_sales_yr <- renderPlotly({
-      TtlChart("Net Wine $ Sales by Year", 
+      TtlChart(yr_sales, 
                wine_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
-               theme_xax+theme_nleg, "M")
+               theme_xax+theme_nleg, "M", yr_flag_color)
     })
     ## plot sales by quarter
     output$wine_sales_qtr <- renderPlotly({
-      TtlChart("Net Wine $ Sales by Qtr", 
+      QtrChart(qtr_sales, 
                wine_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "M")
     })

@@ -8,19 +8,25 @@ AnnualCatTypeData <- function(dataset, dataset_all=lmr_data) {
   # summarize higher level data for % of ttl calculations
   dataset_yr <- dataset_all %>% group_by(cyr) %>% 
     summarize(ttl_sales = sum(netsales),
-              ttl_litres = sum(litres)) %>% ungroup() 
+              ttl_litres = sum(litres),
+              max_qtr = max(as.character(cqtr)) # for partial yr flag
+            ) %>% 
+    mutate(# two yr flags - one for lines, one for points
+           yr_flag = ifelse(max_qtr == "Q4", "full", "partial"),
+           yr_flag_line = ifelse(yr_flag == "partial", "partial", lead(yr_flag))) %>% 
+    ungroup() 
   # summarize current level (cat_type)
   dataset <- dataset %>% group_by(cat_type, cyr) %>% 
-    summarize(netsales = sum(netsales),
-              litres = sum(litres)) %>% 
-      #ungroup() %>%
-    mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
-           yoy_litres = (litres - lag(litres))/lag(litres))
+              summarize(netsales = sum(netsales),
+                        litres = sum(litres)) %>% 
+                #ungroup() %>%
+              mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
+                    yoy_litres = (litres - lag(litres))/lag(litres))
   # add percent of totals for each category type
   # - join totals to category data set and calculate percentages
   dataset <- left_join(dataset, dataset_yr, by=c("cyr")) %>%
-    mutate(pct_ttl_sales = netsales/ttl_sales,
-           pct_ttl_litres = litres/ttl_litres)
+              mutate(pct_ttl_sales = netsales/ttl_sales,
+                     pct_ttl_litres = litres/ttl_litres)
   # add yoy chg calculations for % of total
   dataset <- dataset %>% 
     # convert cyr to number for lag calculation
@@ -152,21 +158,54 @@ QtrCatData <- function(dataset, n_cats, n_qtr) {
   return(dataset)
 }
 
-# Plot Sales for Category ----
-TtlChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, theme_list, tunits) {
+# Plot Category Data ----
+# total annual chart
+TtlChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
+                    theme_list, tunits, partial_yr_color) {
+  x <- dataset
+  x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
+  ch_title <- chart_title
+  x_partial <- x %>% filter(yr_flag_line == "partial")
+  p <- x %>%
+    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var),  
+            text = tooltip_text, group = 1)) +
+            # converted from bar to line Sep 2025
+            # add line info for total sales with partial yr grey line
+            # need two lines - one for all yrs, one for partial yrs
+            # get colors from two vectors - yr_flag and yr_flag_line
+            geom_line(linewidth = 1.5, color = fill_color) +
+            geom_line(data = x_partial, aes(color = yr_flag_line), linewidth = 1.5) +
+            geom_point(aes(color = yr_flag), size = 3) +
+            # use colors from pallette for full/partial yr 
+            scale_color_manual(values = partial_yr_color) +
+            scale_y_continuous(labels = label_currency(scale = 1e-6, suffix = "M", accuracy = 1),
+                              expand = expansion(mult=c(0,0.05)),
+                              limits = c(0, max(x[[y_var]], na.rm = TRUE))) +
+            labs(title=ch_title, x="", y="") +
+            theme_list
+  return(ggplotly(p, tooltip = "text"))
+}
+# quarter total chart
+# chg to line chart from bar chart Sep 2025; geom_points colored to match qtr color
+QtrChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
+                     theme_list, tunits) {
   x <- dataset
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
   ch_title <- chart_title
   p <- x %>%
-    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = !!sym(fill_var), text = tooltip_text)) +
-    geom_col() +
-    scale_y_continuous(labels = label_currency(scale = 1e-6, suffix = "M", accuracy = 1),
-                       expand = expansion(mult=c(0,0.05))) +
-    scale_fill_manual(values=fill_color) +
-    labs(title=ch_title, x="", y="") +
-    theme_list
+    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), color = !!sym(fill_var), 
+            text = tooltip_text, group = 1)) +
+            geom_line(linewidth = 1.5, color = '#081D58') + #hard-coded to match bar_color
+            geom_point(size = 3, aes(color = !!sym(fill_var))) +
+            scale_y_continuous(labels = label_currency(scale = 1e-6, suffix = tunits, accuracy = 1),
+                              expand = expansion(mult=c(0,0.05)),
+                              limits = c(0, max(x[[y_var]], na.rm = TRUE))) +
+            scale_color_manual(values=fill_color)+
+            labs(title=ch_title, x="", y="")+
+            theme_list
   return(ggplotly(p, tooltip = "text"))
 }
+
 
 # plot for period-over-period change in sales
 # - accommodates fill colors based on variable; use with single overall dimension if no breakdown
