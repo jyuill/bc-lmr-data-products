@@ -31,6 +31,9 @@ cat_type_color <- c("Beer"=bpal[6], "Refresh Bev"=bpal[3], "Spirits"=bpal[4], "W
 # - palette for quarters
 qpal <- brewer.pal(n=9, name="Blues")
 qtr_color <- c("Q1"=qpal[5], "Q2"=qpal[7], "Q3"=qpal[8], "Q4"=qpal[9])
+#max_qtr_color <- c("Q4"=bar_col, "Q3"=qpal[5], "Q2"=qpal[5], "Q1"=qpal[5])
+# for full vs partial year in annual charts
+yr_flag_color <- c("full"=bar_col, "partial"='grey70')
 # palette for beer categories
 beer_pal <- brewer.pal(n=11, name="RdYlGn")
 beer_cat_color <- c("BC"=beer_pal[11], "Other Prov"=beer_pal[7], "Import"=beer_pal[9])
@@ -45,6 +48,7 @@ wine_cat_color <- colorRampPalette(brewer.pal(n=12, name="Paired"))(24)
 # load here - only needed once per session
 # returns lmr_data frm cloud db with some cleaning 
 cat("00 query db from query.R \n")
+#source(here("BC-Liquor-Market-Review","query_pg.R")) # local testing
 source('query_pg.R')
 
 # drop incomplete calendar year at start
@@ -54,6 +58,7 @@ source('query_pg.R')
 #}
 
 # load functions used - mostly plots
+source(here("BC-Liquor-Market-Review","functions.R")) # local testing
 source('functions.R')
 
 # Define server logic ----
@@ -73,7 +78,9 @@ function(input, output, session) {
   lmr_max <- max(lmr_data$cyr_num) # get current latest yr
   lmr_yrs <- 6 # determine how many yrs back to go
   lmr_recent <- lmr_data %>% filter(cyr_num > lmr_max-lmr_yrs)
+  # get max date for note at top of sidebar
   lmr_max_date <- max(lmr_data$end_qtr_dt)
+
   # for top of sidebar on pg, set in dynamic sidebar
   lmr_max_note <- paste0("Data as of: ", format(lmr_max_date, "%b %d %Y"))
   ## RENAME categories ----
@@ -316,10 +323,17 @@ function(input, output, session) {
   annual_data <- reactive({
     filtered_data() %>% group_by(cyr) %>%
     summarize(netsales = sum(netsales),
-              litres = sum(litres)) %>%
+              litres = sum(litres),
+              max_qtr = max(as.character(cqtr)), # for yr flag
+            ) %>%
     mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
-           yoy_litres = (litres - lag(litres))/lag(litres))
+           yoy_litres = (litres - lag(litres))/lag(litres),
+           # two yr flags - one for lines, one for points
+           yr_flag = ifelse(max_qtr == "Q4", "full", "partial"),
+           yr_flag_line = ifelse(yr_flag == "partial", "partial", lead(yr_flag))
+          )
   })
+
   qtr_data <- reactive({
     filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
       summarize(netsales = sum(netsales)) %>% ungroup() %>%
@@ -340,14 +354,6 @@ function(input, output, session) {
   # test
   #ancattype <- AnnualCatTypeData(lmr_data)
   
-  # qtr_data_cat <- reactive({
-  #   # need to base the qoq on the number of cats chosen in filter
-  #   n_qtr <- length(input$qtr_check)
-  #   n_cats <- length(input$cat_check)
-  #   filtered_data() %>% group_by(cyr, cqtr, cyr_qtr, end_qtr_dt, cat_type) %>%
-  #     summarize(netsales = sum(netsales)) %>% ungroup() %>%
-  #     mutate(qoq = (netsales - lag(netsales, n = n_cats))/lag(netsales, n = n_cats))
-  # })
   # PLOT THEMES--------------------------------------------------------------------
   ## ggplot themes ----
   theme_set(theme_light()+theme(panel.grid.minor = element_blank(),
@@ -405,17 +411,22 @@ function(input, output, session) {
         # add tooltip column formatted to data
         x <- x %>% tooltip_fmt(dim = 'cyr', units = 'B', y_var = 'netsales') 
         # plot
-        ch_title <- "Net $ Sales by Year"
+        ch_title <- "Net $ Sales by Year (grey = partial yr)"
+        x_partial <- x %>% filter(yr_flag_line == "partial")
         p <- x %>%
-          ggplot(aes(x = cyr, y = netsales, text=tooltip_text)) +
-          geom_col(fill=bar_col) +
+          ggplot(aes(x = cyr, y = netsales, text=tooltip_text, group=1)) +
+          # main line
+          geom_line(linewidth = 1.5, color=bar_col) +
+          # additional ovelay for partial year
+          geom_line(data=x_partial, linewidth=1.5, aes(color=yr_flag_line)) +
+          geom_point(aes(color = yr_flag), size=3) + # points colored by full/partial yr
+          scale_color_manual(values=yr_flag_color) +
           scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
-                             expand = expansion(mult=c(0,0.05))) +
+                             expand = expansion(mult=c(0,0.05)),
+                             limits = c(0, max(x$netsales, na.rm = TRUE))) +
           labs(title=ch_title, x="", y="")+
-          theme_xax #+
-          #function to set tooltip format, based on dimension, units, and metric
-          #tooltip_fmt('cyr', 'B', 'netsales')
-          
+          theme_xax + theme_nleg
+      
         ggplotly(p, tooltip = "text") # specify tooltip to avoid default showing
     })
     # plot sales by quarter
@@ -424,14 +435,15 @@ function(input, output, session) {
       x <- x %>% tooltip_fmt(dim = 'cyr_qtr', units = 'M', y_var = 'netsales') 
       ch_title <- "Net $ Sales by Qtr"
       p <- x %>%
-        ggplot(aes(x = cyr_qtr, y = netsales, fill = cqtr, text = tooltip_text)) +
-        geom_col() +
+        ggplot(aes(x = cyr_qtr, y = netsales, text = tooltip_text, group = 1)) +
+        geom_line(size=1.5, color=bar_col) +
+        geom_point(size=3, aes(color=cqtr)) +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
-                           expand = expansion(mult=c(0,0.05))) +
-        scale_fill_manual(values=qtr_color)+
-        labs(title=ch_title, x="", y="")+
-        theme_xax+theme_xaxq+theme_nleg #+
-        #tooltip_fmt('cyr_qtr', "M", 'netsales')
+                           expand = expansion(mult=c(0,0.05)),
+                           limits = c(0, max(x$netsales, na.rm = TRUE))) +
+        scale_color_manual(values=qtr_color)+
+        labs(title=ch_title, x="", y="") +
+        theme_xax+theme_xaxq+theme_nleg 
       
       ggplotly(p, tooltip = "text")
     })

@@ -1,4 +1,6 @@
 # Query cloud db for LMR dataset
+# MySQL database -> DEPRECATED AUG 2025
+# Preserved for archival purposes
 library(tidyverse) 
 library(RMariaDB) ## best way to access MySQL from R
 library(dotenv) # not sure if this actually does anything in this setup
