@@ -389,9 +389,9 @@ function(input, output, session) {
                        itemheight = 15)          # Position on the y-axis
   ## plot titles ----
   # consistent titles to apply across same charts
-  yr_sales <- "Net $ Sales (grey = partial yr)"
+  yr_sales <- "Net $ Sales by Yr (grey = partial yr)"
   qtr_sales <- "Net $ Sales by Quarter"
-  pop_chg_sales <- "% Chg in Sales - by Year"
+  pop_chg_sales <- "% Chg in Sales - by Year (grey = partial yr)"
   pop_chg_sales_qtr <- "% Chg in Sales by Qtr"
   yr_sales_cat <-  "Sales by Category"
   yr_sales_pc_cat <-  "% Share of Ttl Sales"
@@ -411,7 +411,7 @@ function(input, output, session) {
         # add tooltip column formatted to data
         x <- x %>% tooltip_fmt(dim = 'cyr', units = 'B', y_var = 'netsales') 
         # plot
-        ch_title <- "Net $ Sales by Year (grey = partial yr)"
+        ch_title <- yr_sales
         x_partial <- x %>% filter(yr_flag_line == "partial")
         p <- x %>%
           ggplot(aes(x = cyr, y = netsales, text=tooltip_text, group=1)) +
@@ -433,7 +433,7 @@ function(input, output, session) {
     output$sales_qtr <- renderPlotly({
       x <- qtr_data()
       x <- x %>% tooltip_fmt(dim = 'cyr_qtr', units = 'M', y_var = 'netsales') 
-      ch_title <- "Net $ Sales by Qtr"
+      ch_title <- qtr_sales
       p <- x %>%
         ggplot(aes(x = cyr_qtr, y = netsales, text = tooltip_text, group = 1)) +
         geom_line(size=1.5, color=bar_col) +
@@ -456,16 +456,18 @@ function(input, output, session) {
       max_y <- max(x$yoy_sales, na.rm = TRUE)
       min_y <- min(x$yoy_sales, na.rm = TRUE)
       max_val <- max(abs(min_y), abs(max_y))
-      ch_title <- "% Chg Net $ Sales by Yr"
+      ch_title <- pop_chg_sales
+      
       p <- x %>% 
-        ggplot(aes(x = cyr, y = yoy_sales, text = tooltip_text)) +
-        geom_col(fill=bar_col) +
+        ggplot(aes(x = cyr, y = yoy_sales, fill = yr_flag, text = tooltip_text)) +
+        geom_col() +
+        scale_fill_manual(values=yr_flag_color) +
         geom_hline(yintercept = 0, linetype = "solid", color = "black") +
         scale_y_continuous(labels = scales::label_percent(accuracy = 0.1), 
                            expand = expansion(mult=c(0,0.05)),
                            limits = c(0 - max_val, max_val)) +
         labs(title=ch_title, x="", y="")+
-        theme_xax 
+        theme_xax+theme_nleg 
       ggplotly(p, tooltip = "text")
     })
     
@@ -675,7 +677,7 @@ function(input, output, session) {
     ### change in sales ----
     # - uses x_var to set x variable - in this case, 'cyr'
     output$beer_sales_yoy <- renderPlotly({
-      PoPChart(pop_chg_sales, beer_annual_data(), "cyr", "yoy_sales", "cat_type", bar_col, 
+      PoPChart(pop_chg_sales, beer_annual_data(), "cyr", "yoy_sales", "yr_flag", yr_flag_color, 
                theme_xax+theme_nleg, "%")
     })
     output$beer_sales_qoq <- renderPlotly({
@@ -885,7 +887,7 @@ function(input, output, session) {
     ### change in sales ----
     # - uses x_var to set x variable - in this case, 'cyr'
     output$refresh_sales_yoy <- renderPlotly({
-      PoPChart(pop_chg_sales, refresh_annual_data(), "cyr", "yoy_sales", "cat_type", bar_col, 
+      PoPChart(pop_chg_sales, refresh_annual_data(), "cyr", "yoy_sales", "yr_flag", yr_flag_color, 
                theme_xax+theme_nleg, "%")
     })
     output$refresh_sales_qoq <- renderPlotly({
@@ -978,11 +980,11 @@ function(input, output, session) {
     ### change in sales ----
     # - uses x_var to set x variable - in this case, 'cyr'
     output$spirits_sales_yoy <- renderPlotly({
-      PoPChart("% Chg Sales - Yr", spirits_annual_data(), "cyr", "yoy_sales", "cat_type", bar_col, 
+      PoPChart(pop_chg_sales, spirits_annual_data(), "cyr", "yoy_sales", "yr_flag", yr_flag_color, 
                theme_xax+theme_nleg, "%")
     })
     output$spirits_sales_qoq <- renderPlotly({
-      PoPChart("% Chg Sales - Qtr", spirits_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
+      PoPChart(pop_chg_sales_qtr, spirits_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "%")
     })
     ### categories ----
@@ -1083,11 +1085,11 @@ function(input, output, session) {
     ### change in sales ----
     # - uses x_var to set x variable - in this case, 'cyr'
     output$wine_sales_yoy <- renderPlotly({
-      PoPChart("% Chg Sales - Yr", wine_annual_data(), "cyr", "yoy_sales", "cat_type", bar_col, 
+      PoPChart(pop_chg_sales, wine_annual_data(), "cyr", "yoy_sales", "yr_flag", yr_flag_color, 
                theme_xax+theme_nleg, "%")
     })
     output$wine_sales_qoq <- renderPlotly({
-      PoPChart("% Chg Sales - Qtr", wine_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
+      PoPChart(pop_chg_sales_qtr, wine_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "%")
     })
     ### categories ----
