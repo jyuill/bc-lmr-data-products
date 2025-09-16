@@ -42,6 +42,10 @@ refresh_cat_color <- c("Cider"=beer_pal[10], "Coolers"=beer_pal[11])
 spirits_cat_color <- brewer.pal(n=12, name="Paired")
 # for wine categories, generate a custom color palette with 24 colors
 wine_cat_color <- colorRampPalette(brewer.pal(n=12, name="Paired"))(24)
+# linewidth for line charts
+lwidth <- 1.1
+# point size for line charts
+lpointsize <- 2.4
 
 # get data ----
 # query database via separate file for tidyness
@@ -58,7 +62,7 @@ source('query_pg.R')
 #}
 
 # load functions used - mostly plots
-source(here("BC-Liquor-Market-Review","functions.R")) # local testing
+#source(here("BC-Liquor-Market-Review","functions.R")) # local testing
 source('functions.R')
 
 # Define server logic ----
@@ -416,10 +420,10 @@ function(input, output, session) {
         p <- x %>%
           ggplot(aes(x = cyr, y = netsales, text=tooltip_text, group=1)) +
           # main line
-          geom_line(linewidth = 1.5, color=bar_col) +
+          geom_line(linewidth = lwidth, color=bar_col) +
           # additional ovelay for partial year
-          geom_line(data=x_partial, linewidth=1.5, aes(color=yr_flag_line)) +
-          geom_point(aes(color = yr_flag), size=3) + # points colored by full/partial yr
+          geom_line(data=x_partial, linewidth=lwidth, aes(color=yr_flag_line)) +
+          geom_point(aes(color = yr_flag), size=lpointsize) + # points colored by full/partial yr
           scale_color_manual(values=yr_flag_color) +
           scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                              expand = expansion(mult=c(0,0.05)),
@@ -436,8 +440,8 @@ function(input, output, session) {
       ch_title <- qtr_sales
       p <- x %>%
         ggplot(aes(x = cyr_qtr, y = netsales, text = tooltip_text, group = 1)) +
-        geom_line(size=1.5, color=bar_col) +
-        geom_point(size=3, aes(color=cqtr)) +
+        geom_line(size=lwidth, color=bar_col) +
+        geom_point(size=lpointsize, aes(color=cqtr)) +
         scale_y_continuous(labels = label_currency(scale = 1e-9, suffix = "B"),
                            expand = expansion(mult=c(0,0.05)),
                            limits = c(0, max(x$netsales, na.rm = TRUE))) +
@@ -665,13 +669,13 @@ function(input, output, session) {
     output$beer_sales_yr <- renderPlotly({
       TtlChart(yr_sales, 
                beer_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
-               theme_xax+theme_nleg, "M", yr_flag_color)
+               theme_xax+theme_nleg, "M", yr_flag_color, lwidth, lpointsize)
     })
     ## plot sales by quarter
     output$beer_sales_qtr <- renderPlotly({
       QtrChart(qtr_sales, 
                beer_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
-               theme_xax+theme_xaxq+theme_nleg, "M")
+               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
     })
     
     ### change in sales ----
@@ -876,13 +880,13 @@ function(input, output, session) {
     output$refresh_sales_yr <- renderPlotly({
       TtlChart(yr_sales, 
                refresh_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
-               theme_xax+theme_nleg, "M", yr_flag_color)
+               theme_xax+theme_nleg, "M", yr_flag_color, lwidth, lpointsize)
     })
     ## plot sales by quarter
     output$refresh_sales_qtr <- renderPlotly({
       QtrChart(qtr_sales, 
                refresh_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
-               theme_xax+theme_xaxq+theme_nleg, "M")
+               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
     })
     ### change in sales ----
     # - uses x_var to set x variable - in this case, 'cyr'
@@ -969,13 +973,13 @@ function(input, output, session) {
     output$spirits_sales_yr <- renderPlotly({
       TtlChart(yr_sales, 
                spirits_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
-               theme_xax+theme_nleg, "M", yr_flag_color)
+               theme_xax+theme_nleg, "M", yr_flag_color, lwidth, lpointsize)
     })
     ## plot sales by quarter
     output$spirits_sales_qtr <- renderPlotly({
       QtrChart(qtr_sales, 
                spirits_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
-               theme_xax+theme_xaxq+theme_nleg, "M")
+               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
     })
     ### change in sales ----
     # - uses x_var to set x variable - in this case, 'cyr'
@@ -1074,13 +1078,13 @@ function(input, output, session) {
     output$wine_sales_yr <- renderPlotly({
       TtlChart(yr_sales, 
                wine_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
-               theme_xax+theme_nleg, "M", yr_flag_color)
+               theme_xax+theme_nleg, "M", yr_flag_color, lwidth, lpointsize)
     })
     ## plot sales by quarter
     output$wine_sales_qtr <- renderPlotly({
       QtrChart(qtr_sales, 
                wine_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color, 
-               theme_xax+theme_xaxq+theme_nleg, "M")
+               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
     })
     ### change in sales ----
     # - uses x_var to set x variable - in this case, 'cyr'

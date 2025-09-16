@@ -15,6 +15,22 @@ The dataset contains the sales data of BC Liquor Stores, in net Canadian dollars
 while quarterly reports from LDB are in pdf format with only the most recent 5 quarters reported.
 * **bc-lmr-update-explore** is a separate project (github repo) with code for data extraction from PDF report. When new report is published, this is the project used to extract data from pdf and update database.
 
+## Publishing
+
+As of Sep 2025, products are R shiny apps hosted on [shinyapps.io](https://www.shinyapps.io/).
+
+For basic data updates, nothing needed as the apps connect directly to the database on AWS RDS.
+
+### Deploying changes to code
+
+**rsconnect**
+
+* each app has an rsconnect folder with account info for deployment
+* run the deploy-to-shiny.R file in each product folder to deploy the app
+* 
+
+## Products
+
 There are several component products in this project:
 
 ## Project 1: BC Liquor Market Review - Shiny Dashboard

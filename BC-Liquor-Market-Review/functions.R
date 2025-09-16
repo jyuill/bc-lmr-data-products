@@ -161,7 +161,7 @@ QtrCatData <- function(dataset, n_cats, n_qtr) {
 # Plot Category Data ----
 # total annual chart
 TtlChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
-                    theme_list, tunits, partial_yr_color) {
+                    theme_list, tunits, partial_yr_color, lwidth, lpointsize) {
   x <- dataset
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
   ch_title <- chart_title
@@ -173,9 +173,9 @@ TtlChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color,
             # add line info for total sales with partial yr grey line
             # need two lines - one for all yrs, one for partial yrs
             # get colors from two vectors - yr_flag and yr_flag_line
-            geom_line(linewidth = 1.5, color = fill_color) +
-            geom_line(data = x_partial, aes(color = yr_flag_line), linewidth = 1.5) +
-            geom_point(aes(color = yr_flag), size = 3) +
+            geom_line(linewidth = lwidth, color = fill_color) +
+            geom_line(data = x_partial, aes(color = yr_flag_line), linewidth = lwidth) +
+            geom_point(aes(color = yr_flag), size = lpointsize) +
             # use colors from pallette for full/partial yr 
             scale_color_manual(values = partial_yr_color) +
             scale_y_continuous(labels = label_currency(scale = 1e-6, suffix = "M", accuracy = 1),
@@ -188,15 +188,15 @@ TtlChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color,
 # quarter total chart
 # chg to line chart from bar chart Sep 2025; geom_points colored to match qtr color
 QtrChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
-                     theme_list, tunits) {
+                     theme_list, tunits, lwidth, lpointsize) {
   x <- dataset
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
   ch_title <- chart_title
   p <- x %>%
     ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), color = !!sym(fill_var), 
             text = tooltip_text, group = 1)) +
-            geom_line(linewidth = 1.5, color = '#081D58') + #hard-coded to match bar_color
-            geom_point(size = 3, aes(color = !!sym(fill_var))) +
+            geom_line(linewidth = lwidth, color = '#081D58') + #hard-coded to match bar_color
+            geom_point(size = lpointsize, aes(color = !!sym(fill_var))) +
             scale_y_continuous(labels = label_currency(scale = 1e-6, suffix = tunits, accuracy = 1),
                               expand = expansion(mult=c(0,0.05)),
                               limits = c(0, max(x[[y_var]], na.rm = TRUE))) +
