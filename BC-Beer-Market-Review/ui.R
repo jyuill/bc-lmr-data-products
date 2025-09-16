@@ -57,7 +57,7 @@ fluidPage(
             # tabPanel 1: Net $ ----
             tabPanel("Net $ Sales", value = 1,
                      fluidRow( ## fluidRow 1 ttl sales----
-                       tags$h2("Beer Sales by Year and Qtr (all cat.)", 
+                       tags$h2("Beer Net $ Sales by Year and Qtr (all cat.)", 
                                class='section',
                                id="beer_sales"),
                        column(width = 6,
@@ -76,7 +76,7 @@ fluidPage(
                         )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 src sales ----
-                       tags$h2("Beer Sales by Source", 
+                       tags$h2("Beer Net $ Sales by Source", 
                                class='section',
                                id="bsrc_sales"),
                        column(width = 6,
@@ -95,7 +95,7 @@ fluidPage(
                        )
                      ), # end fluidRow 4
                      fluidRow( ## fluidRow 5 bc cat ----
-                               tags$h2("BC-Produced Beer by Category: $ & %", 
+                               tags$h2("BC-Produced Beer by Category: Net $ Sales", 
                                        class='section',
                                        id="bcat_sales"),
                                column(width = 6,

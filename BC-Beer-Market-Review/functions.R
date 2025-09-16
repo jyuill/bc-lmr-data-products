@@ -3,24 +3,30 @@
 # Summary data ----
 # -- use for: annual data by category type (beer, refresh bev, spirits, wine)
 # -- - includes year-over-year changes in sales and litres
-AnnualCatTypeData <- function(dataset, dataset_all) {
-  cat("fn: AnnualCatTypeData\n")
+AnnualCatTypeData <- function(dataset, dataset_all=lmr_data) {
+  cat("AnnualCatTypeData\n")
   # summarize higher level data for % of ttl calculations
   dataset_yr <- dataset_all %>% group_by(cyr) %>% 
     summarize(ttl_sales = sum(netsales),
-              ttl_litres = sum(litres)) %>% ungroup() 
+              ttl_litres = sum(litres),
+              max_qtr = max(as.character(cqtr)) # for partial yr flag
+            ) %>% 
+    mutate(# two yr flags - one for lines, one for points
+           yr_flag = ifelse(max_qtr == "Q4", "full", "partial"),
+           yr_flag_line = ifelse(yr_flag == "partial", "partial", lead(yr_flag))) %>% 
+    ungroup() 
   # summarize current level (cat_type)
   dataset <- dataset %>% group_by(cat_type, cyr) %>% 
-    summarize(netsales = sum(netsales),
-              litres = sum(litres)) %>% 
-      #ungroup() %>%
-    mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
-           yoy_litres = (litres - lag(litres))/lag(litres))
+              summarize(netsales = sum(netsales),
+                        litres = sum(litres)) %>% 
+                #ungroup() %>%
+              mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
+                    yoy_litres = (litres - lag(litres))/lag(litres))
   # add percent of totals for each category type
   # - join totals to category data set and calculate percentages
   dataset <- left_join(dataset, dataset_yr, by=c("cyr")) %>%
-    mutate(pct_ttl_sales = netsales/ttl_sales,
-           pct_ttl_litres = litres/ttl_litres)
+              mutate(pct_ttl_sales = netsales/ttl_sales,
+                     pct_ttl_litres = litres/ttl_litres)
   # add yoy chg calculations for % of total
   dataset <- dataset %>% 
     # convert cyr to number for lag calculation
@@ -36,6 +42,7 @@ AnnualCatTypeData <- function(dataset, dataset_all) {
   dataset$cyr <- as.factor(dataset$cyr)
   return(dataset)
 }
+
 # annual category data
 # use for: annual data by category type and category
 AnnualCatData <- function(dataset, dataset_all) {
@@ -44,7 +51,12 @@ AnnualCatData <- function(dataset, dataset_all) {
   # - should not change based on cat filters, since should be consistent % of total
   dataset_yr <- dataset_all %>% group_by(cat_type, cyr) %>% 
     summarize(ttl_sales = sum(netsales),
-              ttl_litres = sum(litres)) %>% ungroup()
+              ttl_litres = sum(litres),
+              max_qtr = max(as.character(cqtr)) # for partial yr flag
+            ) %>% mutate(
+              yr_flag = ifelse(max_qtr == "Q4", "full", "partial"),
+              ) %>% 
+    ungroup()
   # summarize current level (category)
   dataset <- dataset %>% 
     group_by(cat_type, category, cyr) %>% 
@@ -83,11 +95,17 @@ AnnualCatData <- function(dataset, dataset_all) {
 # - yoy calcs for subcategory account for multiple categories
 AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
   cat("fn: AnnualSubCatData \n")
-  # get totals for yr to use in % of total calculations
+  # get category totals for yr to use in % of total calculations
   # - should NOT change based on cat filters, since should be consistent % of total
-  dataset_yr <- dataset_all %>% group_by(cyr, cat_type, category) %>% 
-    summarize(ttl_sales = sum(netsales),
-              ttl_litres = sum(litres)) %>% ungroup()
+   dataset_yr <- dataset_all %>% group_by(cyr, cat_type, category) %>% 
+                 summarize(ttl_sales = sum(netsales),
+                           ttl_litres = sum(litres),
+                           max_qtr = max(max_qtr)
+                         )  %>% 
+                 mutate(
+                   yr_flag = ifelse(max_qtr == "Q4", "full", "partial")
+                 ) %>% ungroup()
+  
   # add yoy calculations
   dataset <- dataset %>% group_by(cat_type, category, subcategory, cyr) %>% 
     summarize(netsales = sum(netsales),
@@ -119,7 +137,7 @@ AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
     mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales, n=1))*100,
            yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres, n=1))*100) %>% 
     ungroup()
-  print(dataset)
+  print(head(dataset))
   return(dataset)
 }
 # Qtr smry data
@@ -157,31 +175,61 @@ QtrCatData <- function(dataset, n_cats, n_qtr) {
 }
 
 # Plot Sales for Category ----
-TtlChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, theme_list, tunits) {
+TtlChart <- function(metric="", chart_title, dataset, x_var, y_var, fill_var, fill_color, 
+                    theme_list, tunits, 
+                    partial_yr_color = 'grey50', lwidth = 0.5, lpointsize = 1) {
+  x <- dataset
+  ch_title <- paste(metric, chart_title)
+  x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
+  x_partial <- x %>% filter(yr_flag_line == "partial")
+  p <- x %>%
+    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), text = tooltip_text, group = 1)) +
+        # line chart with overlay to indicate partial yr (converted from bar chart Sep 2025)
+        geom_line(linewidth = lwidth, color = fill_color) +
+        geom_line(data = x_partial, aes(color = yr_flag_line), linewidth = lwidth) +
+        geom_point(aes(color = yr_flag), size = lpointsize) +
+        # use colors from pallette for full/partial yr 
+        scale_color_manual(values = partial_yr_color) +
+        scale_y_continuous(labels = label_currency(scale = 1e-6, suffix = "M", accuracy = 1),
+                            expand = expansion(mult=c(0,0.05)),
+                            limits = c(0, max(x[[y_var]], na.rm = TRUE))) +
+        labs(title=ch_title, x="", y="") +
+        theme_list
+  return(ggplotly(p, tooltip = "text"))
+}
+
+# quarter total chart
+# chg to line chart from bar chart Sep 2025; geom_points colored to match qtr color
+QtrChart <- function(metric="",chart_title, dataset, x_var, y_var, fill_var, fill_color, 
+                     theme_list, tunits, lwidth = 0.5, lpointsize = 1) {
   x <- dataset
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
-  ch_title <- chart_title
+  ch_title <- paste(metric, chart_title)
   p <- x %>%
-    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = !!sym(fill_var), text = tooltip_text)) +
-    geom_col() +
-    scale_y_continuous(labels = label_currency(scale = 1e-6, suffix = "M", accuracy = 1),
-                       expand = expansion(mult=c(0,0.05))) +
-    scale_fill_manual(values=fill_color) +
-    labs(title=ch_title, x="", y="") +
-    theme_list
+    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), color = !!sym(fill_var), 
+            text = tooltip_text, group = 1)) +
+            geom_line(linewidth = lwidth, color = '#FEC44F') + #hard-coded to match bar_color
+            geom_point(size = lpointsize, aes(color = !!sym(fill_var))) +
+            scale_y_continuous(labels = label_currency(scale = 1e-6, suffix = tunits, accuracy = 1),
+                              expand = expansion(mult=c(0,0.05)),
+                              limits = c(0, max(x[[y_var]], na.rm = TRUE))) +
+            scale_color_manual(values=fill_color)+
+            labs(title=ch_title, x="", y="")+
+            theme_list
   return(ggplotly(p, tooltip = "text"))
 }
 
 # plot for period-over-period change in sales
 # - accommodates fill colors based on variable; use with single overall dimension if no breakdown
-PoPChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
+PoPChart <- function(metric = "", chart_title, dataset, x_var, y_var, fill_var, fill_color, 
                      theme_list, tunits) {
+  ch_title <- paste(metric, chart_title)
   x <- dataset
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
   max_y <- max(x[[y_var]], na.rm = TRUE)
   min_y <- min(x[[y_var]], na.rm = TRUE)
   max_val <- max(abs(min_y), abs(max_y))
-  ch_title <- chart_title
+  
   p <- x %>% 
     ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = !!sym(fill_var), 
                text = tooltip_text)) +
@@ -202,13 +250,13 @@ PoPChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color,
 # uses 'pos' variable so that can be used for unit or % stack charts (pos = 'stack' or 'dodge')
 # - includes programattic setting of label scales based on units provided (tunits)
 # - use going fwd; ideally, replace CatChart with this version (beer data)
-CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color, 
-                     pos, theme_list, tunits) {
+CatChart <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var, 
+                    fill_color, pos, theme_list, tunits) {
+  ch_title <- paste(metric, chart_title)
   x <- dataset
   x <- x %>% tooltip_fmt(dim = fill_var, units = tunits, y_var = y_var) %>% mutate(
     category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
   )
-  ch_title <- chart_title
   # set scales based on units - function below
   # applied in scale_y_continuous
   label_set <- label_fmt(tunits)
@@ -241,8 +289,9 @@ CatChart <- function(chart_title, dataset, x_var, y_var, fill_var, fill_color,
 }
 
 # facet charts for change ----
-CatChgChart <- function (chart_title, dataset, x_var, y_var, sort_var = "netsales", fill_var, facet_var, 
+CatChgChart <- function (metric, chart_title, dataset, x_var, y_var, sort_var = "netsales", fill_var, facet_var, 
                          fill_color, strp_color, theme_list, tunits="%") {
+  ch_title <- paste(metric, chart_title)
   x <- dataset
   max_y <- max(x[[y_var]], na.rm = TRUE)
   min_y <- min(x[[y_var]], na.rm = TRUE)
@@ -251,7 +300,6 @@ CatChgChart <- function (chart_title, dataset, x_var, y_var, sort_var = "netsale
     # sort categories by y_variable -> may not always want this
     !!sym(facet_var) := fct_reorder(!!sym(facet_var), !!sym(sort_var), .fun = sum)
     )
-  ch_title <- chart_title
   
   # set scales based on units - function below
   # applied in scale_y_continuous
