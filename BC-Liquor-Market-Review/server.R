@@ -43,9 +43,9 @@ spirits_cat_color <- brewer.pal(n=12, name="Paired")
 # for wine categories, generate a custom color palette with 24 colors
 wine_cat_color <- colorRampPalette(brewer.pal(n=12, name="Paired"))(24)
 # linewidth for line charts
-lwidth <- 1.1
+lwidth <- 1
 # point size for line charts
-lpointsize <- 2.4
+lpointsize <- 2.2
 
 # get data ----
 # query database via separate file for tidyness
@@ -395,8 +395,8 @@ function(input, output, session) {
   # consistent titles to apply across same charts
   yr_sales <- "Net $ Sales by Yr (grey = partial yr)"
   qtr_sales <- "Net $ Sales by Quarter"
-  pop_chg_sales <- "% Chg in Sales - by Year (grey = partial yr)"
-  pop_chg_sales_qtr <- "% Chg in Sales by Qtr"
+  pop_chg_sales <- "% Chg $ Sales - by Year (grey = partial yr)"
+  pop_chg_sales_qtr <- "% Chg $ Sales by Qtr"
   yr_sales_cat <-  "Sales by Category"
   yr_sales_pc_cat <-  "% Share of Ttl Sales"
   yr_sales_pc_chg_cat <- "% Chg in Sales"
