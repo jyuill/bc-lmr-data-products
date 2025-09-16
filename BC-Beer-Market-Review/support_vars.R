@@ -96,9 +96,9 @@ lpointsize <- 2.2
   yr_sales_cat_pc_chg <- "% Chg by BC Cat. (grey = partial yr)"
   yr_sales_cat_pcpt_chg <-  "% Pt Chg in Share by BC Cat."
   # Import category
-  yr_sales_imp <-  "Import Sales by Ctry/Region"
-  yr_sales_imp_pc <-  "% of Import Sales by Ctry/Region"
-  yr_sales_imp_pc_chg <- "% Chg by Ctry/Region (grey = partial yr)"
+  yr_sales_imp <-  "Import Sales - Ctry/Region"
+  yr_sales_imp_pc <-  "% Imports by Ctry/Region"
+  yr_sales_imp_pc_chg <- "% Chg by Ctry/Reg (grey=partial yr)"
   yr_sales_imp_pcpt_chg <-  "% Pt Chg in Share by Ctry/Region"
 
   # LITRE sales chart titles
