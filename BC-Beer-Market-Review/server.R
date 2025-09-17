@@ -177,7 +177,9 @@ function(input, output, session) {
         filter(cqtr %in% input$qtr_check) %>%
         filter(category %in% input$beer_cat_check)
     })
-  
+  #beer_filtered_test <- beer_data %>% filter(cyr_num < 2025)
+  #beer_annual_test <- AnnualCatTypeData(beer_data, beer_data)
+  #beer_filter_annual <- AnnualCatTypeData(beer_filtered_test, beer_filtered_test)
     cat("306: 02 aggregate annual & qtr totals \n")
     ## 2. annual and qtr totals ---------------------------------------------------
     cat("308: annual data \n")
@@ -195,7 +197,10 @@ function(input, output, session) {
     # - for themes, can list joined by '+'
     output$beer_sales_yr <- renderPlotly({
       TtlChart("Net $", yr_sales, 
-               beer_annual_data(), 'cyr', 'netsales', 'cat_type', bar_col, 
+               beer_annual_data(),
+               #beer_annual_test,
+               #beer_filter_annual,
+                'cyr', 'netsales', 'cat_type', bar_col, 
                theme_xax+theme_nleg, "M", yr_flag_color, lwidth, lpointsize)
     })
     ## plot sales by quarter

@@ -16,6 +16,9 @@ AnnualCatTypeData <- function(dataset, dataset_all=lmr_data) {
            yr_flag = ifelse(max_qtr == "Q4", "full", "partial"),
            yr_flag_line = ifelse(yr_flag == "partial", "partial", lead(yr_flag))) %>% 
     ungroup() 
+  dataset_yr <- dataset_yr %>% 
+    mutate(yr_flag_line = ifelse(is.na(yr_flag_line), "full", yr_flag_line), 
+  )
   # summarize current level (cat_type)
   dataset <- dataset %>% group_by(cat_type, cyr) %>% 
               summarize(netsales = sum(netsales),

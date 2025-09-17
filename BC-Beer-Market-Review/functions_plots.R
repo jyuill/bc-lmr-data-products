@@ -9,7 +9,12 @@ TtlChart <- function(metric="", chart_title, dataset, x_var, y_var, fill_var, fi
   ch_title <- paste(metric, chart_title)
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
   y_labels <- y_label_format(y_var, tunits)
-  x_partial <- x %>% filter(yr_flag_line == "partial")
+  # separate out partial year data for line overlay - if exists; otherwise use full dataset
+  if("partial" %in% unique(x$yr_flag_line)) {
+        x_partial <- x %>% filter(yr_flag_line == "partial")
+    } else {
+        x_partial <- x 
+    }
   p <- x %>%
     ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), text = tooltip_text, group = 1)) +
         # line chart with overlay to indicate partial yr (converted from bar chart Sep 2025)
@@ -24,7 +29,7 @@ TtlChart <- function(metric="", chart_title, dataset, x_var, y_var, fill_var, fi
         labs(title=ch_title, x="", y="") +
         theme_list
   return(ggplotly(p, tooltip = "text"))
-}
+  }
 
 # quarter total chart
 # chg to line chart from bar chart Sep 2025; geom_points colored to match qtr color

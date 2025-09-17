@@ -410,13 +410,20 @@ function(input, output, session) {
   # could be applied here but did not go back to refactor
     output$sales_yr <- renderPlotly({
       cat("sales data by year \n")
+        ch_title <- yr_sales
         # get filtered, aggregated data
         x <- annual_data()
         # add tooltip column formatted to data
         x <- x %>% tooltip_fmt(dim = 'cyr', units = 'B', y_var = 'netsales') 
         # plot
-        ch_title <- yr_sales
-        x_partial <- x %>% filter(yr_flag_line == "partial")
+        
+        # separate out partial year data for line overlay - if exists; otherwise use full dataset
+        if("partial" %in% unique(x$yr_flag_line)) {
+              x_partial <- x %>% filter(yr_flag_line == "partial")
+          } else {
+              x_partial <- x 
+          }
+        # plot
         p <- x %>%
           ggplot(aes(x = cyr, y = netsales, text=tooltip_text, group=1)) +
           # main line
