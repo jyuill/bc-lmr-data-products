@@ -1,0 +1,176 @@
+# Functions for patterns that recur over the categories
+# SPECIFICALLY FOR DATA MANIPULATION
+
+# Summary data ----
+# -- use for: annual data by category type (beer, refresh bev, spirits, wine)
+# -- - includes year-over-year changes in sales and litres
+AnnualCatTypeData <- function(dataset, dataset_all=lmr_data) {
+  cat("AnnualCatTypeData\n")
+  # summarize higher level data for % of ttl calculations
+  dataset_yr <- dataset_all %>% group_by(cyr) %>% 
+    summarize(ttl_sales = sum(netsales),
+              ttl_litres = sum(litres),
+              max_qtr = max(as.character(cqtr)) # for partial yr flag
+            ) %>% 
+    mutate(# two yr flags - one for lines, one for points
+           yr_flag = ifelse(max_qtr == "Q4", "full", "partial"),
+           yr_flag_line = ifelse(yr_flag == "partial", "partial", lead(yr_flag))) %>% 
+    ungroup() 
+  # summarize current level (cat_type)
+  dataset <- dataset %>% group_by(cat_type, cyr) %>% 
+              summarize(netsales = sum(netsales),
+                        litres = sum(litres)) %>% 
+                #ungroup() %>%
+              mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
+                    yoy_litres = (litres - lag(litres))/lag(litres))
+  # add percent of totals for each category type
+  # - join totals to category data set and calculate percentages
+  dataset <- left_join(dataset, dataset_yr, by=c("cyr")) %>%
+              mutate(pct_ttl_sales = netsales/ttl_sales,
+                     pct_ttl_litres = litres/ttl_litres)
+  # add yoy chg calculations for % of total
+  dataset <- dataset %>% 
+    # convert cyr to number for lag calculation
+    mutate(cyr = as.numeric(as.character(cyr))) %>%
+    group_by(cat_type) %>% # only need to group for cat_type
+    # multiply by 100 to get point values - avoid confusion with %
+    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales))*100,
+           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres))*100,
+           # creating dummy variable to enable color fill in facet plot
+           dummy_fill = 'x') %>% 
+      ungroup()
+  # reset cyr to factor for plotting
+  dataset$cyr <- as.factor(dataset$cyr)
+  return(dataset)
+}
+
+# annual category data
+# use for: annual data by category type and category
+AnnualCatData <- function(dataset, dataset_all) {
+  cat("fn: AnnualCatData \n")
+  # get totals for yr to use in % of total calculations
+  # - should not change based on cat filters, since should be consistent % of total
+  dataset_yr <- dataset_all %>% group_by(cat_type, cyr) %>% 
+    summarize(ttl_sales = sum(netsales),
+              ttl_litres = sum(litres),
+              max_qtr = max(as.character(cqtr)) # for partial yr flag
+            ) %>% mutate(
+              yr_flag = ifelse(max_qtr == "Q4", "full", "partial"),
+              ) %>% 
+    ungroup()
+  # summarize current level (category)
+  dataset <- dataset %>% 
+    group_by(cat_type, category, cyr) %>% 
+    summarize(netsales = sum(netsales),
+              litres = sum(litres)) %>% 
+    ungroup()
+  # get yoy calculations
+  dataset <- dataset %>% 
+    # convert cyr to number for lag calculation
+    mutate(cyr = as.numeric(as.character(cyr))) %>% 
+    group_by(cat_type, category) %>% 
+    mutate(yoy_sales = (netsales - lag(netsales))/lag(netsales),
+           yoy_litres = (litres - lag(litres))/lag(litres),
+          # order cat_type by sales
+           category = reorder(category, netsales, FUN = sum)
+    ) %>% ungroup()
+  # restore cyr to factor
+  dataset$cyr <- as.factor(dataset$cyr)
+  # add percent of totals for each category
+  # - join totals to category data set and calculate percentages
+  dataset <- left_join(dataset, dataset_yr, by=c("cat_type","cyr")) %>%
+    mutate(pct_ttl_sales = netsales/ttl_sales,
+           pct_ttl_litres = litres/ttl_litres)
+  # add yoy chg calculations for % of total
+  dataset <- dataset %>% 
+    group_by(category) %>%
+    # multiply by 100 to get point values - avoid confusion with %
+    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales))*100,
+           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres))*100) %>% 
+    ungroup()
+  return(dataset)
+}
+
+# subcategories data
+# - use for: annual data by category type and subcategory
+# - yoy calcs for subcategory account for multiple categories
+AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
+  cat("fn: AnnualSubCatData \n")
+  # get category totals for yr to use in % of total calculations
+  # - should NOT change based on cat filters, since should be consistent % of total
+   dataset_yr <- dataset_all %>% group_by(cyr, cat_type, category) %>% 
+                 summarize(ttl_sales = sum(netsales),
+                           ttl_litres = sum(litres),
+                           max_qtr = max(max_qtr)
+                         )  %>% 
+                 mutate(
+                   yr_flag = ifelse(max_qtr == "Q4", "full", "partial")
+                 ) %>% ungroup()
+  
+  # add yoy calculations
+  dataset <- dataset %>% group_by(cat_type, category, subcategory, cyr) %>% 
+    summarize(netsales = sum(netsales),
+              litres = sum(litres)) %>% 
+      ungroup() 
+  dataset <- dataset %>%
+    # convert cyr to number for lag calculation
+    mutate(cyr = as.numeric(as.character(cyr))) %>%
+    # group by cat_type, category, subcategory for yoy calcs
+    group_by(cat_type, category, subcategory) %>%
+    mutate(yoy_sales = (netsales - lag(netsales, n=1))/lag(netsales, n=1),
+           yoy_litres = (litres - lag(litres, n=1))/lag(litres, n=1),
+           subcategory = reorder(subcategory, netsales, FUN = sum)
+    ) %>% ungroup()
+  # restore cyr as factor
+  dataset$cyr <- as.factor(dataset$cyr)
+  # add percent of totals for each category
+  # - join totals to category data set and calculate percentages
+  dataset <- left_join(dataset, dataset_yr, by=c("cat_type","cyr","category")) %>%
+    mutate(pct_ttl_sales = netsales/ttl_sales,
+           pct_ttl_litres = litres/ttl_litres) %>% ungroup()
+  # add yoy chg calculations for % of total
+  dataset <- dataset %>% 
+    # convert cyr to number for lag calculation
+    mutate(cyr = as.numeric(as.character(cyr))) %>%
+    # group by subcategory for yoy calcs
+    group_by(cat_type, category, subcategory) %>%
+    # multiply by 100 to get point values - avoid confusion with %
+    mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales, n=1))*100,
+           yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres, n=1))*100) %>% 
+    ungroup()
+  print(head(dataset))
+  return(dataset)
+}
+# Qtr smry data
+QtrData <- function(dataset, n_qtr) {
+  cat("fn: Qtr data \n")
+  # takes n_qtr from number of quarters selected in input selector for calc yoy lag
+  dataset <- dataset %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>%
+    summarize(netsales = sum(netsales),
+              litres = sum(litres)) %>% ungroup() %>%
+    mutate(qoq_sales = (netsales - lag(netsales))/lag(netsales),
+           qoq_litres = (litres - lag(litres))/lag(litres),
+           yoy_qoq_sales = (netsales - lag(netsales, n=n_qtr))/lag(netsales, n=n_qtr),
+           # for same qtr prev yr comparisons
+           yoy_qoq_litres = (litres - lag(litres, n=n_qtr))/lag(litres, n=n_qtr),
+           yr_qtr = paste(cyr, cqtr, sep = "-")
+    )
+  return(dataset)
+}
+# Qtr category summary data
+QtrCatData <- function(dataset, n_cats, n_qtr) {
+  cat("fn: QtrCatData \n")
+  # takes data, number of categories from iput selector, number of quarters from input selector
+  # number of quarters used to calculate yoy_qoq_sales, yoy_qoq_litres
+  n_lag <- n_cats
+  dataset <- dataset %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, category) %>%
+    summarize(netsales = sum(netsales),
+              litres = sum(litres)) %>% ungroup() %>%
+    mutate(qoq_sales = (netsales - lag(netsales, n=n_lag))/lag(netsales, n=n_lag),
+           qoq_litres = (litres - lag(litres, n=n_lag))/lag(litres, n_lag),
+           yoy_qoq_sales = (netsales - lag(netsales, n=n_lag*n_qtr))/lag(netsales, n=n_lag*n_qtr),
+           yoy_qoq_litres = (litres - lag(litres, n=n_lag*n_qtr))/lag(litres, n=n_lag*n_qtr),
+           yr_qtr = paste(cyr, cqtr, sep = "-")
+    )
+  return(dataset)
+}

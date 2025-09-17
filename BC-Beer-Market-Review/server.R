@@ -21,8 +21,9 @@ library(treemapify)
 
 scipen <- options(scipen=999) # suppress scientific notation
 
-# load functions used - mostly plots ----
-source('functions.R')
+# load functions used: data manipulation and plots ----
+source('functions_data.R')
+source('functions_plots.R')
 # load support variables for plots etc
 source('support_vars.R')
 
@@ -214,7 +215,7 @@ function(input, output, session) {
       PoPChart("", pop_chg_sales_qtr, beer_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "%")
     })
-    ## CAT - origin ----
+    ## CAT - source / origin ----
     ## data by cat ----
     ## yoy = $ SALES ONLY
     cat("346: annual data \n")
@@ -244,7 +245,7 @@ function(input, output, session) {
       CatChart("Net $", yr_source_pc, 
                beer_annual_data_cat(), "cyr", "pct_ttl_sales","category", 
                beer_cat_color, "fill",
-               theme_xax,tunits="%")
+               theme_xax, tunits="%")
     })
     # ABANDONED:qtr - abandoned in favour of % of annual ttl
     # output$beer_sales_qtr_cat <- renderPlotly({
