@@ -54,8 +54,36 @@ fluidPage(
           class = "main",
           tabsetPanel( # tabsetPanel ----
             id = "tabselected",
-            # tabPanel 1: Net $ ----
-            tabPanel("Net $ Sales", value = 1,
+            # tabPanel 1: Overview ----
+            tabPanel("Overview", value = 1,
+                     fluidRow( ## fluidRow 1 overview comparison ----
+                       tags$h2("Quarterly Sales Comparison: Net $ vs Litres",
+                               class='section',
+                               id="overview_comparison"),
+                       column(width = 6,
+                              plotlyOutput("overview_sales_qtr")
+                       ),
+                       column(width = 6,
+                              plotlyOutput("overview_litres_qtr")
+                       )
+                     ), # end fluidRow 1
+                     fluidRow( ## fluidRow 2 overview YoY ----
+                       column(width = 6,
+                              plotlyOutput("overview_sales_yoy", height = "200px")
+                       ),
+                       column(width = 6,
+                              plotlyOutput("overview_litres_yoy", height = "200px")
+                       )
+                     ), # end fluidRow 2
+                     fluidRow( ## fluidRow 3 overview summary chart ----
+                       column(width = 12,
+                              tags$h2("Multi-Year Performance Summary", class='section', style="margin-top: 20px;"),
+                              plotlyOutput("overview_summary_chart", height = "300px")
+                       )
+                     ) # end fluidRow 3
+            ), # end tabPanel 1
+            # tabPanel 2: Net $ ----
+            tabPanel("Net $ Sales", value = 2,
                      fluidRow( ## fluidRow 1 ttl sales----
                        tags$h2("Beer Net $ Sales by Year and Qtr (all cat.)", 
                                class='section',
@@ -133,8 +161,8 @@ fluidPage(
                        )
                      ) # end fluidRow 8
             ), # end tabPanel 1
-            # tabPanel 2: Litres $ ----
-            tabPanel("Litre Sales", value = 2,
+            # tabPanel 3: Litres $ ----
+            tabPanel("Litre Sales", value = 3,
                      fluidRow( ## fluidRow 1 ttl sales----
                                tags$h2("Litre Sales by Year and Qtr (all cat.)", 
                                        class='section',
@@ -212,8 +240,8 @@ fluidPage(
                                )
                      ) # end fluidRow 8
             ), # end tabPanel 2
-            # tabPanel 3: About ----
-            tabPanel("About", value = 3,
+            # tabPanel 4: About ----
+            tabPanel("About", value = 4,
                      fluidRow( ## fluidRow 1 ----
                        tags$h2("About the BC Beer Sales Dashboard", 
                                class='section marginb',
