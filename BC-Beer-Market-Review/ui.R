@@ -284,6 +284,18 @@ fluidPage(
                      fluidRow( ## fluidRow 2: change log ----
                        tags$h3("Change Log", class="subabout"),
                        tags$p("Latest changes, developments, improvements"),
+                       tags$h4("2025-09-25", class='sub'),
+                       tags$p("New OVERVIEW tab added, with key summary charts comparing Net $ Sales and Litre Sales.
+                              This provides a high-level snapshot of overall trends, 
+                              without the need to dig through the more detailed tabs."),
+                       tags$h4("2025-09-15", class='sub'),
+                       tags$p("Converted original high-level bar charts to line charts for better trend visualization, 
+                              especially for YoY and QoQ comparisons."),
+                       tags$p("Added grey lines and bars to highlight comparisons based on partial years, to reduce potential confusnion."),
+                       tags$h4("2025-09-06", class='sub'),
+                       tags$p("DATA UPDATE: Updated with latest ",
+                        tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F25_26_Q1_June_2025.pdf",
+                        "Liquor Market Review data", class="non-tab")," for quarter ended ",tags$strong("Jun 30, 2025")),
                        tags$h4("2025-06-05", class='sub'),
                        tags$p("Fixed the way filters work relative to % of total charts, to ensure that the charts show 
                               % of total among the filtered data, rather than the total of all data."),
