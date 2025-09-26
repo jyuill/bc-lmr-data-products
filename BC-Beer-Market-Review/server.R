@@ -127,12 +127,25 @@ function(input, output, session) {
         dynamic_qtr,
         dynamic_beer_cat,
         tags$h4("Contents"),
-        tags$a(href="#beer_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-        tags$a(href="#bsrc_sales", "Sales by Source"), tags$br(),
+        tags$a(href="#overview_comparison", "Qtr Net $ & Litre Sales"),tags$br(),
+        tags$a(href="#multi_year_summary", "Multi-Yr Summary"),tags$br(),
+        tags$br(),
+        tags$h4("Notes"),
+        tags$p("Years & Quarters are calendar yr, not LDB fiscal year")
+      )
+    } else if (input$tabselected == 2) {
+      tagList(
+        tags$p(lmr_max_note, class="note"),
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_beer_cat,
+        tags$h4("Contents"),
+        tags$a(href="#beer_sales", "$ Sales by Yr & Qtr"),tags$br(),
+        tags$a(href="#bsrc_sales", "$ Sales by Source"), tags$br(),
         tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
         tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br()
       )
-    } else if (input$tabselected == 2) {
+    } else if (input$tabselected == 3) {
       tagList(
         tags$p(lmr_max_note, class="note"),
         dynamic_cyr,
@@ -144,7 +157,7 @@ function(input, output, session) {
           tags$a(href="#bcat_sales_litre", "BC Litres by Category"), tags$br(),
           tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br()
       )
-    } else if (input$tabselected == 3) {
+    } else if (input$tabselected == 4) {
       tagList(
         tags$h4("Contact"),
           # Placeholder span for the email address
@@ -191,6 +204,133 @@ function(input, output, session) {
       QtrData(beer_filtered_data(), length(input$qtr_check))
     })
     ## PLOTS ----
+    ### Overview tab plots ----
+    output$overview_sales_qtr <- renderPlotly({
+      QtrChart("Net $", qtr_sales,
+               beer_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color,
+               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
+    })
+
+    output$overview_litres_qtr <- renderPlotly({
+      QtrChart("Litres", qtr_sales,
+               beer_qtr_data(), 'cyr_qtr', 'litres', 'cqtr', qtr_color,
+               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
+    })
+
+    output$overview_sales_yoy <- renderPlotly({
+      PoPChart("Net $", "% Chg - same Qtr Prev Yr", beer_qtr_data(), "cyr_qtr", "yoy_qoq_sales", "cqtr", qtr_color,
+               theme_xax+theme_xaxq+theme_nleg, "%")
+    })
+
+    output$overview_litres_yoy <- renderPlotly({
+      PoPChart("Litres", "% Chg - same Qtr Prev Yr", beer_qtr_data(), "cyr_qtr", "yoy_qoq_litres", "cqtr", qtr_color,
+               theme_xax+theme_xaxq+theme_nleg, "%")
+    })
+
+    # Multi-year summary chart data
+    overview_summary_data <- reactive({
+      req(beer_qtr_data())
+      data <- beer_qtr_data()
+
+      # Get the most recent quarter in the filtered data
+      max_date <- max(data$end_qtr_dt, na.rm = TRUE)
+      most_recent <- data %>% filter(end_qtr_dt == max_date)
+
+      if(nrow(most_recent) == 0) return(NULL)
+
+      recent_qtr <- most_recent$cqtr[1]
+      recent_year <- as.numeric(as.character(most_recent$cyr[1]))
+
+      # Get all years in dataset for comparison
+      available_years <- sort(unique(as.numeric(as.character(data$cyr))))
+      years_back <- available_years[available_years < recent_year]
+
+      if(length(years_back) == 0) return(NULL)
+
+      # Create chart data in long format
+      chart_data <- data.frame()
+
+      # For each year back, calculate the percent change
+      for(i in seq_along(years_back)) {
+        year_back <- years_back[length(years_back) - i + 1]  # Start from most recent
+        years_diff <- recent_year - year_back
+        period_label <- paste0(years_diff, ifelse(years_diff == 1, " Year", " Years"))
+
+        # Find the comparison quarter
+        comparison_data <- data %>%
+          filter(cyr == year_back, cqtr == recent_qtr)
+
+        if(nrow(comparison_data) > 0) {
+          sales_pct <- round(((most_recent$netsales[1] - comparison_data$netsales[1]) / comparison_data$netsales[1]) * 100, 1)
+          litres_pct <- round(((most_recent$litres[1] - comparison_data$litres[1]) / comparison_data$litres[1]) * 100, 1)
+
+          # Add rows for both metrics
+          chart_data <- rbind(chart_data,
+                             data.frame(
+                               Period = period_label,
+                               Metric = "Net $ Sales",
+                               Percent_Change = sales_pct,
+                               stringsAsFactors = FALSE
+                             ),
+                             data.frame(
+                               Period = period_label,
+                               Metric = "Litre Sales",
+                               Percent_Change = litres_pct,
+                               stringsAsFactors = FALSE
+                             ))
+        }
+      }
+
+      # Order periods properly (1 Year, 2 Years, etc.)
+      if(nrow(chart_data) > 0) {
+        chart_data$Period <- factor(chart_data$Period, levels = unique(chart_data$Period))
+      }
+
+      return(chart_data)
+    })
+
+    output$overview_summary_chart <- renderPlotly({
+      data <- overview_summary_data()
+      req(data)
+
+      # Define subtle, neutral colors for the two metrics
+      metric_colors <- c("Net $ Sales" = "#708090", "Litre Sales" = "#A0A0A0")
+
+      # Create tooltip text and label text
+      data <- data %>%
+        mutate(tooltip_text = paste(Metric, "<br>",
+                                   Period, " Change: ",
+                                   ifelse(Percent_Change >= 0, "+", ""),
+                                   Percent_Change, "%"),
+               label_text = paste0(ifelse(Percent_Change >= 0, "+", ""), Percent_Change, "%"))
+
+      p <- data %>%
+        ggplot(aes(x = Period, y = Percent_Change, fill = Metric, text = tooltip_text)) +
+        geom_col(position = "dodge", width = 0.7) +
+        geom_text(aes(label = label_text, y = Percent_Change / 2),
+                  position = position_dodge(width = 0.7),
+                  size = 3,
+                  color = "white",
+                  fontface = "bold") +
+        geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 0.5) +
+        scale_fill_manual(values = metric_colors) +
+        scale_y_continuous(labels = scales::label_percent(scale = 1, accuracy = 1),
+                          expand = expansion(mult = c(0.05, 0.05))) +
+        labs(title = "% Change vs Same Quarter in Previous Years",
+             x = "", y = "", fill = "Metric") +
+        theme_minimal() +
+        theme(
+          plot.title = element_text(size = 14),
+          axis.text.x = element_text(size = 9),
+          axis.text.y = element_text(size = 8),
+          legend.title = element_text(size = 11),
+          legend.text = element_text(size = 10),
+          legend.position = "bottom"
+        )
+
+      return(ggplotly(p, tooltip = "text"))
+    })
+
     ### $ sales - yr, qtr ----
     # similar to overview but using functions to get plot, providing:
     # - chart_title, dataset, bar col variable, list of theme modifications
