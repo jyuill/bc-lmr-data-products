@@ -127,12 +127,25 @@ function(input, output, session) {
         dynamic_qtr,
         dynamic_beer_cat,
         tags$h4("Contents"),
-        tags$a(href="#beer_sales", "Ttl Sales by Yr & Qtr"),tags$br(),
-        tags$a(href="#bsrc_sales", "Sales by Source"), tags$br(),
+        tags$a(href="#overview_comparison", "Qtr Net $ & Litre Sales"),tags$br(),
+        tags$a(href="#multi_year_summary", "Multi-Yr Summary"),tags$br(),
+        tags$br(),
+        tags$h4("Notes"),
+        tags$p("Years & Quarters are calendar yr, not LDB fiscal year")
+      )
+    } else if (input$tabselected == 2) {
+      tagList(
+        tags$p(lmr_max_note, class="note"),
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_beer_cat,
+        tags$h4("Contents"),
+        tags$a(href="#beer_sales", "$ Sales by Yr & Qtr"),tags$br(),
+        tags$a(href="#bsrc_sales", "$ Sales by Source"), tags$br(),
         tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
         tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br()
       )
-    } else if (input$tabselected == 2) {
+    } else if (input$tabselected == 3) {
       tagList(
         tags$p(lmr_max_note, class="note"),
         dynamic_cyr,
@@ -144,7 +157,7 @@ function(input, output, session) {
           tags$a(href="#bcat_sales_litre", "BC Litres by Category"), tags$br(),
           tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br()
       )
-    } else if (input$tabselected == 3) {
+    } else if (input$tabselected == 4) {
       tagList(
         tags$h4("Contact"),
           # Placeholder span for the email address

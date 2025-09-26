@@ -77,10 +77,20 @@ fluidPage(
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 overview summary chart ----
                        column(width = 12,
-                              tags$h2("Multi-Year Performance Summary", class='section', style="margin-top: 20px;"),
+                              tags$h2("Multi-Year Performance Summary", 
+                              class='section', 
+                              id="multi_year_summary"),
                               plotlyOutput("overview_summary_chart", height = "300px")
                        )
-                     ) # end fluidRow 3
+                     ), # end fluidRow 3
+                     fluidRow( ## fluidRow 4 net $ and litres by source ----
+                       column(width = 12,
+                              tags$h2("Net $ Sales & Litres by Source", 
+                                      class='section',
+                                      id="overview_by_source"),
+                              tags$h4("Coming soon...")
+                       )
+                     ) # end fluidRow 4
             ), # end tabPanel 1
             # tabPanel 2: Net $ ----
             tabPanel("Net $ Sales", value = 2,
