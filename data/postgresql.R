@@ -1,4 +1,6 @@
 # Working with PostgreSQL database
+# 1. table setup - needed only once, when copying from local to AWS RDS
+# 2. check on connection, etc
 # installed on macbook via homebrew: (brew install postgresql)
 #install.packages("RPostgres")
 # for local db use pgAdmin to manage the database and make sure server is running
@@ -16,8 +18,10 @@ con <- dbConnect(
   user = "jy")
 # check tables
 dbListTables(con)
+# disconnect
 dbDisconnect(con)
-# fetch data for upload 
+
+# fetch local data from db for upload 
 # open con if previously closed
 lmr_pg <- dbGetQuery(con, 
   "SELECT * FROM public.lmr_data;")
@@ -52,6 +56,7 @@ con_aws <- dbConnect(
 #            lmr_qtr_pg,
 #            append = TRUE)
 # check data
+dbListTables(con)
 lmr_pgt <- dbGetQuery(con_aws, 
   "SELECT * FROM public.lmr_data LIMIT 10;")
 

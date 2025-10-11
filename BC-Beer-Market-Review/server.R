@@ -179,8 +179,8 @@ function(input, output, session) {
         } 
       })
   
-    # $ SALES ---------------------------------------------------------------
-    ## beer: apply filters to data ---------------------------------------------------
+    
+    # Data processing ---------------------------------------------------
     cat("297: 01 apply beer filters \n")
     ## 1. Filter the data set based on the selected categories ----
     beer_filtered_data <- reactive({
@@ -190,9 +190,9 @@ function(input, output, session) {
         filter(cqtr %in% input$qtr_check) %>%
         filter(category %in% input$beer_cat_check)
     })
-  #beer_filtered_test <- beer_data %>% filter(cyr_num < 2025)
-  #beer_annual_test <- AnnualCatTypeData(beer_data, beer_data)
-  #beer_filter_annual <- AnnualCatTypeData(beer_filtered_test, beer_filtered_test)
+    #beer_filtered_test <- beer_data %>% filter(cyr_num < 2025)
+    #beer_annual_test <- AnnualCatTypeData(beer_data, beer_data)
+    #beer_filter_annual <- AnnualCatTypeData(beer_filtered_test, beer_filtered_test)
     cat("306: 02 aggregate annual & qtr totals \n")
     ## 2. annual and qtr totals ---------------------------------------------------
     cat("308: annual data \n")
@@ -203,8 +203,40 @@ function(input, output, session) {
     beer_qtr_data <- reactive({
       QtrData(beer_filtered_data(), length(input$qtr_check))
     })
-    ## PLOTS ----
-    ### Overview tab plots ----
+    ## 3. by category (source / origin) ----
+    cat("346: annual data \n")
+    # annual
+    beer_annual_data_cat <- reactive({
+      n_cats <- length(input$beer_cat_check)
+      AnnualCatData(beer_filtered_data(), beer_filtered_data())
+    })
+    # test annual category data
+    #beer_annual_test <- AnnualCatData(beer_data, beer_data)
+    
+    # qtr
+    cat("356: quarterly data \n")
+    beer_qtr_data_cat <- reactive({
+      # need to base the qoq on the number of cats chosen in filter
+      n_qtr <- length(input$qtr_check)
+      n_cats <- length(input$beer_cat_check)
+      QtrCatData(beer_filtered_data(), n_cats, n_qtr)
+    })
+    ## 4. subcategory data ----
+    cat("375: subcategory data \n")
+    # annual
+    beer_yr_data_subcat <- reactive({
+      cat("409: beer_subcat \n")
+      n_cats <- length(unique(beer_filtered_data()$category))
+      n_subcats <- length(unique(beer_filtered_data()$subcategory))
+      AnnualSubCatData(beer_filtered_data(), n_cats, n_subcats, beer_annual_data_cat())
+    })
+    # test
+    #n_cats <- length(unique(beer_data$category))
+    #n_subcats <- length(unique(beer_data$subcategory))
+    #beer_annual_subcat_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_annual_test)
+    
+    # Overview tab -----------------------------------------------------
+    ### Qtr $ sales & litres ----
     output$overview_sales_qtr <- renderPlotly({
       QtrChart("Net $", qtr_sales,
                beer_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color,
@@ -216,7 +248,7 @@ function(input, output, session) {
                beer_qtr_data(), 'cyr_qtr', 'litres', 'cqtr', qtr_color,
                theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
     })
-
+    ### Qtr % chg - yoy ----
     output$overview_sales_yoy <- renderPlotly({
       PoPChart("Net $", "% Chg - same Qtr Prev Yr", beer_qtr_data(), "cyr_qtr", "yoy_qoq_sales", "cqtr", qtr_color,
                theme_xax+theme_xaxq+theme_nleg, "%")
@@ -227,7 +259,7 @@ function(input, output, session) {
                theme_xax+theme_xaxq+theme_nleg, "%")
     })
 
-    # Multi-year summary chart data
+    ### Multi-year summary chart data ---- 
     overview_summary_data <- reactive({
       req(beer_qtr_data())
       data <- beer_qtr_data()
@@ -330,8 +362,8 @@ function(input, output, session) {
 
       return(ggplotly(p, tooltip = "text"))
     })
-
-    ### $ sales - yr, qtr ----
+  # $ SALES ---------------------------------------------------------------
+    ## $ sales - yr, qtr ----
     # similar to overview but using functions to get plot, providing:
     # - chart_title, dataset, bar col variable, list of theme modifications
     # - for themes, can list joined by '+'
@@ -350,7 +382,7 @@ function(input, output, session) {
                theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
     })
     
-    ### change in sales ----
+    ## change in sales ----
     # - uses x_var to set x variable - in this case, 'cyr'
     output$beer_sales_yoy <- renderPlotly({
       PoPChart("", pop_chg_sales, beer_annual_data(), "cyr", "yoy_sales", "yr_flag", yr_flag_color, 
@@ -360,25 +392,7 @@ function(input, output, session) {
       PoPChart("", pop_chg_sales_qtr, beer_qtr_data(), "cyr_qtr", "qoq_sales", "cqtr", qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "%")
     })
-    ## CAT - source / origin ----
-    ## data by cat ----
-    ## yoy = $ SALES ONLY
-    cat("346: annual data \n")
-    beer_annual_data_cat <- reactive({
-      n_cats <- length(input$beer_cat_check)
-      AnnualCatData(beer_filtered_data(), beer_filtered_data())
-    })
-    # test annual category data
-    #beer_annual_test <- AnnualCatData(beer_data, beer_data)
     
-    # qtr
-    cat("356: quarterly data \n")
-    beer_qtr_data_cat <- reactive({
-      # need to base the qoq on the number of cats chosen in filter
-      n_qtr <- length(input$qtr_check)
-      n_cats <- length(input$beer_cat_check)
-      QtrCatData(beer_filtered_data(), n_cats, n_qtr)
-    })
     ## PLOTS by category (source / origin) ----
     output$beer_sales_yr_cat <- renderPlotly({
       CatChart("Net $", yr_source, 
@@ -422,18 +436,7 @@ function(input, output, session) {
                theme_xax+theme_nleg, tunits = "num")
     })
     
-    ## SUBCAT data ----
-    # annual
-    beer_yr_data_subcat <- reactive({
-      cat("409: beer_subcat \n")
-      n_cats <- length(unique(beer_filtered_data()$category))
-      n_subcats <- length(unique(beer_filtered_data()$subcategory))
-      AnnualSubCatData(beer_filtered_data(), n_cats, n_subcats, beer_annual_data_cat())
-    })
-    # test
-    #n_cats <- length(unique(beer_data$category))
-    #n_subcats <- length(unique(beer_data$subcategory))
-    #beer_annual_subcat_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_annual_test)
+    
     ## BC subcat ----
     ## PLOTS by BC subcategory ----
     output$beer_sales_yr_bc_cat <- renderPlotly({
@@ -517,24 +520,8 @@ function(input, output, session) {
     })
 
     # LITRES ----
-    ## beer: apply filters to data ---------------------------------------------------
-    cat("503: 01 litres apply beer filters \n")
-    ## 1. Filter the data set based on the selected categories ----
-    beer_filtered_data <- reactive({
-      req(input$cyr_picker, input$qtr_check, input$beer_cat_check)
-      beer_data
-      beer_data %>% filter(cyr %in% input$cyr_picker) %>%
-        filter(cqtr %in% input$qtr_check) %>%
-        filter(category %in% input$beer_cat_check)
-    })
-    cat("513: 02 litres aggregate annual & qtr totals \n")
-    ## 2. annual and qtr totals ---------------------------------------------------
-    beer_annual_data <- reactive({
-      AnnualCatTypeData(beer_filtered_data(), beer_filtered_data())
-    })
-    beer_qtr_data <- reactive({
-      QtrData(beer_filtered_data(), length(input$qtr_check))
-    })
+    ## Data sourced from above process ----
+    # filters apply the same across tabs
     ## PLOTS ----
     ### litre sales - yr, qtr ----
     # similar to overview but using functions to get plot, providing:

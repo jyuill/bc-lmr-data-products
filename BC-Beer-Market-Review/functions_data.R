@@ -153,8 +153,8 @@ QtrData <- function(dataset, n_qtr) {
               litres = sum(litres)) %>% ungroup() %>%
     mutate(qoq_sales = (netsales - lag(netsales))/lag(netsales),
            qoq_litres = (litres - lag(litres))/lag(litres),
-           yoy_qoq_sales = (netsales - lag(netsales, n=n_qtr))/lag(netsales, n=n_qtr),
            # for same qtr prev yr comparisons
+           yoy_qoq_sales = (netsales - lag(netsales, n=n_qtr))/lag(netsales, n=n_qtr),
            yoy_qoq_litres = (litres - lag(litres, n=n_qtr))/lag(litres, n=n_qtr),
            yr_qtr = paste(cyr, cqtr, sep = "-")
     )

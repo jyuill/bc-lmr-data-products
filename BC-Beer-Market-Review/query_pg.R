@@ -17,7 +17,8 @@ con_aws <- dbConnect(RPostgres::Postgres(),
                      user=db_config$db_pg$user,
                      password=db_config$db_pg$apwd,
                      port=db_config$db_pg$aport)
-# check underlying tables
+# check underlying tables - for testing
+#dbListTables(con_aws)
 # main query - all the data -> raw data joined with date dimensions
 # - everything from lmr, everything BUT fy_qtr from qtr to avoid duplication
 lmr_data_db <- dbGetQuery(con_aws, "SELECT 
