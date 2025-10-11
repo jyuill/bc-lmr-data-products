@@ -2,9 +2,9 @@
 # SPECIFICALLY FOR DATA MANIPULATION
 
 # Summary data ----
-# -- use for: annual data by category type (beer, refresh bev, spirits, wine)
+# -- use for: annual data by category type (beer only in this case)
 # -- - includes year-over-year changes in sales and litres
-AnnualCatTypeData <- function(dataset, dataset_all=lmr_data) {
+AnnualCatTypeData <- function(dataset, dataset_all=beer_data) {
   cat("AnnualCatTypeData\n")
   # summarize higher level data for % of ttl calculations
   dataset_yr <- dataset_all %>% group_by(cyr) %>% 

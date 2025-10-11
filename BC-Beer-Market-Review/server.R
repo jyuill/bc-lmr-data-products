@@ -79,6 +79,9 @@ function(input, output, session) {
     )
   )
   print(head(beer_data))
+  ### for testing ----
+  #beer_annual_test <- AnnualCatTypeData(beer_data, beer_data)
+  #beer_annual_cat_test <- AnnualCatData(beer_data, beer_data)
   # setup filters ----------------------------------------------------
   # Dynamically generate UI filters based on lmr_data
   # otherwise, app will crash because lmr_data not available for filters in ui.R
@@ -98,18 +101,13 @@ function(input, output, session) {
     )
   )
   ## qtr filters ----
-  dynamic_qtr <- checkboxGroupInput(inputId = "qtr_check", "Select a quarter", 
+  dynamic_qtr <- checkboxGroupInput(inputId = "qtr_check", "Select Quarter", 
                                     choices = sort(unique(lmr_data$cqtr)), 
                                     selected = unique(lmr_data$cqtr),
                                     inline = FALSE
   )
-  ## cat filters ----
-  dynamic_cat <- checkboxGroupInput(inputId = "cat_check", "Select a Category", 
-                                    choices = unique(lmr_data$cat_type), 
-                                    selected = unique(lmr_data$cat_type),
-                                    inline = FALSE
-  )
-  dynamic_beer_cat <- checkboxGroupInput(inputId = "beer_cat_check", "Select a Category", 
+  ## source/cat filters ----
+  dynamic_beer_cat <- checkboxGroupInput(inputId = "beer_cat_check", "Select Source", 
                                     choices = unique(beer_data$category), 
                                     selected = unique(beer_data$category),
                                     inline = FALSE
@@ -190,8 +188,8 @@ function(input, output, session) {
         filter(cqtr %in% input$qtr_check) %>%
         filter(category %in% input$beer_cat_check)
     })
+    # test
     #beer_filtered_test <- beer_data %>% filter(cyr_num < 2025)
-    #beer_annual_test <- AnnualCatTypeData(beer_data, beer_data)
     #beer_filter_annual <- AnnualCatTypeData(beer_filtered_test, beer_filtered_test)
     cat("306: 02 aggregate annual & qtr totals \n")
     ## 2. annual and qtr totals ---------------------------------------------------
@@ -362,6 +360,31 @@ function(input, output, session) {
 
       return(ggplotly(p, tooltip = "text"))
     })
+  
+  ## category by quarter ----
+  # line trend
+    output$beer_sales_qtr_cat_line <- renderPlotly({
+      CatChartLine("Net $","Qtrly by Source", 
+                beer_qtr_data_cat(), "cyr_qtr", "netsales", "category", beer_cat_color,
+                theme_xax+theme_xaxq, "M", lwidth, lpointsize)
+    })
+    output$beer_litre_qtr_cat_line <- renderPlotly({
+      CatChartLine("Litres","Qtrly by Source", 
+               beer_qtr_data_cat(), "cyr_qtr", "litres", "category", beer_cat_color,
+               theme_xax+theme_xaxq, "M", lwidth, lpointsize)
+    })
+  # stacked bar charts %
+    output$beer_sales_qtr_cat <- renderPlotly({
+       CatChart("Net $","Qtrly by Source % of Total", 
+                beer_qtr_data_cat(), "cyr_qtr", "netsales", "category", beer_cat_color, "fill",
+                theme_xax+theme_xaxq, "M")
+     })
+    output$beer_litre_qtr_cat <- renderPlotly({
+      CatChart("Litres","Qtrly by Source % of Total", 
+               beer_qtr_data_cat(), "cyr_qtr", "litres", "category", beer_cat_color, "fill",
+               theme_xax+theme_xaxq, "M")
+    })
+  
   # $ SALES ---------------------------------------------------------------
     ## $ sales - yr, qtr ----
     # similar to overview but using functions to get plot, providing:
@@ -393,7 +416,7 @@ function(input, output, session) {
                theme_xax+theme_xaxq+theme_nleg, "%")
     })
     
-    ## PLOTS by category (source / origin) ----
+    ## category (source / origin) ----
     output$beer_sales_yr_cat <- renderPlotly({
       CatChart("Net $", yr_source, 
                beer_annual_data_cat(), "cyr", "netsales","category", 
@@ -406,13 +429,8 @@ function(input, output, session) {
                beer_cat_color, "fill",
                theme_xax, tunits="%")
     })
-    # ABANDONED:qtr - abandoned in favour of % of annual ttl
-    # output$beer_sales_qtr_cat <- renderPlotly({
-    #   CatChart("Net $"," Qtrly Beer Sales by Source", 
-    #            beer_qtr_data_cat(), "cyr_qtr", "netsales", "category", beer_cat_color, "stack",
-    #            theme_xax+theme_xaxq, "M")
-    # })
-    ### facet: % change by source ----
+    
+    ## facet: % change by source ----
     output$beer_sales_yoy_cat_chg <- renderPlotly({
       x <- beer_annual_data_cat()
       CatChgChart("", yr_source_pc_chg, 

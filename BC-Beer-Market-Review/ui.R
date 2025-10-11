@@ -57,7 +57,7 @@ fluidPage(
             # tabPanel 1: Overview ----
             tabPanel("Overview", value = 1,
                      fluidRow( ## fluidRow 1 overview comparison ----
-                       tags$h2("Quarterly Sales Comparison: Net $ vs Litres",
+                       tags$h2("Quarterly Beer Sales Comparison: Net $ vs Litres",
                                class='section',
                                id="overview_comparison"),
                        column(width = 6,
@@ -85,12 +85,28 @@ fluidPage(
                      ), # end fluidRow 3
                      fluidRow( ## fluidRow 4 net $ and litres by source ----
                        column(width = 12,
-                              tags$h2("Net $ Sales & Litres by Source", 
+                              tags$h2("Net $ Beer Sales & Litres by Source", 
                                       class='section',
-                                      id="overview_by_source"),
-                              tags$h4("Coming soon...")
+                                      id="overview_by_source")
                        )
-                     ) # end fluidRow 4
+                     ), # end fluidRow 4
+                     fluidRow( ## fluidRow 5 net $ and litres by category line ----
+                       column(width = 6,  
+                              plotlyOutput("beer_sales_qtr_cat_line", height = "400px")
+                       ),
+                       column(width = 6,
+                              plotlyOutput("beer_litre_qtr_cat_line", height = "400px")
+                       )
+                     ), # end fluidRow 5
+                     fluidRow( ## fluidRow 6 net $ and litres by category ----
+                       column(width = 6,
+                              plotlyOutput("beer_sales_qtr_cat", height = "400px")
+                              ),
+                       column(width = 6,
+                              plotlyOutput("beer_litre_qtr_cat", height = "400px")
+                       )
+                     ), # end fluidRow 6
+                     
             ), # end tabPanel 1
             # tabPanel 2: Net $ ----
             tabPanel("Net $ Sales", value = 2,

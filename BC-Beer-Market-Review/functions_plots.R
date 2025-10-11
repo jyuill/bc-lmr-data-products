@@ -121,6 +121,49 @@ CatChart <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var,
   )
   return(p_plotly)
 }
+# line variation of CatChart
+# test zone
+#ggplot(data = beer_annual_cat_test, aes(x = cyr, y = netsales, group = category, 
+#  color = category)) +
+#  geom_line() +
+#  scale_color_manual(values = beer_cat_color)
+# actual chart
+CatChartLine <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var, 
+                    fill_color, theme_list, tunits, lwidth = 0.5, lpointsize = 1) {
+  ch_title <- paste(metric, chart_title)
+  x <- dataset
+  x <- x %>% tooltip_fmt(dim = fill_var, units = tunits, y_var = y_var) %>% mutate(
+    category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
+  )
+  # set scale labels based on variable and units (currency v commas)
+  y_labels <- y_label_format(y_var, tunits)
+  
+  p <- x %>%
+    ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), group = !!sym(fill_var), 
+               color = !!sym(fill_var), text = tooltip_text)) +
+    geom_line(linewidth = lwidth) +
+    scale_y_continuous(labels = y_labels,
+                       expand = expansion(mult=c(0,0.05))) +
+    scale_color_manual(values=fill_color)+
+    labs(title=ch_title, x="", y="")+
+    theme(legend.position = "top",
+          legend.title = element_blank(),
+          plot.margin = unit(c(1, 0, 0, 0), "cm"))+
+    theme_list
+  p_plotly <- ggplotly(p, tooltip = "text")
+  # Customize legend in plotly
+  p_plotly <- p_plotly %>% layout(
+    legend = list(
+      orientation = "h",     # Horizontal legend
+      x = 0.5,               # Center legend horizontally
+      xanchor = "center",    # Align legend center with x position
+      y = 1,                 # Place legend at the top
+      yanchor = "bottom",    # Align legend bottom with y position
+      title = list(text = "")  # Remove legend title
+    )
+  )
+  return(p_plotly)
+}
 
 # facet charts for change ----
 CatChgChart <- function (metric, chart_title, dataset, x_var, y_var, sort_var = "netsales", fill_var, facet_var, 
