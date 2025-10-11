@@ -161,7 +161,7 @@ QtrData <- function(dataset, n_qtr) {
   return(dataset)
 }
 # Qtr category summary data
-QtrCatData <- function(dataset, n_cats, n_qtr) {
+QtrCatData <- function(dataset, n_cats = 3, n_qtr = 4) {
   cat("fn: QtrCatData \n")
   # takes data, number of categories from iput selector, number of quarters from input selector
   # number of quarters used to calculate yoy_qoq_sales, yoy_qoq_litres

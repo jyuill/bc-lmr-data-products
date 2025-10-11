@@ -106,6 +106,14 @@ fluidPage(
                               plotlyOutput("beer_litre_qtr_cat", height = "400px")
                        )
                      ), # end fluidRow 6
+                     fluidRow( ## fluidRow 7 % chg yoy by category ----
+                       column(width = 6,
+                              plotlyOutput("sales_qtr_cat_yoy", height = "500px")
+                              ),
+                       column(width = 6,
+                              plotlyOutput("litres_qtr_cat_yoy", height = "500px")
+                       )
+                     ), # end fluidRow 7
                      
             ), # end tabPanel 1
             # tabPanel 2: Net $ ----

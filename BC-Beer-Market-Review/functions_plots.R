@@ -166,8 +166,9 @@ CatChartLine <- function(metric = "",chart_title, dataset, x_var, y_var, fill_va
 }
 
 # facet charts for change ----
-CatChgChart <- function (metric, chart_title, dataset, x_var, y_var, sort_var = "netsales", fill_var, facet_var, 
-                         fill_color, strp_color, theme_list, tunits="%") {
+CatChgChart <- function (metric, chart_title, dataset, x_var, y_var, 
+                        sort_var = "netsales", fill_var, facet_var, fill_color, 
+                        strp_color, theme_list, tunits="%", f_scales = "fixed") {
   ch_title <- paste(metric, chart_title)
   x <- dataset
   max_y <- max(x[[y_var]], na.rm = TRUE)
@@ -187,10 +188,10 @@ CatChgChart <- function (metric, chart_title, dataset, x_var, y_var, sort_var = 
                text = tooltip_text)) +
     geom_col() +
     geom_hline(yintercept = 0, linetype = "solid", color = "black") +
-    facet_grid(as.formula(paste(facet_var, "~ ."))) +
+    facet_grid(as.formula(paste(facet_var, "~ .")), scales = f_scales) +
     scale_y_continuous(labels = label_set,
                        expand = expansion(mult=c(0,0.05)),
-                       limits = c(0 - max_val, max_val)) +
+                       limits = c(0 - max_val, max_val)) + # overrides scales = "free"
     scale_fill_manual(values=fill_color) +
     theme(strip.background = element_rect(fill = strp_color)) +
     theme(strip.text=element_text(color='white'))+

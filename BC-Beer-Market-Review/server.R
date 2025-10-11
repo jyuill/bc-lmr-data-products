@@ -210,7 +210,7 @@ function(input, output, session) {
     })
     # test annual category data
     #beer_annual_test <- AnnualCatData(beer_data, beer_data)
-    
+  
     # qtr
     cat("356: quarterly data \n")
     beer_qtr_data_cat <- reactive({
@@ -219,6 +219,10 @@ function(input, output, session) {
       n_cats <- length(input$beer_cat_check)
       QtrCatData(beer_filtered_data(), n_cats, n_qtr)
     })
+    # test qtr category data
+    #beer_qtr_cat_test <- QtrCatData(beer_data)
+    
+  # by subcategory
     ## 4. subcategory data ----
     cat("375: subcategory data \n")
     # annual
@@ -384,6 +388,40 @@ function(input, output, session) {
                beer_qtr_data_cat(), "cyr_qtr", "litres", "category", beer_cat_color, "fill",
                theme_xax+theme_xaxq, "M")
     })
+  ## facet charts yoy % chg ----
+  # cat <- "category"
+  #  beer_qtr_cat_test %>% ggplot(aes(x=cyr_qtr, y=yoy_qoq_sales, fill=cqtr)) +
+  #    geom_col() +
+  #    facet_grid(as.formula(paste(cat,'~.')), scales = "free_y")+
+  #    scale_fill_manual(values = qtr_color) +
+  # scale_y_continuous(labels = label_percent(accuracy=1),
+  #                      expand = expansion(mult=c(0,0.05)),
+  #                      limits = c(0 - max_val, max_val))
+  # % chg yoy by source: same qtr prev yr, faceted by source
+    output$sales_qtr_cat_yoy <- renderPlotly({
+      CatChgChart("","Net $ Sales % Chg - same Qtr Prev Yr", 
+               beer_qtr_data_cat(), 
+               x_var = "cyr_qtr", y_var = "yoy_qoq_sales", 
+               sort_var = "netsales", 
+               fill_var = "cqtr", 
+               facet_var = "category",
+               fill_color = qtr_color, 
+               strp_color = strp_col,
+               theme_xax+theme_nleg, "%",
+               f_scales = "fixed")
+    })
+    output$litres_qtr_cat_yoy <- renderPlotly({
+        CatChgChart("","Litre Sales % Chg - same Qtr Prev Yr", 
+                beer_qtr_data_cat(), 
+                x_var = "cyr_qtr", y_var = "yoy_qoq_litres", 
+                sort_var = "netsales", 
+                fill_var = "cqtr", 
+                facet_var = "category",
+                fill_color = qtr_color, 
+                strp_color = strp_col,
+                theme_xax+theme_nleg,
+                f_scales = "free_y")
+    })
   
   # $ SALES ---------------------------------------------------------------
     ## $ sales - yr, qtr ----
@@ -430,7 +468,7 @@ function(input, output, session) {
                theme_xax, tunits="%")
     })
     
-    ## facet: % change by source ----
+    ## facet: % change by source ----  
     output$beer_sales_yoy_cat_chg <- renderPlotly({
       x <- beer_annual_data_cat()
       CatChgChart("", yr_source_pc_chg, 
@@ -470,7 +508,7 @@ function(input, output, session) {
                data, "cyr", "pct_ttl_sales","subcategory", beer_bc_cat_color, "fill", 
                theme_xax, "%")
     })
-    ## plots for bc beer subcategory yoy change in facets
+    ## plots for bc beer subcategory yoy change in facets  
     output$beer_sales_yoy_bc_cat_chg <- renderPlotly({
       x <- beer_yr_data_subcat() %>% filter(str_detect(subcategory, "BC"))
       CatChgChart("",yr_sales_cat_pc_chg, 
