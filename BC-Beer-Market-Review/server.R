@@ -86,6 +86,12 @@ function(input, output, session) {
   # Dynamically generate UI filters based on lmr_data
   # otherwise, app will crash because lmr_data not available for filters in ui.R
   # CHATGPT suggestion as alt to below
+  ## annual vs qtr grain filter ----
+  dynamic_grain <- radioButtons(inputId = "grain_check", "Select Grain:", 
+                                choices = c("Annual", "Quarterly"), 
+                                selected = "Quarterly",
+                                inline = FALSE
+  )
   ## year filter ----
   dynamic_cyr <- pickerInput(
     inputId = "cyr_picker",
@@ -101,13 +107,13 @@ function(input, output, session) {
     )
   )
   ## qtr filters ----
-  dynamic_qtr <- checkboxGroupInput(inputId = "qtr_check", "Select Quarter", 
+  dynamic_qtr <- checkboxGroupInput(inputId = "qtr_check", "Select Quarter:", 
                                     choices = sort(unique(lmr_data$cqtr)), 
                                     selected = unique(lmr_data$cqtr),
                                     inline = FALSE
   )
   ## source/cat filters ----
-  dynamic_beer_cat <- checkboxGroupInput(inputId = "beer_cat_check", "Select Source", 
+  dynamic_beer_cat <- checkboxGroupInput(inputId = "beer_cat_check", "Select Source:", 
                                     choices = unique(beer_data$category), 
                                     selected = unique(beer_data$category),
                                     inline = FALSE
@@ -121,6 +127,7 @@ function(input, output, session) {
     if (input$tabselected == 1) {
       tagList(
         tags$p(lmr_max_note, class="note"),
+        dynamic_grain,
         dynamic_cyr,
         dynamic_qtr,
         dynamic_beer_cat,
@@ -240,9 +247,17 @@ function(input, output, session) {
     # Overview tab -----------------------------------------------------
     ### Qtr $ sales & litres ----
     output$overview_sales_qtr <- renderPlotly({
-      QtrChart("Net $", qtr_sales,
+      req(input$grain_check)
+      if(input$grain_check == "Annual") {
+        TtlChart("Net $", yr_sales, 
+               beer_annual_data(),
+                'cyr', 'netsales', 'cat_type', bar_col, 
+               theme_xax+theme_nleg, "M", yr_flag_color, lwidth, lpointsize)
+      } else if(input$grain_check == "Quarterly") {
+        QtrChart("Net $", qtr_sales,
                beer_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color,
-               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
+               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)  
+      }
     })
 
     output$overview_litres_qtr <- renderPlotly({
