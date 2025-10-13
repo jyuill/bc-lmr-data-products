@@ -197,7 +197,7 @@ function(input, output, session) {
     })
     # test
     #beer_filtered_test <- beer_data %>% filter(cyr_num < 2025)
-    #beer_filter_annual <- AnnualCatTypeData(beer_filtered_test, beer_filtered_test)
+    #beer_filter_annual_test <- AnnualCatTypeData(beer_filtered_test, beer_filtered_test)
     cat("306: 02 aggregate annual & qtr totals \n")
     ## 2. annual and qtr totals ---------------------------------------------------
     cat("308: annual data \n")
@@ -205,6 +205,8 @@ function(input, output, session) {
       AnnualCatTypeData(beer_filtered_data(), beer_filtered_data())
     })
     cat("312: qtr data \n")
+    # test - qtr data
+    #beer_qtr_test <- QtrData(beer_data, length(unique(beer_data$cqtr)))
     beer_qtr_data <- reactive({
       QtrData(beer_filtered_data(), length(input$qtr_check))
     })
@@ -216,7 +218,7 @@ function(input, output, session) {
       AnnualCatData(beer_filtered_data(), beer_filtered_data())
     })
     # test annual category data
-    #beer_annual_test <- AnnualCatData(beer_data, beer_data)
+    #beer_annual_cat_test <- AnnualCatData(beer_data, beer_data)
   
     # qtr
     cat("356: quarterly data \n")
@@ -261,74 +263,112 @@ function(input, output, session) {
     })
 
     output$overview_litres_qtr <- renderPlotly({
-      QtrChart("Litres", qtr_sales,
+      req(input$grain_check)
+      if(input$grain_check == "Annual") {
+        TtlChart("Litres", yr_sales, 
+               beer_annual_data(),
+                'cyr', 'litres', 'cat_type', bar_col, 
+               theme_xax+theme_nleg, "M", yr_flag_color, lwidth, lpointsize)
+      } else if(input$grain_check == "Quarterly") {
+        QtrChart("Litres", qtr_sales,
                beer_qtr_data(), 'cyr_qtr', 'litres', 'cqtr', qtr_color,
-               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)
+               theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)  
+      }
     })
     ### Qtr % chg - yoy ----
     output$overview_sales_yoy <- renderPlotly({
-      PoPChart("Net $", "% Chg - same Qtr Prev Yr", beer_qtr_data(), "cyr_qtr", "yoy_qoq_sales", "cqtr", qtr_color,
+      req(input$grain_check)
+      if(input$grain_check == "Annual") {
+        PoPChart("", pop_chg_sales, beer_annual_data(), 
+              "cyr", "yoy_sales", "yr_flag", yr_flag_color, 
+               theme_xax+theme_nleg, "%")
+      } else if(input$grain_check == "Quarterly") {
+        PoPChart("Net $", "% Chg - same Qtr Prev Yr",  
+                beer_qtr_data(), "cyr_qtr", "yoy_qoq_sales", "cqtr", qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "%")
+      }
     })
 
     output$overview_litres_yoy <- renderPlotly({
-      PoPChart("Litres", "% Chg - same Qtr Prev Yr", beer_qtr_data(), "cyr_qtr", "yoy_qoq_litres", "cqtr", qtr_color,
+      req(input$grain_check)
+      if(input$grain_check == "Annual") {
+        PoPChart("", pop_chg_sales, beer_annual_data(), "cyr", "yoy_litres", "yr_flag", yr_flag_color, 
+               theme_xax+theme_nleg, "%")
+      } else if(input$grain_check == "Quarterly") {
+        PoPChart("Litres", "% Chg - same Qtr Prev Yr", beer_qtr_data(), 
+                "cyr_qtr", "yoy_qoq_litres", "cqtr", qtr_color,
                theme_xax+theme_xaxq+theme_nleg, "%")
+      } 
     })
 
     ### Multi-year summary chart data ---- 
     overview_summary_data <- reactive({
-      req(beer_qtr_data())
-      data <- beer_qtr_data()
-
-      # Get the most recent quarter in the filtered data
-      max_date <- max(data$end_qtr_dt, na.rm = TRUE)
-      most_recent <- data %>% filter(end_qtr_dt == max_date)
-
-      if(nrow(most_recent) == 0) return(NULL)
-
-      recent_qtr <- most_recent$cqtr[1]
-      recent_year <- as.numeric(as.character(most_recent$cyr[1]))
-
-      # Get all years in dataset for comparison
-      available_years <- sort(unique(as.numeric(as.character(data$cyr))))
-      years_back <- available_years[available_years < recent_year]
-
-      if(length(years_back) == 0) return(NULL)
-
-      # Create chart data in long format
-      chart_data <- data.frame()
-
-      # For each year back, calculate the percent change
-      for(i in seq_along(years_back)) {
-        year_back <- years_back[length(years_back) - i + 1]  # Start from most recent
-        years_diff <- recent_year - year_back
-        period_label <- paste0(years_diff, ifelse(years_diff == 1, " Year", " Years"))
-
-        # Find the comparison quarter
-        comparison_data <- data %>%
-          filter(cyr == year_back, cqtr == recent_qtr)
-
-        if(nrow(comparison_data) > 0) {
-          sales_pct <- round(((most_recent$netsales[1] - comparison_data$netsales[1]) / comparison_data$netsales[1]) * 100, 1)
-          litres_pct <- round(((most_recent$litres[1] - comparison_data$litres[1]) / comparison_data$litres[1]) * 100, 1)
-
-          # Add rows for both metrics
-          chart_data <- rbind(chart_data,
-                             data.frame(
-                               Period = period_label,
-                               Metric = "Net $ Sales",
-                               Percent_Change = sales_pct,
-                               stringsAsFactors = FALSE
-                             ),
-                             data.frame(
-                               Period = period_label,
-                               Metric = "Litre Sales",
-                               Percent_Change = litres_pct,
-                               stringsAsFactors = FALSE
-                             ))
+      req(beer_annual_data(), beer_qtr_data(), input$grain_check)
+      
+      if(input$grain_check == "Annual") {
+        data <- beer_annual_data()
+        # Create chart with year over year % change over each of 1 to n yrs based on number of yrs in filtered data
+        max_year <- max(as.numeric(as.character(data$cyr)), na.rm = TRUE)
+        min_year <- min(as.numeric(as.character(data$cyr)), na.rm = TRUE)
+        years_back <- max_year - min_year
+        if(years_back < 1) return(NULL)  # Need at least 2 years for comparison
+        chart_data <- data.frame()
+        for(i in min_year:max_year) {
+          
         }
+      } else if(input$grain_check == "Quarterly") {
+        data <- beer_qtr_data()
+        # Get the most recent quarter in the filtered data
+        max_date <- max(data$end_qtr_dt, na.rm = TRUE)
+        most_recent <- data %>% filter(end_qtr_dt == max_date)
+
+        if(nrow(most_recent) == 0) return(NULL)
+
+        recent_qtr <- most_recent$cqtr[1]
+        recent_year <- as.numeric(as.character(most_recent$cyr[1]))
+
+        # Get all years in dataset for comparison
+        available_years <- sort(unique(as.numeric(as.character(data$cyr))))
+        years_back <- available_years[available_years < recent_year]
+
+        if(length(years_back) == 0) return(NULL)
+
+        # Create chart data in long format
+        chart_data <- data.frame()
+
+        # For each year back, calculate the percent change
+        for(i in seq_along(years_back)) {
+          year_back <- years_back[length(years_back) - i + 1]  # Start from most recent
+          years_diff <- recent_year - year_back
+          period_label <- paste0(years_diff, ifelse(years_diff == 1, " Year", " Years"))
+
+          # Find the comparison quarter
+
+          comparison_data <- data %>%
+            filter(cyr == year_back, cqtr == recent_qtr)
+
+          if(nrow(comparison_data) > 0) {
+            sales_pct <- round(((most_recent$netsales[1] - comparison_data$netsales[1]) / comparison_data$netsales[1]) * 100, 1)
+            litres_pct <- round(((most_recent$litres[1] - comparison_data$litres[1]) / comparison_data$litres[1]) * 100, 1)
+
+            # Add rows for both metrics
+            chart_data <- rbind(chart_data,
+                                data.frame(
+                                  Period = period_label,
+                                  Metric = "Net $ Sales",
+                                  Percent_Change = sales_pct,
+                                  stringsAsFactors = FALSE
+                                ),
+                                data.frame(
+                                  Period = period_label,
+                                  Metric = "Litre Sales",
+                                  Percent_Change = litres_pct,
+                                  stringsAsFactors = FALSE
+                                ))
+            }
+          }
       }
+      
 
       # Order periods properly (1 Year, 2 Years, etc.)
       if(nrow(chart_data) > 0) {
@@ -632,7 +672,7 @@ function(input, output, session) {
       })
     # test annual category data
     #n_cats <- length(unique(beer_data$category))
-    #beer_annual_test <- AnnualCatData(beer_data, beer_data)
+    #beer_annual_cat_test <- AnnualCatData(beer_data, beer_data)
     
     # qtr
     beer_qtr_data_cat <- reactive({
@@ -707,7 +747,7 @@ function(input, output, session) {
     # test
     #n_cats <- length(unique(beer_data$category))
     #n_subcats <- length(unique(beer_data$subcategory))
-    #beer_annual_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_data)
+    #beer_annual_subcat_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_data)
     ## BC subcat ----
     ## PLOTS by BC subcategory ----
     output$litre_sales_yr_bc_cat <- renderPlotly({
