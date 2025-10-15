@@ -112,7 +112,7 @@ fluidPage(
                        )
                      ), # end fluidRow 6
                      fluidRow( ## fluidRow 7 % chg yoy by category ----
-                       tags$h3("How are sales by changing by source for comparative periods?", 
+                       tags$h3("How are sales changing by source for comparative periods?", 
                        class='subtitle'),
                        column(width = 6,
                               plotlyOutput("sales_qtr_cat_yoy", height = "500px")
@@ -322,30 +322,46 @@ fluidPage(
                      fluidRow( ## fluidRow 2: change log ----
                        tags$h3("Change Log", class="subabout"),
                        tags$p("Latest changes, developments, improvements"),
+                       tags$h4("2025-10-14"),
+                       tags$p("Overview: Added 'Annual' or 'Quarterly' time grain setting. 
+                       Updated all charts to respond to this filter and show data by year or quarter accordingly for 
+                       broader range of insights from the same page.", class="about"),
+                       tags$p("Overview: Built out charts for source/origin of beer 
+                       (BC, Import, Other Canada).", class="about"),
                        tags$h4("2025-09-25"),
                        tags$p("New OVERVIEW tab added, with key summary charts comparing Net $ Sales and Litre Sales.
                               This provides a high-level snapshot of overall trends, 
-                              without the need to dig through the more detailed tabs."),
+                              without the need to dig through the more detailed tabs.",
+                              class="about"),
                        tags$h4("2025-09-15"),
                        tags$p("Converted original high-level bar charts to line charts for better trend visualization, 
-                              especially for YoY and QoQ comparisons."),
-                       tags$p("Added grey lines and bars to highlight comparisons based on partial years, to reduce potential confusnion."),
+                              especially for YoY and QoQ comparisons.",
+                              class="about"),
+                       tags$p("Added grey lines and bars to highlight comparisons based on partial years, 
+                              to help with comparisons between full years and partial years, to reduce potential confusnion.",
+                              class="about"),
                        tags$h4("2025-09-06"),
                        tags$p("DATA UPDATE: Updated with latest ",
                         tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F25_26_Q1_June_2025.pdf",
-                        "Liquor Market Review data", class="non-tab")," for quarter ended ",tags$strong("Jun 30, 2025")),
+                        "Liquor Market Review data", class="non-tab")," for quarter ended ",
+                        tags$strong("Jun 30, 2025"),
+                        class="about"),
                        tags$h4("2025-06-05"),
                        tags$p("Fixed the way filters work relative to % of total charts, to ensure that the charts show 
-                              % of total among the filtered data, rather than the total of all data."),
+                              % of total among the filtered data, rather than the total of all data.",
+                              class="about"),
                        tags$h4("2025-06-02"),
-                       tags$p("Updated with latest ",
+                       tags$p("DATA UPDATE: Updated with latest ",
                         tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F24_25_Q4_March_2025.pdf",
-                        "Liquor Market Review data", class="non-tab")," for quarter ended ",tags$strong("Mar 31, 2025")),
+                        "Liquor Market Review data", class="non-tab")," for quarter ended ",
+                        tags$strong("Mar 31, 2025"),
+                        class="about"),
                        tags$h4("2025-03"),
                        tags$p("Added new tab for Litre Sales, with same visualizations as Net $ Sales tab, 
                                  but using litre as the unit of measure. 
                                  This provides  more complete view of beer sales in BC, 
-                                 aligning with the reports in the Liquor Market Review."),
+                                 aligning with the reports in the Liquor Market Review.",
+                              class="about"),
                      ), # end fluidRow 2
               ) # end tabPanel 3
             ), # end tabsetPanel ----

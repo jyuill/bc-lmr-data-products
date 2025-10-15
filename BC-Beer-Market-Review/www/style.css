@@ -70,7 +70,7 @@ h3.subtitle {font-size: 1.25em;
     /*background-color: #f8f9fa;*/
     }
 /* for sub-title in About page */
-h3.subabout {font-size: 1.2em;
+h3.subabout {font-size: 1.1em;
     margin-top: 0em;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -86,6 +86,12 @@ h4 {
     margin-top: 0em;
     margin-bottom: 2px;
     padding-top: 5px;
+    padding-bottom: 0px;
+    width: 100%;
+    }
+p.about {
+    margin-bottom: 5px;
+    padding-top: 0px;
     padding-bottom: 0px;
     width: 100%;
     }
