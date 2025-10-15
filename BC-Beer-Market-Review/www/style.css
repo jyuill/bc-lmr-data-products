@@ -52,18 +52,22 @@ h2.section {font-size: 1.6em;
 h2.marginb {margin-bottom: 15px;
     }
 /* for sub-title */
-h3.sub {font-size: 1em;
+h3.subtitle {font-size: 1.25em;
     font-weight: normal;
+    font-style: italic;
     text-transform: none;
-    text-align: center;
+    text-align: left;
     margin-top: 0em;
+    margin-left: 0px;
     padding-top: 5px;
-    padding-bottom: 5px;
+    padding-bottom: 4px;
+    padding-left: 16px;
     width: 100%;
     /* border: 1px solid black; */
     /*color: #3D3D3D;*/
-    color: brewer.pal(9, "YlOrBr")[8];
-    background-color: #f8f9fa;
+    color: #233E86;
+    /*color: brewer.pal(9, "YlOrBr")[9]; */
+    /*background-color: #f8f9fa;*/
     }
 /* for sub-title in About page */
 h3.subabout {font-size: 1.2em;

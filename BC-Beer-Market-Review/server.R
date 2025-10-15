@@ -91,7 +91,7 @@ function(input, output, session) {
   ## annual vs qtr grain filter ----
   dynamic_grain <- radioButtons(inputId = "grain_check", "Select Grain:", 
                                 choices = c("Annual", "Quarterly"), 
-                                selected = "Quarterly",
+                                selected = "Annual",
                                 inline = FALSE
   )
   ## year filter ----
@@ -139,7 +139,8 @@ function(input, output, session) {
         tags$a(href="#multi_year_summary", "Multi-Yr Summary"),tags$br(),
         tags$br(),
         tags$h4("Notes"),
-        tags$p("Years & Quarters are calendar yr, not LDB fiscal year")
+        tags$p("Years & Quarters are calendar yr, not LDB fiscal year"),
+        tags$p("All charts are interactive - hover for details, zoom, pan, download, etc.")
       )
     } else if (input$tabselected == 2) {
       tagList(
@@ -492,7 +493,6 @@ function(input, output, session) {
     output$beer_sales_qtr_cat_line <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
-        #return(NULL) # no annual line chart
         CatChartLine("Net $","Yrly by Source", 
                 beer_annual_data_cat(), "cyr", "netsales", "category", beer_cat_color,
                 theme_xax, "M", lwidth, lpointsize)
@@ -546,7 +546,7 @@ function(input, output, session) {
                 theme_xax+theme_xaxq, "%")
       }
     })
-  ## facet charts yoy % chg ----
+  ## facet charts yoy % chg (qtr, yr) ----
   # cat <- "category"
   #  beer_qtr_cat_test %>% ggplot(aes(x=cyr_qtr, y=yoy_qoq_sales, fill=cqtr)) +
   #    geom_col() +
@@ -557,9 +557,21 @@ function(input, output, session) {
   #                      limits = c(0 - max_val, max_val))
   # % chg yoy by source: same qtr prev yr, faceted by source
     output$sales_qtr_cat_yoy <- renderPlotly({
-      # NEXT: add in annual views
-      CatChgChart("","Net $ Sales % Chg - same Qtr Prev Yr", 
-               beer_qtr_data_cat(), 
+      req(input$grain_check)
+      if(input$grain_check == "Annual") {
+        x <- beer_annual_data_cat()
+        CatChgChart("", yr_source_pc_chg, x, 
+               x_var = "cyr", y_var = "yoy_sales", 
+               sort_var = "netsales",
+               fill_var = "yr_flag", 
+               facet_var = "category",
+               fill_color = yr_flag_color, 
+               strp_color = strp_col,
+               theme_xax+theme_nleg, "%", 
+               f_scales = "fixed")
+      } else if(input$grain_check == "Quarterly") {
+        x <- beer_qtr_data_cat()
+        CatChgChart("","Net $ Sales % Chg - same Qtr Prev Yr", x,
                x_var = "cyr_qtr", y_var = "yoy_qoq_sales", 
                sort_var = "netsales", 
                fill_var = "cqtr", 
@@ -568,10 +580,25 @@ function(input, output, session) {
                strp_color = strp_col,
                theme_xax+theme_nleg, "%",
                f_scales = "fixed")
+      }
     })
   
     output$litres_qtr_cat_yoy <- renderPlotly({
       # NEXT: add in annual views
+      req(input$grain_check)
+      if(input$grain_check == "Annual") {
+        #return(NULL) # no annual chart
+        x <- beer_annual_data_cat()
+        CatChgChart("", yr_source_pc_chg, x, 
+               x_var = "cyr", y_var = "yoy_litres", 
+               sort_var = "netsales",
+               fill_var = "yr_flag", 
+               facet_var = "category",
+               fill_color = yr_flag_color, 
+               strp_color = strp_col,
+               theme_xax+theme_nleg, "%", 
+               f_scales = "fixed")
+      } else if(input$grain_check == "Quarterly") {
         CatChgChart("","Litre Sales % Chg - same Qtr Prev Yr", 
                 beer_qtr_data_cat(), 
                 x_var = "cyr_qtr", y_var = "yoy_qoq_litres", 
@@ -582,7 +609,8 @@ function(input, output, session) {
                 strp_color = strp_col,
                 theme_xax+theme_nleg,
                 f_scales = "free_y")
-    })
+        }
+      })
   
   # $ SALES ---------------------------------------------------------------
     ## $ sales - yr, qtr ----

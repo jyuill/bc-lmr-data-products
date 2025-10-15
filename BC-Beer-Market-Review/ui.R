@@ -60,6 +60,8 @@ fluidPage(
                        tags$h2("Quarterly Beer Sales Comparison: Net $ vs Litres",
                                class='section',
                                id="overview_comparison"),
+                       tags$h3("Overall trends in beer sales in BC",
+                               class='subtitle'),
                        column(width = 6,
                               plotlyOutput("overview_sales_qtr")
                        ),
@@ -68,6 +70,8 @@ fluidPage(
                        )
                      ), # end fluidRow 1
                      fluidRow( ## fluidRow 2 overview YoY ----
+                       tags$h3("What are % changes between comparative periods?",
+                               class='subtitle'),
                        column(width = 6,
                               plotlyOutput("overview_sales_yoy", height = "200px")
                        ),
@@ -80,17 +84,17 @@ fluidPage(
                               tags$h2("Multi-Year Performance Summary", 
                               class='section', 
                               id="multi_year_summary"),
+                              tags$h3("What are the longer-term trends in % changes?", class='subtitle'),
                               plotlyOutput("overview_summary_chart", height = "300px")
                        )
                      ), # end fluidRow 3
-                     fluidRow( ## fluidRow 4 net $ and litres by source ----
-                       column(width = 12,
-                              tags$h2("Net $ Beer Sales & Litres by Source", 
-                                      class='section',
-                                      id="overview_by_source")
-                       )
-                     ), # end fluidRow 4
+                     
                      fluidRow( ## fluidRow 5 net $ and litres by category line ----
+                       tags$h2("Net $ Beer Sales & Litres by Source", 
+                                      class='section',
+                                      id="overview_by_source"),
+                       tags$h3("Where is the beer coming from?",
+                                   class='subtitle'),     
                        column(width = 6,  
                               plotlyOutput("beer_sales_qtr_cat_line", height = "400px")
                        ),
@@ -99,6 +103,7 @@ fluidPage(
                        )
                      ), # end fluidRow 5
                      fluidRow( ## fluidRow 6 net $ and litres by category ----
+                       tags$h3("Share of sales from each source", class='subtitle'),
                        column(width = 6,
                               plotlyOutput("beer_sales_qtr_cat", height = "400px")
                               ),
@@ -107,6 +112,8 @@ fluidPage(
                        )
                      ), # end fluidRow 6
                      fluidRow( ## fluidRow 7 % chg yoy by category ----
+                       tags$h3("How are sales by changing by source for comparative periods?", 
+                       class='subtitle'),
                        column(width = 6,
                               plotlyOutput("sales_qtr_cat_yoy", height = "500px")
                               ),
@@ -114,7 +121,14 @@ fluidPage(
                               plotlyOutput("litres_qtr_cat_yoy", height = "500px")
                        )
                      ), # end fluidRow 7
-                     
+                     fluidRow( ## fluidRow 8 BC produced category ----
+                       column(width = 12,
+                              tags$h2("BC Producer Net $ Sales & Litres by Category", 
+                                      class='section',
+                                      id="overview_by_bc"),
+                            tags$h4("   Coming soon...")
+                       )
+                     ) # end fluidRow 8         
             ), # end tabPanel 1
             # tabPanel 2: Net $ ----
             tabPanel("Net $ Sales", value = 2,
@@ -308,19 +322,19 @@ fluidPage(
                      fluidRow( ## fluidRow 2: change log ----
                        tags$h3("Change Log", class="subabout"),
                        tags$p("Latest changes, developments, improvements"),
-                       tags$h4("2025-09-25", class='sub'),
+                       tags$h4("2025-09-25"),
                        tags$p("New OVERVIEW tab added, with key summary charts comparing Net $ Sales and Litre Sales.
                               This provides a high-level snapshot of overall trends, 
                               without the need to dig through the more detailed tabs."),
-                       tags$h4("2025-09-15", class='sub'),
+                       tags$h4("2025-09-15"),
                        tags$p("Converted original high-level bar charts to line charts for better trend visualization, 
                               especially for YoY and QoQ comparisons."),
                        tags$p("Added grey lines and bars to highlight comparisons based on partial years, to reduce potential confusnion."),
-                       tags$h4("2025-09-06", class='sub'),
+                       tags$h4("2025-09-06"),
                        tags$p("DATA UPDATE: Updated with latest ",
                         tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F25_26_Q1_June_2025.pdf",
                         "Liquor Market Review data", class="non-tab")," for quarter ended ",tags$strong("Jun 30, 2025")),
-                       tags$h4("2025-06-05", class='sub'),
+                       tags$h4("2025-06-05"),
                        tags$p("Fixed the way filters work relative to % of total charts, to ensure that the charts show 
                               % of total among the filtered data, rather than the total of all data."),
                        tags$h4("2025-06-02"),
