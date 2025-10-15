@@ -308,14 +308,59 @@ function(input, output, session) {
       if(input$grain_check == "Annual") {
         data <- beer_annual_data()
         # Create chart with year over year % change over each of 1 to n yrs based on number of yrs in filtered data
+        # Get the most recent complete yr (assuming not qtr filters applied)
+        # identify unique quarters in data -> filter for yrs that have those qtrs
+        max_qtr_yr <- max(data$max_qtr, na.rm = TRUE) # identifies max qtr in each yr
+        data <- data %>% filter(max_qtr == max_qtr_yr) # yrs with max max_qtr only
         max_year <- max(as.numeric(as.character(data$cyr)), na.rm = TRUE)
         min_year <- min(as.numeric(as.character(data$cyr)), na.rm = TRUE)
-        years_back <- max_year - min_year
-        if(years_back < 1) return(NULL)  # Need at least 2 years for comparison
+        
+        # get most recent yr row to calculate % chg 
+        most_recent <- data %>% filter(cyr == max_year)
+        if(nrow(most_recent) == 0) return(NULL) # need yr to calculate from
+        recent_year <- as.numeric(as.character(most_recent$cyr[1]))
+        
+        # Get all years in dataset for comparison
+        available_years <- sort(unique(as.numeric(as.character(data$cyr))))
+        years_back <- available_years[available_years < recent_year]
+
+        if(length(years_back) == 0) return(NULL) # Need at least 2 years for comparison
+
+        # Create chart data in long format
         chart_data <- data.frame()
-        for(i in min_year:max_year) {
-          
-        }
+
+        # For each year back, calculate the percent change from same qtr in that yr
+        for(i in seq_along(years_back)) {
+          year_back <- years_back[length(years_back) - i + 1]  # Start from most recent
+          years_diff <- recent_year - year_back
+          period_label <- paste0(years_diff, ifelse(years_diff == 1, " Year", " Years"))
+
+          # Find the comparison year
+          comparison_data <- data %>%
+            filter(cyr == year_back)
+
+          if(nrow(comparison_data) > 0) {
+            sales_pct <- round(((most_recent$netsales[1] - comparison_data$netsales[1]) / comparison_data$netsales[1]) * 100, 1)
+            litres_pct <- round(((most_recent$litres[1] - comparison_data$litres[1]) / comparison_data$litres[1]) * 100, 1)
+
+            # Add rows for both metrics
+            chart_data <- rbind(chart_data,
+                                data.frame(
+                                  Recent_per = as.character(most_recent$cyr[1]),
+                                  Period = period_label,
+                                  Metric = "Net $ Sales",
+                                  Percent_Change = sales_pct,
+                                  stringsAsFactors = FALSE
+                                ),
+                                data.frame(
+                                  Recent_per = as.character(most_recent$cyr[1]),
+                                  Period = period_label,
+                                  Metric = "Litre Sales",
+                                  Percent_Change = litres_pct,
+                                  stringsAsFactors = FALSE
+                                ))
+            }
+          } # end annual calc
       } else if(input$grain_check == "Quarterly") {
         data <- beer_qtr_data()
         # Get the most recent quarter in the filtered data
@@ -336,7 +381,7 @@ function(input, output, session) {
         # Create chart data in long format
         chart_data <- data.frame()
 
-        # For each year back, calculate the percent change
+        # For each year back, calculate the percent change from same qtr in that yr
         for(i in seq_along(years_back)) {
           year_back <- years_back[length(years_back) - i + 1]  # Start from most recent
           years_diff <- recent_year - year_back
@@ -354,12 +399,14 @@ function(input, output, session) {
             # Add rows for both metrics
             chart_data <- rbind(chart_data,
                                 data.frame(
+                                  Recent_per = most_recent$cqtr[1],
                                   Period = period_label,
                                   Metric = "Net $ Sales",
                                   Percent_Change = sales_pct,
                                   stringsAsFactors = FALSE
                                 ),
                                 data.frame(
+                                  Recent_per = most_recent$cqtr[1],
                                   Period = period_label,
                                   Metric = "Litre Sales",
                                   Percent_Change = litres_pct,
@@ -367,12 +414,13 @@ function(input, output, session) {
                                 ))
             }
           }
-      }
+      } # end qtr calc 
       
-
       # Order periods properly (1 Year, 2 Years, etc.)
       if(nrow(chart_data) > 0) {
         chart_data$Period <- factor(chart_data$Period, levels = unique(chart_data$Period))
+        # to control order of metrics shown in bar chart - matches charts above
+        chart_data$Metric <- factor(chart_data$Metric, levels = c("Net $ Sales", "Litre Sales"))
       }
 
       return(chart_data)
@@ -380,7 +428,7 @@ function(input, output, session) {
 
     output$overview_summary_chart <- renderPlotly({
       data <- overview_summary_data()
-      req(data)
+      req(data, input$grain_check)
 
       # Define subtle, neutral colors for the two metrics
       metric_colors <- c("Net $ Sales" = "#708090", "Litre Sales" = "#A0A0A0")
@@ -392,7 +440,11 @@ function(input, output, session) {
                                    ifelse(Percent_Change >= 0, "+", ""),
                                    Percent_Change, "%"),
                label_text = paste0(ifelse(Percent_Change >= 0, "+", ""), Percent_Change, "%"))
-
+      if(input$grain_check == "Annual") {
+        chart_title <- paste0("% Change over Extended Periods, using Most Recent Complete Year (", max(data$Recent_per), ")")
+      } else if(input$grain_check == "Quarterly") {
+        chart_title <- "% Change vs Same Quarter in Previous Years, over Extended Periods"
+      }
       p <- data %>%
         ggplot(aes(x = Period, y = Percent_Change, fill = Metric, text = tooltip_text)) +
         geom_col(position = "dodge", width = 0.7) +
@@ -405,7 +457,7 @@ function(input, output, session) {
         scale_fill_manual(values = metric_colors) +
         scale_y_continuous(labels = scales::label_percent(scale = 1, accuracy = 1),
                           expand = expansion(mult = c(0.05, 0.05))) +
-        labs(title = "% Change vs Same Quarter in Previous Years",
+        labs(title = chart_title,
              x = "", y = "", fill = "Metric") +
         theme_minimal() +
         theme(
