@@ -259,8 +259,17 @@ function(input, output, session) {
     # test
     #n_cats <- length(unique(beer_data$category))
     #n_subcats <- length(unique(beer_data$subcategory))
-    #beer_annual_subcat_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_annual_test)
-    
+    #beer_annual_subcat_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_annual_cat_test)
+    # qtr
+    beer_qtr_data_subcat <- reactive({
+      cat("255: beer_qtr_subcat \n")
+      n_cats <- length(unique(beer_filtered_data()$category))
+      n_subcats <- length(unique(beer_filtered_data()$subcategory))
+      n_qtr <- length(input$qtr_check)
+      QtrSubCatData(beer_filtered_data(), n_cats, n_subcats, n_qtr, beer_qtr_data_cat())
+    })  
+    # NEEDS test!
+  
     # Overview tab -----------------------------------------------------
     ### Qtr $ sales & litres ----
     output$overview_sales_qtr <- renderPlotly({

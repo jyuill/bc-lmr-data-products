@@ -57,10 +57,10 @@ fluidPage(
             # tabPanel 1: Overview ----
             tabPanel("Overview", value = 1,
                      fluidRow( ## fluidRow 1 overview comparison ----
-                       tags$h2("Quarterly Beer Sales Comparison: Net $ vs Litres",
+                       tags$h2("Beer Sales in BC: Net $ vs Litres",
                                class='section',
                                id="overview_comparison"),
-                       tags$h3("Overall trends in beer sales in BC",
+                       tags$h3("Overall trends in beer sales in BC (select 'Annual' or 'Quarterly' at left)",
                                class='subtitle'),
                        column(width = 6,
                               plotlyOutput("overview_sales_qtr")
