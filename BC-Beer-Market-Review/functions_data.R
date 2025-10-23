@@ -65,6 +65,7 @@ QtrData <- function(dataset, n_qtr) {
 
 # annual category data
 # use for: annual data by category type and category
+# QUESTION: does it take into account category filtering for yoy calcs?
 AnnualCatData <- function(dataset, dataset_all) {
   cat("fn: AnnualCatData \n")
   # get totals for yr to use in % of total calculations
@@ -178,7 +179,7 @@ AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
   cat("fn: AnnualSubCatData \n")
   # get category totals for yr to use in % of total calculations
   # - should NOT change based on cat filters, since should be consistent % of total
-   dataset_yr <- dataset_all %>% group_by(cyr, cat_type, category) %>% 
+   dataset_yr <- dataset_all %>% group_by(cyr, category) %>% 
                  summarize(ttl_sales = sum(netsales),
                            ttl_litres = sum(litres),
                            max_qtr = max(max_qtr)
@@ -188,25 +189,26 @@ AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
                  ) %>% ungroup()
   
   # summarize by subcategory by year
-  dataset <- dataset %>% group_by(cat_type, category, subcategory, cyr) %>% 
+  dataset <- dataset %>% group_by(category, subcategory, cyr) %>% 
     summarize(netsales = sum(netsales),
               litres = sum(litres)) %>% 
       ungroup() 
-  # add yoy chg calculations
+  # add yoy chg calculations with lag for number of subcategories
+  n_lag <- n_subcats
   dataset <- dataset %>%
     # convert cyr to number for lag calculation
     mutate(cyr = as.numeric(as.character(cyr))) %>%
     # group by cat_type, category, subcategory for yoy calcs
-    group_by(cat_type, category, subcategory) %>%
-    mutate(yoy_sales = (netsales - lag(netsales, n=1))/lag(netsales, n=1),
-           yoy_litres = (litres - lag(litres, n=1))/lag(litres, n=1),
+    group_by(category, subcategory) %>% ungroup() %>%
+    mutate(yoy_sales = (netsales - lag(netsales, n=n_lag))/lag(netsales, n=n_lag),
+           yoy_litres = (litres - lag(litres, n=n_lag))/lag(litres, n=n_lag),
            subcategory = reorder(subcategory, netsales, FUN = sum)
     ) %>% ungroup()
   # restore cyr as factor
   dataset$cyr <- as.factor(dataset$cyr)
   # add percent of totals for each category
   # - join totals to category data set and calculate percentages
-  dataset <- left_join(dataset, dataset_yr, by=c("cat_type","cyr","category")) %>%
+  dataset <- left_join(dataset, dataset_yr, by=c("cyr","category","subcategory")) %>%
     mutate(pct_ttl_sales = netsales/ttl_sales,
            pct_ttl_litres = litres/ttl_litres) %>% ungroup()
   # add yoy chg calculations for % of total
@@ -228,14 +230,14 @@ QtrSubCatData <- function(dataset, n_cats = 1, n_subcats = 3, n_qtr = 4, dataset
   # get category totals for qtr to use in % of total calculations
   # - data is pre-filtered for category = 'BC' 
   # - should not change based on cat filters, since should be consistent % of total
-  dataset_qtr <- dataset_all %>% group_by(cat_type, category, cyr, cqtr, cyr_qtr, end_qtr_dt) %>% 
+  dataset_qtr <- dataset_all %>% group_by(category, cyr, end_qtr_dt, cyr_qtr) %>% 
     summarize(ttl_sales = sum(netsales),
               ttl_litres = sum(litres)
             )  %>% ungroup()
   # summarize current level (subcategory)
   n_lag <- n_subcats
   dataset <- dataset %>% 
-    group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, category, subcategory) %>% 
+    group_by(cyr, cyr_qtr, end_qtr_dt, category, subcategory) %>% 
     summarize(netsales = sum(netsales),
               litres = sum(litres)) %>% 
     ungroup() %>%
@@ -248,7 +250,7 @@ QtrSubCatData <- function(dataset, n_cats = 1, n_subcats = 3, n_qtr = 4, dataset
   
   # add percent of totals for each category
   # - join totals to category data set and calculate percentages
-  dataset <- left_join(dataset, dataset_qtr, by=c("cat_type","category","cyr","cqtr","cyr_qtr","end_qtr_dt")) %>%
+  dataset <- left_join(dataset, dataset_qtr, by=c("category","cyr","cyr_qtr","end_qtr_dt")) %>%
     mutate(pct_ttl_sales = netsales/ttl_sales,
            pct_ttl_litres = litres/ttl_litres)
   # add yoy chg calculations for % of total (market share)
