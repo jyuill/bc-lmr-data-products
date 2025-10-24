@@ -126,9 +126,35 @@ fluidPage(
                               tags$h2("BC Producer Net $ Sales & Litres by Category", 
                                       class='section',
                                       id="overview_by_bc"),
-                            tags$h4("   Coming soon...")
+                            tags$h3("How do BC producer categories compare?",
+                                   class='subtitle')
+                       ),     
+                       column(width = 6,  
+                              plotlyOutput("beer_sales_yq_subcat_line", height = "400px")
+                       ),
+                       column(width = 6,
+                              plotlyOutput("beer_litre_yq_subcat_line", height = "400px")
                        )
-                     ) # end fluidRow 8         
+                     ), # end fluidRow 8
+                     fluidRow( ## fluidRow 9 BC produced category ----
+                       tags$h3("Share of sales from each category", class='subtitle'),
+                       column(width = 6,
+                              plotlyOutput("beer_sales_yq_subcat_stacked", height = "400px")
+                              ),
+                       column(width = 6,
+                              plotlyOutput("beer_litre_yq_subcat_stacked", height = "400px")
+                       )
+                     ), # end fluidRow 9  
+                     fluidRow( ## fluidRow 10 % chg yoy by category ----
+                       tags$h3("How are sales changing by category for comparative periods?", 
+                               class='subtitle'),
+                       column(width = 6,
+                              plotlyOutput("sales_subcat_yoy", height = "500px")
+                       ),
+                       column(width = 6,
+                              plotlyOutput("litres_subcat_yoy", height = "500px")
+                       )
+                     ), # end fluidRow 10       
             ), # end tabPanel 1
             # tabPanel 2: Net $ ----
             tabPanel("Net $ Sales", value = 2,
