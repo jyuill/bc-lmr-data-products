@@ -132,19 +132,20 @@ QtrCatData <- function(dataset, n_cats = 3, n_qtr = 4) {
   return(dataset)
 }
 # revised Qtr category version with % of total calculations
-QtrCatData2 <- function(dataset, n_cats = 3, n_qtr = 4, dataset_all) {
+# - use for: categories, subcategories
+QtrCatData2 <- function(dataset, high_cat, low_cat) {
   cat("fn: QtrCatData2 \n")
   # get totals for qtr to use in % of total calculations
   # - should not change based on cat filters, since should be consistent % of total
-  dataset_qtr <- dataset_all %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt) %>% 
+  dataset_qtr <- dataset %>% group_by(cyr, cyr_qtr, cqtr, !!sym(high_cat)) %>% 
     summarize(ttl_sales = sum(netsales),
               ttl_litres = sum(litres)
-            )  %>%
-    ungroup()
+            )  %>% ungroup()
   # summarize current level (category)
-  n_lag <- n_cats
+  n_lag <- length(unique(dataset[[low_cat]]))
+  n_qtr <- length(unique(dataset$cqtr))
   dataset <- dataset %>% 
-    group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, category) %>% 
+    group_by(cyr, cyr_qtr, cqtr, !!sym(high_cat), !!sym(low_cat),) %>% 
     summarize(netsales = sum(netsales),
               litres = sum(litres)) %>% 
     ungroup() %>%
@@ -157,12 +158,12 @@ QtrCatData2 <- function(dataset, n_cats = 3, n_qtr = 4, dataset_all) {
   
   # add percent of totals for each category
   # - join totals to category data set and calculate percentages
-  dataset <- left_join(dataset, dataset_qtr, by=c("cat_type","cyr","cqtr","cyr_qtr","end_qtr_dt")) %>%
+  dataset <- left_join(dataset, dataset_qtr, by=c("cyr","cqtr","cyr_qtr", high_cat)) %>%
     mutate(pct_ttl_sales = netsales/ttl_sales,
            pct_ttl_litres = litres/ttl_litres)
   # add qoq chg calculations for change in % of total (market share)
   dataset <- dataset %>% 
-    group_by(category) %>% 
+    group_by(!!sym(low_cat)) %>% 
     # multiply by 100 to get point values - avoid confusion with %
     # NOT USED at QTR level - may need revising to take acct qtrs filtering
     # not sure how this even works (category but not year/qtr?)
@@ -175,6 +176,7 @@ QtrCatData2 <- function(dataset, n_cats = 3, n_qtr = 4, dataset_all) {
 }
 
 # subcategories data
+# CONVERT ANY DATA SOURCES USING THIS: SUPERSEDED by AnnualCatData with appropriate parameters
 # - use for: annual data by category type and subcategory
 # - yoy calcs for subcategory account for multiple categories
 AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
@@ -227,6 +229,7 @@ AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
   return(dataset)
 }
 
+# CONVERT DATA SOURCES: Superseded by using QtrCatData2 with appropriate parameters
 QtrSubCatData <- function(dataset, n_cats = 1, n_subcats = 3, n_qtr = 4, dataset_all) {
   cat("fn: QtrSubCatData \n")
   # get category totals for qtr to use in % of total calculations

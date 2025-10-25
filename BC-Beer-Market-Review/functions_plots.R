@@ -128,13 +128,19 @@ CatChart <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var,
 #  geom_line() +
 #  scale_color_manual(values = beer_cat_color)
 # actual chart
+#x <- beer_qtr_cat_test2
+#x_var <- "cyr_qtr"
+#y_var <- "litres"
+#fill_var <- "category"
+#tunits <- "M"
 CatChartLine <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var, 
                     fill_color, theme_list, tunits, lwidth = 0.5, lpointsize = 1) {
   ch_title <- paste(metric, chart_title)
   x <- dataset
-  x <- x %>% tooltip_fmt(dim = fill_var, units = tunits, y_var = y_var) %>% mutate(
-    category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
-  )
+  x <- x %>% tooltip_fmt(dim = fill_var, units = tunits, y_var = y_var) %>% 
+            mutate(
+              category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
+            )
   # set scale labels based on variable and units (currency v commas)
   y_labels <- y_label_format(y_var, tunits)
   

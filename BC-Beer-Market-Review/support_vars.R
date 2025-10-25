@@ -30,10 +30,10 @@ qtr_color <- brewer.pal(n=5, name=base_pal)[2:5]
 yr_flag_color <- c("full"=bar_col, "partial"='grey80')
 # palette for beer categories
 beer_pal <- brewer.pal(n=9, name="YlOrRd")
-beer_cat_color <- c("BC"=beer_pal[9], "Other Prov"=beer_pal[7], "Import"=beer_pal[5])
+#beer_cat_color <- c("BC"=beer_pal[9], "Other Prov"=beer_pal[7], "Import"=beer_pal[5])
 beer_cat_color <- brewer.pal(n=4, name=base_pal)[2:4]
 beer_bc_cat_color <- c("BC Major"=beer_pal[9], "BC Regional"=beer_pal[7], "BC Micro"=beer_pal[5])
-beer_bc_cat_color <- beer_cat_color
+#beer_bc_cat_color <- beer_cat_color
 beer_imp_color2 <- beer_pal[5:9]
 beer_imp_color <- brewer.pal(n=6, name=base_pal)[2:6]
 # linewidth for line charts
@@ -44,7 +44,8 @@ lpointsize <- 2.2
 # PLOT THEMES--------------------------------------------------------------------
   ## ggplot themes ----
   theme_set(theme_light()+theme(panel.grid.minor = element_blank(),
-                                panel.grid.major = element_line(color = 'grey90', linewidth=0.1)))
+                                panel.grid.major = element_line(color = 'grey90', 
+                                linewidth=0.1)))
   # x-axis text - set angle and other formats
   theme_xax <- theme(axis.ticks.x = element_blank(),
                    axis.text.x = element_text(angle = 90, hjust = 1))
@@ -53,7 +54,7 @@ lpointsize <- 2.2
   theme_nleg <- theme(legend.position = "none")
   # facet chart spacing 
   theme_facet <- theme(panel.spacing.y = unit(0.1,"lines"))
-  # customize tooltip format
+  # customize tooltip format -> DO NOT APPEAR TO BE USED ANYWHERE
   text_bn <- aes(text=paste0(cyr, ": ", scales::dollar(netsales, scale = 1e-9, suffix = "B")))
   text_bn <- aes(text = paste0(cyr, ": ", label_currency(scale = 1e-9, suffix = "B")(netsales)))
   text_m <- aes(text=paste0(cyr, ": ", scales::dollar(netsales, scale = 1e-6, suffix = "M")))
