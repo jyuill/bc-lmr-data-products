@@ -120,7 +120,11 @@ p.about {
   font-style: bold;
   border-radius: 4px; /* Slightly rounded corners */
 }
-
+.sb_note {
+    font-size: 0.8em;
+    /*font-style: italic; */
+    font-weight: lighter;
+}
 
 /* for bold text - override bootstrap theme */
 strong {color: #233E86;

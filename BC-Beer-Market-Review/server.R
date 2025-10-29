@@ -117,10 +117,10 @@ function(input, output, session) {
         tags$a(href="#overview_bc_cat", "BC Producer Categories"),
         tags$br(),tags$br(),
         tags$h4("Notes"),
-        tags$p(sb_note_calyr), # consistent variables set in support_vars.R
-        tags$p(sb_note_charts),
-        tags$p(sb_note_src),
-        tags$p(sb_note_sales)
+        tags$p(sb_note_calyr, class="sb_note"), # consistent variables set in support_vars.R
+        tags$p(sb_note_charts, class="sb_note"),
+        tags$p(sb_note_src, class="sb_note"),
+        tags$p(sb_note_sales, class="sb_note")
       )
     } else if (input$tabselected == 2) {
       tagList(
@@ -135,10 +135,10 @@ function(input, output, session) {
         tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br(),
         tags$br(), tags$br(),
         tags$h4("Notes"),
-        tags$p(sb_note_calyr),
-        tags$p(sb_note_charts),
-        tags$p(sb_note_src),
-        tags$p(sb_note_sales)
+        tags$p(sb_note_calyr, class="sb_note"),
+        tags$p(sb_note_charts, class="sb_note"),
+        tags$p(sb_note_src, class="sb_note"),
+        tags$p(sb_note_sales, class="sb_note")
       )
     } else if (input$tabselected == 3) {
       tagList(
@@ -153,9 +153,9 @@ function(input, output, session) {
           tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br(),
           tags$br(), tags$br(),
           tags$h4("Notes"),
-          tags$p(sb_note_calyr),
-          tags$p(sb_note_charts),
-          tags$p(sb_note_src)
+          tags$p(sb_note_calyr, class="sb_note"),
+          tags$p(sb_note_charts, class="sb_note"),
+          tags$p(sb_note_src, class="sb_note")
       )
     } else if (input$tabselected == 4) {
       tagList(
