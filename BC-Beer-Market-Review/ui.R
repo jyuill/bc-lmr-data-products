@@ -348,6 +348,11 @@ fluidPage(
                      fluidRow( ## fluidRow 2: change log ----
                        tags$h3("Change Log", class="subabout"),
                        tags$p("Latest changes, developments, improvements"),
+                       tags$h4("2025-10-28"),
+                       tags$ul(
+                         tags$li("Overview: Added breakdowns for BC produced beer by category (major, regional, micro)."),
+                         tags$li("Improved info available when hovering over charts, including formatting for readability.")
+                       ),
                        tags$h4("2025-10-14"),
                        tags$p("Overview: Added 'Annual' or 'Quarterly' time grain setting. 
                        Updated all charts to respond to this filter and show data by year or quarter accordingly for 
