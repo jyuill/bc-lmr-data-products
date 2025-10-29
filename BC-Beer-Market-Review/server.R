@@ -117,8 +117,10 @@ function(input, output, session) {
         tags$a(href="#overview_bc_cat", "BC Producer Categories"),
         tags$br(),tags$br(),
         tags$h4("Notes"),
-        tags$p("Years & Quarters are calendar yr, not LDB fiscal year"),
-        tags$p("All charts are interactive - hover for details, zoom, pan, download, etc.")
+        tags$p(sb_note_calyr), # consistent variables set in support_vars.R
+        tags$p(sb_note_charts),
+        tags$p(sb_note_src),
+        tags$p(sb_note_sales)
       )
     } else if (input$tabselected == 2) {
       tagList(
@@ -130,7 +132,13 @@ function(input, output, session) {
         tags$a(href="#beer_sales", "$ Sales by Yr & Qtr"),tags$br(),
         tags$a(href="#bsrc_sales", "$ Sales by Source"), tags$br(),
         tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
-        tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br()
+        tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br(),
+        tags$br(), tags$br(),
+        tags$h4("Notes"),
+        tags$p(sb_note_calyr),
+        tags$p(sb_note_charts),
+        tags$p(sb_note_src),
+        tags$p(sb_note_sales)
       )
     } else if (input$tabselected == 3) {
       tagList(
@@ -142,7 +150,12 @@ function(input, output, session) {
           tags$a(href="#litre_sales", "Ttl Litres by Yr & Qtr"),tags$br(),
           tags$a(href="#bsrc_sales_litre", "Litres by Source"), tags$br(),
           tags$a(href="#bcat_sales_litre", "BC Litres by Category"), tags$br(),
-          tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br()
+          tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br(),
+          tags$br(), tags$br(),
+          tags$h4("Notes"),
+          tags$p(sb_note_calyr),
+          tags$p(sb_note_charts),
+          tags$p(sb_note_src)
       )
     } else if (input$tabselected == 4) {
       tagList(

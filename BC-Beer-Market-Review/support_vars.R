@@ -107,3 +107,9 @@ lpointsize <- 2.2
   yr_litre_pc_cat <- "% of Ttl Litres by Category"
   yr_litre_pc_chg_cat <- "Yrly % Chg Litres by Category"
   yr_litre_pcpt_chg_cat <- "Yrly % Pt Chg Litres % of Ttl"
+
+## Sidebar notes ----
+  sb_note_calyr <- "Years & Quarters refer to calendar year, not LDB fiscal year."
+  sb_note_src <- "Source: BC Liquor Distribution Branch - LDB Market Reports; sales through wholesale data from all distribution channels; see 'About' tab for details and links."
+  sb_note_charts <- "All charts are interactive: hover for details; zoom in using box select (click & drag); reset view with home icon, etc."
+  sb_note_sales <- "Net $ Sales is based on price paid by (wholesale) customer, excluding taxes."
