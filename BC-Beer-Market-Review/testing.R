@@ -89,3 +89,25 @@ cat_data <- function(data_cat, high_cat, low_cat) {
 
 td_lag_cat <- cat_data(test_data, 'cat_type', 'category')
 td_lag_bc3 <- cat_data(test_bc, 'category', 'subcategory')
+
+test_switch <- function(x) {
+  switch(x,
+         "a" = "You selected A",
+         "b" = "You selected B",
+         "c" = "You selected C",
+         "%")
+}
+
+test_switch("bb")
+
+# multi-return function
+test_return <- function(x) {
+  a <- x + 1
+  b <- x + 2
+  return(list(a = a, b = b))
+}
+
+test_return(2)
+test_return(3)[1]
+test_return(4)$b
+test_return(5)[[2]]

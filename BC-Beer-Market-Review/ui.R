@@ -125,7 +125,7 @@ fluidPage(
                        column(width = 12,
                               tags$h2("BC Producer Net $ Sales & Litres by Category", 
                                       class='section',
-                                      id="overview_by_bc"),
+                                      id="overview_bc_cat"),
                             tags$h3("How do BC producer categories compare?",
                                    class='subtitle')
                        ),     

@@ -21,6 +21,20 @@ library(treemapify)
 
 scipen <- options(scipen=999) # suppress scientific notation
 
+# get data ----
+# query database via separate file for tidyness
+# postgresql as of Jun 2025
+## get all data - process for beer ----
+  source('query_pg.R')
+  ## recent data ----
+  # apply to yr filter as default to avoid over-crowding
+  yr_max <- max(beer_data$cyr_num) # get current latest yr
+  yrs_back <- 6 # determine how many yrs back to go
+  data_recent <- beer_data %>% filter(cyr_num > yr_max-yrs_back)
+  max_date <- max(beer_data$end_qtr_dt)
+  # for top of sidebar on pg, set in dynamic sidebar
+  max_date_note <- paste0("Data as of: ", format(max_date, "%b %d %Y"))
+
 # load functions used: data manipulation and plots ----
 source('functions_data.R')
 source('functions_plots.R')
@@ -38,48 +52,7 @@ function(input, output, session) {
   #observeEvent(input$toggleSidebar, {
   #  toggle("sidebar")
   #})
-# get data ----
-# query database via separate file for tidyness
-# postgresql as of Jun 2025
-## all data ----
-  source('query_pg.R')
-  ## recent data ----
-  # apply to yr filter as default to avoid over-crowding
-  lmr_max <- max(lmr_data$cyr_num) # get current latest yr
-  lmr_yrs <- 6 # determine how many yrs back to go
-  lmr_recent <- lmr_data %>% filter(cyr_num > lmr_max-lmr_yrs)
-  lmr_max_date <- max(lmr_data$end_qtr_dt)
-  # for top of sidebar on pg, set in dynamic sidebar
-  lmr_max_note <- paste0("Data as of: ", format(lmr_max_date, "%b %d %Y"))
-  ## RENAME categories ----
-  ## beer ----
-  beer_data <- lmr_data %>% filter(cat_type == "Beer")
-  # rename categories for brevity
-  beer_data <- beer_data %>% mutate(
-    category = case_when(
-      category == "Domestic - BC Beer" ~ "BC",
-      category == "Domestic - Other Province Beer" ~ "Other Prov",
-      category == "Import Beer" ~ "Import"
-    )
-  )
-  # rename bc subcategories for brevity
-  cat("rename bc subcategories for brevity \n")
-  beer_data <- beer_data %>% mutate(
-    subcategory = case_when(
-      subcategory == "Domestic - BC Commercial Beer" ~ "BC Major",
-      subcategory == "Domestic - BC Regional Beer" ~ "BC Regional",
-      subcategory == "Domestic - BC Micro Brew Beer" ~ "BC Micro",
-      subcategory == "Domestic - Other Province Commercial Beer" ~ "Other Prov Major",
-      subcategory == "Domestic - Other Province Regional Beer" ~ "Other Prov Reg.",
-      subcategory == "Domestic - Other Province Micro Brew Beer" ~ "Other Prov Micro",
-      str_detect(subcategory,  "Asia") ~ "Asia",
-      str_detect(subcategory, "Europe") ~ "Europe",
-      str_detect(subcategory, "Mexico") ~ "Mex/Carib",
-      str_detect(subcategory,"USA") ~ "USA",
-      str_detect(subcategory, "Other Country") ~ "Other Ctry"
-    )
-  )
-  print(head(beer_data))
+
   ### for testing data functions ----
   #beer_annual_test <- AnnualCatTypeData(beer_data, beer_data)
   #beer_annual_cat_test <- AnnualCatData(beer_data, 'cat_type', 'category',beer_data)
@@ -88,8 +61,8 @@ function(input, output, session) {
 
   # setup filters ----------------------------------------------------
   cat("87: setup filters \n")
-  # Dynamically generate UI filters based on lmr_data
-  # otherwise, app will crash because lmr_data not available for filters in ui.R
+  # Dynamically generate UI filters based on beer_data
+  # otherwise, app will crash because beer_data not available for filters in ui.R
   # CHATGPT suggestion as alt to below
   ## annual vs qtr grain filter ----
   dynamic_grain <- radioButtons(inputId = "grain_check", "Select Grain:", 
@@ -101,8 +74,8 @@ function(input, output, session) {
   dynamic_cyr <- pickerInput(
     inputId = "cyr_picker",
     label = "Select Calendar Year(s):",
-    choices = unique(lmr_data$cyr),
-    selected = unique(lmr_recent$cyr),
+    choices = unique(beer_data$cyr),
+    selected = unique(data_recent$cyr),
     multiple = TRUE,
     options = list(
       `actions-box` = TRUE,
@@ -113,8 +86,8 @@ function(input, output, session) {
   )
   ## qtr filters ----
   dynamic_qtr <- checkboxGroupInput(inputId = "qtr_check", "Select Quarter:", 
-                                    choices = sort(unique(lmr_data$cqtr)), 
-                                    selected = unique(lmr_data$cqtr),
+                                    choices = sort(unique(beer_data$cqtr)), 
+                                    selected = unique(beer_data$cqtr),
                                     inline = FALSE
   )
   ## source/cat filters ----
@@ -132,22 +105,24 @@ function(input, output, session) {
   output$dynamic_sidebar <- renderUI({
     if (input$tabselected == 1) {
       tagList(
-        tags$p(lmr_max_note, class="note"),
+        tags$p(max_date_note, class="note"),
         dynamic_grain,
         dynamic_cyr,
         dynamic_qtr,
         dynamic_beer_cat,
         tags$h4("Contents"),
-        tags$a(href="#overview_comparison", "Qtr Net $ & Litre Sales"),tags$br(),
+        tags$a(href="#overview_comparison", "Net $ & Litre Sales"),tags$br(),
         tags$a(href="#multi_year_summary", "Multi-Yr Summary"),tags$br(),
-        tags$br(),
+        tags$a(href="#overview_by_source", "Sales by Source"), tags$br(),
+        tags$a(href="#overview_bc_cat", "BC Producer Categories"),
+        tags$br(),tags$br(),
         tags$h4("Notes"),
         tags$p("Years & Quarters are calendar yr, not LDB fiscal year"),
         tags$p("All charts are interactive - hover for details, zoom, pan, download, etc.")
       )
     } else if (input$tabselected == 2) {
       tagList(
-        tags$p(lmr_max_note, class="note"),
+        tags$p(max_date_note, class="note"),
         dynamic_cyr,
         dynamic_qtr,
         dynamic_beer_cat,
@@ -159,7 +134,7 @@ function(input, output, session) {
       )
     } else if (input$tabselected == 3) {
       tagList(
-        tags$p(lmr_max_note, class="note"),
+        tags$p(max_date_note, class="note"),
         dynamic_cyr,
         dynamic_qtr,
         dynamic_beer_cat,
@@ -277,7 +252,7 @@ function(input, output, session) {
       AnnualCatData(beer_imp, 'category', 'subcategory', beer_imp)
     })
     # Overview tab -----------------------------------------------------
-    ### Qtr $ sales & litres ----
+    ### Ttl sales & litres ----
     output$overview_sales_qtr <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
@@ -1074,7 +1049,7 @@ function(input, output, session) {
     ## % point chg by import subcat yoy
     output$litre_sales_yoy_import_cat_chg_pt <- renderPlotly({
       x <- beer_annual_data_subcat_imp() %>% filter(category=='Import')
-      CatChgChart("", yr_sales_imp, 
+      CatChgChart("", yr_sales_imp_pcpt_chg, 
                   x, x_var = "cyr", y_var = "yoy_pcp_ttl_litres", 
                   sort_var = "litres", 
                   fill_var = "yr_flag", 

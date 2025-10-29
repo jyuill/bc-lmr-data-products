@@ -65,4 +65,32 @@ lmr_data$cyr_num <- as.numeric(as.character(lmr_data$cyr))
 #qtr_all$created_at <- Sys.time()
 #write_csv(qtr_all, here('data', 'tblLDB_quarter.csv'), na = "tblLDB_quarter.csv")
 
-
+## RENAME categories ----
+  ## beer ----
+  beer_data <- lmr_data %>% filter(cat_type == "Beer")
+  # rename categories for brevity
+  beer_data <- beer_data %>% mutate(
+    category = case_when(
+      category == "Domestic - BC Beer" ~ "BC",
+      category == "Domestic - Other Province Beer" ~ "Other Prov",
+      category == "Import Beer" ~ "Import"
+    )
+  )
+  # rename bc subcategories for brevity
+  cat("rename bc subcategories for brevity \n")
+  beer_data <- beer_data %>% mutate(
+    subcategory = case_when(
+      subcategory == "Domestic - BC Commercial Beer" ~ "BC Major",
+      subcategory == "Domestic - BC Regional Beer" ~ "BC Regional",
+      subcategory == "Domestic - BC Micro Brew Beer" ~ "BC Micro",
+      subcategory == "Domestic - Other Province Commercial Beer" ~ "Other Prov Major",
+      subcategory == "Domestic - Other Province Regional Beer" ~ "Other Prov Reg.",
+      subcategory == "Domestic - Other Province Micro Brew Beer" ~ "Other Prov Micro",
+      str_detect(subcategory,  "Asia") ~ "Asia",
+      str_detect(subcategory, "Europe") ~ "Europe",
+      str_detect(subcategory, "Mexico") ~ "Mex/Carib",
+      str_detect(subcategory,"USA") ~ "USA",
+      str_detect(subcategory, "Other Country") ~ "Other Ctry"
+    )
+  )
+  print(head(beer_data))

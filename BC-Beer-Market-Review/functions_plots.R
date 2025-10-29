@@ -8,7 +8,7 @@ TtlChart <- function(metric="", chart_title, dataset, x_var, y_var, fill_var, fi
   x <- dataset
   ch_title <- paste(metric, chart_title)
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
-  y_labels <- y_label_format(y_var, tunits)
+  y_labels <- y_label_format(y_var, tunits)[[1]]
   # separate out partial year data for line overlay - if exists; otherwise use full dataset
   if("partial" %in% unique(x$yr_flag_line)) {
         x_partial <- x %>% filter(yr_flag_line == "partial")
@@ -38,7 +38,7 @@ QtrChart <- function(metric="",chart_title, dataset, x_var, y_var, fill_var, fil
   x <- dataset
   x <- x %>% tooltip_fmt(dim = x_var, units = tunits, y_var = y_var)
   # set scale labels based on variable and units (currency v commas)
-  y_labels <- y_label_format(y_var, tunits)
+  y_labels <- y_label_format(y_var, tunits)[[1]]
   ch_title <- paste(metric, chart_title)
   p <- x %>%
     ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), color = !!sym(fill_var), 
@@ -93,7 +93,7 @@ CatChart <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var,
     category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
   )
   # set scale labels based on variable and units (currency v commas)
-  y_labels <- y_label_format(y_var, tunits)
+  y_labels <- y_label_format(y_var, tunits)[[1]]
   
   p <- x %>%
     ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = category, text = tooltip_text)) +
@@ -142,7 +142,7 @@ CatChartLine <- function(metric = "",chart_title, dataset, x_var, y_var, fill_va
               category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
             )
   # set scale labels based on variable and units (currency v commas)
-  y_labels <- y_label_format(y_var, tunits)
+  y_labels <- y_label_format(y_var, tunits)[[1]]
   
   p <- x %>%
     ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), group = !!sym(fill_var), 
@@ -209,39 +209,11 @@ CatChgChart <- function (metric, chart_title, dataset, x_var, y_var,
 # label & tooltip formatting ----
 # designed for one dimension/label and one metric
 tooltip_fmt <- function(data, dim, units, y_var) {
-      if (units == "B") {
-        data <- data %>%
-          mutate(tooltip_text = paste0(!!sym(dim), ": ", 
-                                       label_currency(scale = 1e-9, 
-                                                      suffix = "B", accuracy = 0.1)
-                                       (!!sym(y_var))))
-      } else if (units == "M") {
-        data <- data %>%
-          mutate(tooltip_text = paste0(!!sym(dim), ": ", 
-                                       label_currency(scale = 1e-6, 
-                                                      suffix = "M", accuracy = 0.1)
-                                       (!!sym(y_var))))
-      } else if (units == "%") {
-        data <- data %>%
-          mutate(tooltip_text = paste0(!!sym(dim), ": ", 
-                                       scales::percent_format(accuracy = 1)
-                                       (!!sym(y_var))))
-       } else if (units == "dol") {
-         data <- data %>%
-           mutate(tooltip_text = paste0(!!sym(dim), ": ", 
-                                       label_currency(scale = 1, 
-                                                      suffix = "", accuracy = 1)
-                                       (!!sym(y_var))))
-        } else if (units == "num") {
-          data <- data %>%
-            mutate(tooltip_text = paste0(!!sym(dim), ": ", 
-                                       scales::number_format(scale = 1, 
-                                                             suffix = "", accuracy = 0.1)
-                                       (!!sym(y_var))))
-        } else {
-         data <- data %>%
-           mutate(tooltip_text = paste0(!!sym(dim), ": ", !!sym(y_var)))
-       }
+      # leverage y_label_format for value formatting
+      val_labels <- y_label_format(y_var, units)[[2]]
+      data <- data %>%
+        mutate(tooltip_text = paste0(!!sym(dim), ": ", val_labels(!!sym(y_var))))
+    
     return(data)
 }
 
@@ -259,14 +231,29 @@ y_label_format <- function(yvar, tunits) {
     scale_val <- 1
   }
   print(scale_val)
+  # switch selects from available options based on yvar (in this case)
+  # - requires exact match - may not work for different yvar names, esp %
   y_labels <- switch(yvar,
                      'netsales' = label_currency(scale = scale_val, suffix = tunits, accuracy = 1),
                      'litres' = label_comma(scale = scale_val, suffix = tunits, accuracy = 1),
                      'pct_ttl_sales' = label_percent(accuracy = 1),
                      'pct_ttl_litres' = label_percent(accuracy = 1),
+                     'yoy_pcp_ttl_sales' = label_comma(accuracy = 1),
+                     'yoy_pcp_ttl_litres' = label_comma(accuracy = 1),
+                     # adding unnamed argument as default if no match above
+                     label_percent(accuracy = 1)
                      )
-  
-  return(y_labels)
+  y_labels_hover <- switch(yvar,
+                     'netsales' = label_currency(scale = scale_val, suffix = tunits, accuracy = 0.1),
+                     'litres' = label_comma(scale = scale_val, suffix = tunits, accuracy = 0.1),
+                     'pct_ttl_sales' = label_percent(accuracy = 0.1),
+                     'pct_ttl_litres' = label_percent(accuracy = 0.1),
+                     'yoy_pcp_ttl_sales' = label_comma(accuracy = 0.1),
+                     'yoy_pcp_ttl_litres' = label_comma(accuracy = 0.1),
+                     # adding unnamed argument as default if no match above
+                     label_percent(accuracy = 0.1)
+                     )
+  return(list(y_labels, y_labels_hover))
 }
 
 # deprecated: less sophisticated label function used in places
