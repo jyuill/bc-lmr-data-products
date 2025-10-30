@@ -51,7 +51,7 @@ h2 {font-size: 2em;
     margin-bottom: 0px;
 }   
 /* for regular section headings */
-h2.section {font-size: 1.6em; 
+h2.section {font-size: 1.4em; 
     text-align: left;
     margin-top: 4px;
     margin-left: 4px;
@@ -69,7 +69,7 @@ h2.section {font-size: 1.6em;
 h2.marginb {margin-bottom: 15px;
     }
 /* for sub-title */
-h3.subtitle {font-size: 1.25em;
+h3.subtitle {font-size: 1.2em;
     font-weight: normal;
     font-style: italic;
     text-transform: none;
@@ -91,6 +91,8 @@ h3.subabout {font-size: 1.1em;
     margin-top: 0em;
     padding-top: 5px;
     padding-bottom: 5px;
+    margin-left: 0px;
+    padding-left: 0px;
     width: 100%;
     /* border: 1px solid black; */
     /*color: #3D3D3D;*/
@@ -98,21 +100,29 @@ h3.subabout {font-size: 1.1em;
     background-color: #f8f9fa;
     }
 h4 {
-    font-size: 1em;
+    font-size: 0.8em;
     text-align: left;
     margin-top: 0em;
     margin-bottom: 2px;
     padding-top: 5px;
     padding-bottom: 0px;
+    margin-left: 0px;
+    padding-left: 0px;
     width: 100%;
     }
 p.about {
     margin-bottom: 5px;
     padding-top: 0px;
     padding-bottom: 0px;
+    margin-left: 10px;
+    padding-left: 10px;
     width: 100%;
     }
-
+.about_tab {
+    margin-left: 10px;
+    padding-left: 10px;
+    width: 80%;
+    }
 /* for notes */
 /*.note {font-size: 0.9em;
     text-align: center;

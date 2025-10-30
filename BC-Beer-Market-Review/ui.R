@@ -315,7 +315,7 @@ fluidPage(
                      ) # end fluidRow 8
             ), # end tabPanel 2
             # tabPanel 4: About ----
-            tabPanel("About", value = 4,
+            tabPanel("About", value = 4, class = "about_tab",
                      fluidRow( ## fluidRow 1 ----
                        tags$h2("About the BC Beer Sales Dashboard", 
                                class='section marginb',
