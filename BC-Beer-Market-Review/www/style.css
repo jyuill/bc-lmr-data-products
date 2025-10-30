@@ -67,6 +67,8 @@ h2.section {font-size: 1.4em;
     }
 /* larger margin bottom - mainly for About pg */
 h2.marginb {margin-bottom: 15px;
+    margin-left: -10px;
+    padding-left: 10px;
     }
 /* for sub-title */
 h3.subtitle {font-size: 1.2em;
@@ -119,7 +121,7 @@ p.about {
     width: 100%;
     }
 .about_tab {
-    margin-left: 10px;
+    margin-left: 20px;
     padding-left: 10px;
     width: 80%;
     }
