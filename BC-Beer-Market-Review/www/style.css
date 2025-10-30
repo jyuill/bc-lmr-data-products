@@ -18,7 +18,7 @@ body {
 }
 
 .row > .col-sm-8 {  /* Shiny's default main panel wrapper */
-    width: calc(100% - 300px) !important;
+    width: calc(100% - 320px) !important;
     max-width: calc(100% - 300px) !important;
     flex: 0 0 calc(100% - 300px) !important;
     margin-left: 260 !important;
@@ -33,7 +33,7 @@ body {
     }
 .main {
       margin-left: 260px !important; /* Adjust this value to match the sidebar width */
-      padding: 20px;
+      padding-top: 11px; /* sets top for tabs */
       overflow: auto;
       width: calc(100vw - 300px) !important; /* Adjust width to account for sidebar and padding */
       box-sizing: border-box;
@@ -54,9 +54,9 @@ h2 {font-size: 2em;
 h2.section {font-size: 1.6em; 
     text-align: left;
     margin-top: 4px;
-    margin-left: 5px;
-    padding-left: 10px;
-    padding-top: 6px;
+    margin-left: 4px;
+    padding-left: 16px;
+    padding-top: 7px;
     padding-bottom: 4px;
     width: 100%;
     /* border: 1px solid black; */
@@ -78,7 +78,7 @@ h3.subtitle {font-size: 1.25em;
     margin-left: 0px;
     padding-top: 5px;
     padding-bottom: 4px;
-    padding-left: 18px;
+    padding-left: 24px;
     width: 100%;
     /* border: 1px solid black; */
     /*color: #3D3D3D;*/
