@@ -80,11 +80,11 @@ fluidPage(
                        )
                      ), # end fluidRow 2
                      fluidRow( ## fluidRow 3 overview summary chart ----
+                       tags$h2("Multi-Year Performance Summary", 
+                            class='section', 
+                            id="multi_year_summary"),
+                            tags$h3("What are the longer-term trends in % changes?", class='subtitle'),    
                        column(width = 12,
-                              tags$h2("Multi-Year Performance Summary", 
-                              class='section', 
-                              id="multi_year_summary"),
-                              tags$h3("What are the longer-term trends in % changes?", class='subtitle'),
                               plotlyOutput("overview_summary_chart", height = "300px")
                        )
                      ), # end fluidRow 3

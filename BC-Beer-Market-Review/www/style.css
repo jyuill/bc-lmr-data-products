@@ -10,18 +10,32 @@ body {
       margin: 0;
       padding: 0;
     }
+/* Target the specific Bootstrap classes Shiny uses */
+.row > .col-sm-4 {  /* Shiny's default sidebar wrapper */
+    width: 240px !important;
+    max-width: 240px !important;
+    flex: 0 0 240px !important;
+}
+
+.row > .col-sm-8 {  /* Shiny's default main panel wrapper */
+    width: calc(100% - 300px) !important;
+    max-width: calc(100% - 300px) !important;
+    flex: 0 0 calc(100% - 300px) !important;
+    margin-left: 260 !important;
+}
+
 .sidebar {
       width: 240px; /* Set the desired width for the sidebar */
-      float: left; /* Float the sidebar to the left */
+      /*float: left; *//* Float the sidebar to the left */
       height: 100vh; /* Full height to fill the viewport */
       background-color: #f8f9fa; /* Optional: background color */
       position: fixed; /* Fix the sidebar to the left side */
     }
 .main {
-      margin-left: 270px; /* Adjust this value to match the sidebar width */
+      margin-left: 260px !important; /* Adjust this value to match the sidebar width */
       padding: 20px;
       overflow: auto;
-      width: calc(100% - 90px) !important; /* Adjust width to account for sidebar and padding */
+      width: calc(100vw - 300px) !important; /* Adjust width to account for sidebar and padding */
       box-sizing: border-box;
     }
 
@@ -39,9 +53,11 @@ h2 {font-size: 2em;
 /* for regular section headings */
 h2.section {font-size: 1.6em; 
     text-align: left;
-    margin-top: 0em;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    margin-top: 4px;
+    margin-left: 5px;
+    padding-left: 10px;
+    padding-top: 6px;
+    padding-bottom: 4px;
     width: 100%;
     /* border: 1px solid black; */
     /*color: #233E86;*/
@@ -62,7 +78,7 @@ h3.subtitle {font-size: 1.25em;
     margin-left: 0px;
     padding-top: 5px;
     padding-bottom: 4px;
-    padding-left: 16px;
+    padding-left: 18px;
     width: 100%;
     /* border: 1px solid black; */
     /*color: #3D3D3D;*/
