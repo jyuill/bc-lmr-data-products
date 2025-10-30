@@ -11,19 +11,20 @@ body {
       padding: 0;
     }
 .sidebar {
-      width: 230px; /* Set the desired width for the sidebar 250 */
+      width: 240px; /* Set the desired width for the sidebar */
       float: left; /* Float the sidebar to the left */
       height: 100vh; /* Full height to fill the viewport */
       background-color: #f8f9fa; /* Optional: background color */
       position: fixed; /* Fix the sidebar to the left side */
-      /* top: 10; *//* Ensure it starts from the top */
-      /* bottom: 0; *//* Ensure it extends to the bottom */
     }
 .main {
-      margin-left: 260px; /* Adjust this value to match the sidebar width */
+      margin-left: 270px; /* Adjust this value to match the sidebar width */
       padding: 20px;
-      overflow: hidden;
+      overflow: auto;
+      width: calc(100% - 90px) !important; /* Adjust width to account for sidebar and padding */
+      box-sizing: border-box;
     }
+
 /* for titlePanel */
 h2 {font-size: 2em;
     text-align: center;
