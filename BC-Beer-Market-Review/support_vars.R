@@ -88,21 +88,23 @@ lpointsize <- 2.2
   pop_chg_sales_qtr <- " % Chg - by Quarter"
   # source
   yr_source <- "Sales by Source"
-  yr_source_pc <- "% of Sales by Source"
-  yr_source_pc_chg <- "% Chg by Src (grey = partial yr)"
+  yr_source_pc <- "% of Total by Source"
+  yr_source_pc_chg <- "Yrly % Chg by Src (grey = partial yr)"
+  qtr_source_pc_chg <- "% Chg by Src - vs Same Qtr Prev Yr"
   yr_source_pcpt_chg <- "% Pt Chg in Share by Src"
   # BC category
-  yr_sales_cat <-  "Sales by BC Category"
-  yr_sales_cat_pc <-  "% of Sales by BC Cat."
-  yr_sales_cat_pc_chg <- "% Chg by BC Cat. (grey = partial yr)"
+  yr_sales_cat <-  "Sales by BC Producer Category"
+  yr_sales_cat_pc <-  "% of Total by BC Prod. Category"
+  yr_sales_cat_pc_chg <- "Yrly % Chg by BC Cat. (grey = partial yr)"
+  qtr_sales_cat_pc_chg <- "% Chg by BC Cat. - vs Same Qtr Prev Yr"
   yr_sales_cat_pcpt_chg <-  "% Pt Chg in Share by BC Cat."
   # Import category
   yr_sales_imp <-  "Import Sales - Ctry/Region"
-  yr_sales_imp_pc <-  "% Imports by Ctry/Region"
-  yr_sales_imp_pc_chg <- "% Chg by Ctry/Reg (grey=partial yr)"
+  yr_sales_imp_pc <-  "% of Total Imports by Ctry/Region"
+  yr_sales_imp_pc_chg <- "Yrly % Chg by Ctry/Reg (grey=partial yr)"
   yr_sales_imp_pcpt_chg <-  "% Pt Chg in Share by Ctry/Region"
 
-  # LITRE sales chart titles
+  # LITRE sales chart titles - not all these are used because multi-purpose versions above work with metric
   yr_litre_cat <- "Yrly Litres by Category"
   yr_litre_pc_cat <- "% of Ttl Litres by Category"
   yr_litre_pc_chg_cat <- "Yrly % Chg Litres by Category"
