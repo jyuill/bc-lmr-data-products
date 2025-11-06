@@ -269,12 +269,12 @@ function(input, output, session) {
     output$overview_sales_qtr <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
-        TtlChart("Net $", yr_sales, 
+        TtlChart("Net $:", yr_sales, 
                beer_annual_data(),
                 'cyr', 'netsales', 'cat_type', bar_col, 
                theme_xax+theme_nleg, "M", yr_flag_color, lwidth, lpointsize)
       } else if(input$grain_check == "Quarterly") {
-        QtrChart("Net $", qtr_sales,
+        QtrChart("Net $:", qtr_sales,
                beer_qtr_data(), 'cyr_qtr', 'netsales', 'cqtr', qtr_color,
                theme_xax+theme_xaxq+theme_nleg, "M", lwidth, lpointsize)  
       }
@@ -301,7 +301,7 @@ function(input, output, session) {
               "cyr", "yoy_sales", "yr_flag", yr_flag_color, 
                theme_xax+theme_nleg, "%")
       } else if(input$grain_check == "Quarterly") {
-        PoPChart("Net $", "% Chg - same Qtr Prev Yr",  
+        PoPChart("Net $:", "% Chg - same Qtr Prev Yr",  
                 beer_qtr_data(), "cyr_qtr", "yoy_qoq_sales", "cqtr", qtr_color, 
                theme_xax+theme_xaxq+theme_nleg, "%")
       }
@@ -496,11 +496,11 @@ function(input, output, session) {
     output$beer_sales_qtr_cat_line <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
-        CatChartLine("Net $",yr_source, 
+        CatChartLine("Net $:",yr_source, 
                 beer_annual_data_cat(), "cyr", "netsales", "category", beer_cat_color,
                 theme_xax, "M", lwidth, lpointsize)
       } else if(input$grain_check == "Quarterly") {
-        CatChartLine("Net $",yr_source, 
+        CatChartLine("Net $:",yr_source, 
                 beer_qtr_data_cat2(), "cyr_qtr", "netsales", "category", beer_cat_color,
                 theme_xax+theme_xaxq, "M", lwidth, lpointsize)
       }
@@ -515,7 +515,7 @@ function(input, output, session) {
       } else if(input$grain_check == "Quarterly") {
         CatChartLine("Litres",yr_source, 
                beer_qtr_data_cat2(), "cyr_qtr", "litres", "category", beer_cat_color,
-               theme_xax+theme_xaxq, "M", lwidth, lpointsize)
+               theme_xaxq, "M", lwidth, lpointsize)
       }
     })
   ### stacked bar charts % ----
@@ -523,29 +523,29 @@ function(input, output, session) {
       req(input$grain_check)
       if(input$grain_check == "Annual") {
         #return(NULL) # no annual chart
-        CatChart("Net $", yr_source_pc, 
+        CatChart("Net $:", yr_source_pc, 
                beer_annual_data_cat(), "cyr", "pct_ttl_sales","category", 
                beer_cat_color, "fill",
                theme_xax, tunits="%")
       } else if(input$grain_check == "Quarterly") {
-        CatChart("Net $",yr_source_pc, 
+        CatChart("Net $:",yr_source_pc, 
                 beer_qtr_data_cat2(), "cyr_qtr", "pct_ttl_sales", "category", 
                 beer_cat_color, "fill",
-                theme_xax+theme_xaxq, "%") 
+                theme_xaxq, "%") 
       }
      })
   
     output$beer_litre_qtr_cat <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
-        CatChart("Litres",yr_source_pc, 
+        CatChart("Litres:",yr_source_pc, 
                 beer_annual_data_cat(), "cyr", "pct_ttl_litres", "category", 
                 beer_cat_color, "fill",
                 theme_xax, "%")
       } else if(input$grain_check == "Quarterly") {
-        CatChart("Litres",yr_source_pc, 
+        CatChart("Litres:",yr_source_pc, 
                 beer_qtr_data_cat2(), "cyr_qtr", "pct_ttl_litres", "category", beer_cat_color, "fill",
-                theme_xax+theme_xaxq, "%")
+                theme_xaxq, "%")
       }
     })
   ### facet charts yoy % chg (qtr, yr) ----
@@ -553,7 +553,7 @@ function(input, output, session) {
       req(input$grain_check)
       if(input$grain_check == "Annual") {
         x <- beer_annual_data_cat()
-        CatChgChart("Net $", yr_source_pc_chg, x, 
+        CatChgChart("Net $:", yr_source_pc_chg, x, 
                x_var = "cyr", y_var = "yoy_sales", 
                sort_var = "netsales",
                fill_var = "yr_flag", 
@@ -564,25 +564,24 @@ function(input, output, session) {
                f_scales = "fixed")
       } else if(input$grain_check == "Quarterly") {
         x <- beer_qtr_data_cat2()
-        CatChgChart("Net $",qtr_source_pc_chg, x,
+        CatChgChart("Net $:",qtr_source_pc_chg, x,
                x_var = "cyr_qtr", y_var = "yoy_qoq_sales", 
                sort_var = "netsales", 
                fill_var = "cqtr", 
                facet_var = "category",
                fill_color = qtr_color, 
                strp_color = strp_col,
-               theme_xax+theme_nleg, "%",
+               theme_xaxq+theme_nleg, "%",
                f_scales = "fixed")
       }
     })
   
     output$litres_qtr_cat_yoy <- renderPlotly({
-      # NEXT: add in annual views
       req(input$grain_check)
       if(input$grain_check == "Annual") {
         #return(NULL) # no annual chart
         x <- beer_annual_data_cat()
-        CatChgChart("Litres", yr_source_pc_chg, x, 
+        CatChgChart("Litres:", yr_source_pc_chg, x, 
                x_var = "cyr", y_var = "yoy_litres", 
                sort_var = "netsales",
                fill_var = "yr_flag", 
@@ -592,7 +591,7 @@ function(input, output, session) {
                theme_xax+theme_nleg, "%", 
                f_scales = "fixed")
       } else if(input$grain_check == "Quarterly") {
-        CatChgChart("Litres",qtr_source_pc_chg, 
+        CatChgChart("Litres:",qtr_source_pc_chg, 
                 beer_qtr_data_cat2(), 
                 x_var = "cyr_qtr", y_var = "yoy_qoq_litres", 
                 sort_var = "netsales", 
@@ -600,7 +599,7 @@ function(input, output, session) {
                 facet_var = "category",
                 fill_color = qtr_color, 
                 strp_color = strp_col,
-                theme_xax+theme_nleg,
+                theme_xaxq+theme_nleg,
                 f_scales = "free_y")
         }
       })
@@ -611,68 +610,70 @@ function(input, output, session) {
       output$beer_sales_yq_subcat_line <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
-        CatChartLine("Net $",yr_sales_cat, 
+        CatChartLine("Net $:",yr_sales_cat, 
                 beer_annual_data_subcat(), "cyr", "netsales", "subcategory", beer_bc_cat_color,
                 theme_xax, "M", lwidth, lpointsize)
       } else if(input$grain_check == "Quarterly") {
         #return(NULL) # no qtr subcat line chart yet - modify code below when ready
-        CatChartLine("Net $",yr_sales_cat, 
+        CatChartLine("Net $:",yr_sales_cat, 
                 beer_qtr_data_subcat(), "cyr_qtr", "netsales", "subcategory", beer_bc_cat_color,
-                theme_xax+theme_xaxq, "M", lwidth, lpointsize)
+                theme_xaxq, "M", lwidth, lpointsize)
       }
       })
     output$beer_litre_yq_subcat_line <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
         #return(NULL) # no annual line chart
-        CatChartLine("Litres",yr_sales_cat, 
+        CatChartLine("Litres:",yr_sales_cat, 
                 beer_annual_data_subcat(), "cyr", "litres", "subcategory", beer_bc_cat_color,
                 theme_xax, "M", lwidth, lpointsize)
       } else if(input$grain_check == "Quarterly") {
         #return(NULL) # no qtr subcat line chart yet - modify code below when ready
-        CatChartLine("Litres",yr_sales_cat, 
+        CatChartLine("Litres:",yr_sales_cat, 
                beer_qtr_data_subcat(), "cyr_qtr", "litres", "subcategory", beer_bc_cat_color,
-               theme_xax+theme_xaxq, "M", lwidth, lpointsize)
+               theme_xaxq, "M", lwidth, lpointsize)
       }
     })
   ### stacked bar charts % share by yr and qtr ----
+    # MOVED to bottom of Overview tab for better flow
     output$beer_sales_yq_subcat_stacked <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
-        CatChart("Net $",yr_sales_cat_pc, 
+        CatChart("Net $:",yr_sales_cat_pc, 
                 beer_annual_data_subcat(), "cyr", "pct_ttl_sales", "subcategory", 
                 beer_bc_cat_color, "fill",
                 theme_xax, "%")
       } else if(input$grain_check == "Quarterly") {
         #return(NULL) # no qtr subcat stacked chart yet - modify code below when ready
-        CatChart("Net $",yr_sales_cat_pc, 
+        CatChart("Net $:",yr_sales_cat_pc, 
                 beer_qtr_data_subcat(), "cyr_qtr", "netsales", "subcategory", 
                 beer_bc_cat_color, "fill",
-                theme_xax+theme_xaxq, "%")
+                theme_xaxq, "%")
       }
     })
     output$beer_litre_yq_subcat_stacked <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
-        CatChart("Litres",yr_sales_cat_pc, 
+        CatChart("Litres:",yr_sales_cat_pc, 
                 beer_annual_data_subcat(), "cyr", "pct_ttl_litres", "subcategory", 
                 beer_bc_cat_color, "fill",
                 theme_xax, "%")
       } else if(input$grain_check == "Quarterly") {
         #return(NULL) # no qtr subcat stacked chart yet - modify code below when ready
-        CatChart("Litres",yr_sales_cat_pc, 
+        CatChart("Litres:",yr_sales_cat_pc, 
                 beer_qtr_data_subcat(), "cyr_qtr", "pct_ttl_litres", "subcategory", 
                 beer_bc_cat_color, "fill",
-                theme_xax, "%")
+                theme_xaxq, "%")
       }
     })
     ### facet charts yoy % chg by subcategory ----
     # % chg yoy by source: same qtr prev yr, faceted by source
+    # MOVED above % share stacked charts for better flow
     output$sales_subcat_yoy <- renderPlotly({
       req(input$grain_check)
       if(input$grain_check == "Annual") {
         x <- beer_annual_data_subcat()
-        CatChgChart("Net $", yr_sales_cat_pc_chg, x, 
+        CatChgChart("Net $:", yr_sales_cat_pc_chg, x, 
                x_var = "cyr", y_var = "yoy_sales", 
                sort_var = "netsales",
                fill_var = "yr_flag", 
@@ -684,14 +685,14 @@ function(input, output, session) {
       } else if(input$grain_check == "Quarterly") {
         #return(NULL) # no qtr subcat yoy chart yet - modify code below when ready
         x <- beer_qtr_data_subcat()
-         CatChgChart("Net $", qtr_sales_cat_pc_chg, x,
+         CatChgChart("Net $:", qtr_sales_cat_pc_chg, x,
                 x_var = "cyr_qtr", y_var = "yoy_qoq_sales", 
                 sort_var = "netsales", 
                 fill_var = "cqtr", 
                 facet_var = "subcategory",
                 fill_color = qtr_color, 
                 strp_color = strp_col,
-                theme_xax+theme_nleg, "%",
+                theme_xaxq+theme_nleg, "%",
                 f_scales = "fixed")
       }
     })
@@ -702,7 +703,7 @@ function(input, output, session) {
       if(input$grain_check == "Annual") {
         #return(NULL) # no annual chart
         x <- beer_annual_data_subcat()
-        CatChgChart("Litres", yr_sales_cat_pc_chg, x, 
+        CatChgChart("Litres:", yr_sales_cat_pc_chg, x, 
                x_var = "cyr", y_var = "yoy_litres", 
                sort_var = "netsales",
                fill_var = "yr_flag", 
@@ -713,7 +714,7 @@ function(input, output, session) {
                f_scales = "fixed")
       } else if(input$grain_check == "Quarterly") {
         #return(NULL) # no qtr subcat yoy chart yet - modify code below when ready
-         CatChgChart("Litres", qtr_sales_cat_pc_chg, 
+         CatChgChart("Litres:", qtr_sales_cat_pc_chg, 
                  beer_qtr_data_subcat(), 
                  x_var = "cyr_qtr", y_var = "yoy_qoq_litres", 
                  sort_var = "netsales", 
@@ -721,7 +722,7 @@ function(input, output, session) {
                  facet_var = "subcategory",
                  fill_color = qtr_color, 
                  strp_color = strp_col,
-                 theme_xax+theme_nleg,
+                 theme_xaxq+theme_nleg,
                  f_scales = "free_y")
         }
       })
@@ -886,7 +887,7 @@ function(input, output, session) {
     # similar to overview but using functions to get plot, providing:
     # - chart_title, dataset, bar col variable, list of theme modifications
     # - for themes, can list joined by '+'
-    metric <- "Litres"
+    metric <- "Litres:"
     output$litre_sales_yr <- renderPlotly({
       TtlChart(metric, yr_sales, 
                beer_annual_data(), 'cyr', 'litres', 'cat_type', bar_col, 

@@ -94,7 +94,7 @@ lpointsize <- 2.2
   yr_source_pcpt_chg <- "% Pt Chg in Share by Src"
   # BC category
   yr_sales_cat <-  "Sales by BC Producer Category"
-  yr_sales_cat_pc <-  "% of Total by BC Prod. Category"
+  yr_sales_cat_pc <-  "% of Total BC Prod. by Category"
   yr_sales_cat_pc_chg <- "Yrly % Chg by BC Cat. (grey = partial yr)"
   qtr_sales_cat_pc_chg <- "% Chg by BC Cat. - vs Same Qtr Prev Yr"
   yr_sales_cat_pcpt_chg <-  "% Pt Chg in Share by BC Cat."
@@ -112,6 +112,7 @@ lpointsize <- 2.2
 
 ## Sidebar notes ----
   sb_note_calyr <- "Years & Quarters refer to calendar year, not LDB fiscal year."
-  sb_note_src <- "Source: BC Liquor Distribution Branch - LDB Market Reports; sales through wholesale data from all distribution channels; see 'About' tab for details and links."
+  sb_note_src <- "Source: BC Liquor Distribution Branch - LDB Market Reports; sales through wholesale data from all distribution channels; 
+                  see source for additional definitions. Details and links in 'About' tab."
   sb_note_charts <- "All charts are interactive: hover for details; zoom in using box select (click & drag); reset view with home icon, etc."
   sb_note_sales <- "Net $ Sales is based on price paid by (wholesale) customer, excluding taxes."

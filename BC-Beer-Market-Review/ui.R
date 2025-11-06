@@ -89,7 +89,7 @@ fluidPage(
                        )
                      ), # end fluidRow 3
                      
-                     fluidRow( ## fluidRow 5 net $ and litres by category line ----
+                     fluidRow( ## fluidRow 5 source/cat net $ and litres by category line ----
                        tags$h2("Net $ Beer Sales & Litres by Source", 
                                       class='section',
                                       id="overview_by_source"),
@@ -102,16 +102,7 @@ fluidPage(
                               plotlyOutput("beer_litre_qtr_cat_line", height = "400px")
                        )
                      ), # end fluidRow 5
-                     fluidRow( ## fluidRow 6 net $ and litres by category ----
-                       tags$h3("Share of sales from each source", class='subtitle'),
-                       column(width = 6,
-                              plotlyOutput("beer_sales_qtr_cat", height = "400px")
-                              ),
-                       column(width = 6,
-                              plotlyOutput("beer_litre_qtr_cat", height = "400px")
-                       )
-                     ), # end fluidRow 6
-                     fluidRow( ## fluidRow 7 % chg yoy by category ----
+                     fluidRow( ## fluidRow 6 source/cat % chg yoy ----
                        tags$h3("How are sales changing by source for comparative periods?", 
                        class='subtitle'),
                        column(width = 6,
@@ -119,6 +110,15 @@ fluidPage(
                               ),
                        column(width = 6,
                               plotlyOutput("litres_qtr_cat_yoy", height = "500px")
+                       )
+                     ), # end fluidRow 6
+                     fluidRow( ## fluidRow 7 source/cat % share ----
+                       tags$h3("Share of sales from each source", class='subtitle'),
+                       column(width = 6,
+                              plotlyOutput("beer_sales_qtr_cat", height = "400px")
+                              ),
+                       column(width = 6,
+                              plotlyOutput("beer_litre_qtr_cat", height = "400px")
                        )
                      ), # end fluidRow 7
                      fluidRow( ## fluidRow 8 BC produced category ----
@@ -136,16 +136,7 @@ fluidPage(
                               plotlyOutput("beer_litre_yq_subcat_line", height = "400px")
                        )
                      ), # end fluidRow 8
-                     fluidRow( ## fluidRow 9 BC produced category ----
-                       tags$h3("Share of sales from each category", class='subtitle'),
-                       column(width = 6,
-                              plotlyOutput("beer_sales_yq_subcat_stacked", height = "400px")
-                              ),
-                       column(width = 6,
-                              plotlyOutput("beer_litre_yq_subcat_stacked", height = "400px")
-                       )
-                     ), # end fluidRow 9  
-                     fluidRow( ## fluidRow 10 % chg yoy by category ----
+                     fluidRow( ## fluidRow 9 % chg by BC produced category ----
                        tags$h3("How are sales changing by category for comparative periods?", 
                                class='subtitle'),
                        column(width = 6,
@@ -153,6 +144,15 @@ fluidPage(
                        ),
                        column(width = 6,
                               plotlyOutput("litres_subcat_yoy", height = "500px")
+                       )
+                     ), # end fluidRow 9  
+                     fluidRow( ## fluidRow 10 % share by BC category ----
+                       tags$h3("Share of sales from each category", class='subtitle'),
+                       column(width = 6,
+                              plotlyOutput("beer_sales_yq_subcat_stacked", height = "400px")
+                              ),
+                       column(width = 6,
+                              plotlyOutput("beer_litre_yq_subcat_stacked", height = "400px")
                        )
                      ), # end fluidRow 10       
             ), # end tabPanel 1
