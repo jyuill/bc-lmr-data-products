@@ -119,8 +119,8 @@ function(input, output, session) {
         tags$h4("Notes"),
         tags$p(sb_note_calyr, class="sb_note"), # consistent variables set in support_vars.R
         tags$p(sb_note_charts, class="sb_note"),
-        tags$p(sb_note_src, class="sb_note"),
-        tags$p(sb_note_sales, class="sb_note")
+        tags$p(sb_note_sales, class="sb_note"),
+        tags$p(sb_note_src, class="sb_note")
       )
     } else if (input$tabselected == 2) {
       tagList(
@@ -137,8 +137,8 @@ function(input, output, session) {
         tags$h4("Notes"),
         tags$p(sb_note_calyr, class="sb_note"),
         tags$p(sb_note_charts, class="sb_note"),
-        tags$p(sb_note_src, class="sb_note"),
-        tags$p(sb_note_sales, class="sb_note")
+        tags$p(sb_note_sales, class="sb_note"),
+        tags$p(sb_note_src, class="sb_note")
       )
     } else if (input$tabselected == 3) {
       tagList(
