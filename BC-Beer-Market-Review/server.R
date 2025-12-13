@@ -59,7 +59,7 @@ function(input, output, session) {
   #beer_bc_data <- beer_data %>% filter(category == "BC")
   #beer_annual_subcat_test <- AnnualCatData(beer_bc_data, 'category', 'subcategory', beer_data)
 
-  # setup filters ----------------------------------------------------
+  # setup filters for UI ----------------------------------------------------
   cat("87: setup filters \n")
   # Dynamically generate UI filters based on beer_data
   # otherwise, app will crash because beer_data not available for filters in ui.R
