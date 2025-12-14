@@ -99,7 +99,8 @@ CatChart <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var,
     ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = category, text = tooltip_text)) +
     geom_col(position = pos) +
     scale_y_continuous(labels = y_labels,
-                       expand = expansion(mult=c(0,0.05))) +
+                       expand = expansion(mult=c(0,0.05)),
+                      limits = c(0, max(x[[y_var]], na.rm = TRUE))) +
     scale_fill_manual(values=fill_color)+
     labs(title=ch_title, x="", y="")+
     theme(axis.ticks.x = element_blank(),
@@ -149,7 +150,8 @@ CatChartLine <- function(metric = "",chart_title, dataset, x_var, y_var, fill_va
                color = !!sym(fill_var), text = tooltip_text)) +
     geom_line(linewidth = lwidth) +
     scale_y_continuous(labels = y_labels,
-                       expand = expansion(mult=c(0,0.05))) +
+                       expand = expansion(mult=c(0,0.05)),
+                       limits = c(0, max(x[[y_var]], na.rm = TRUE))) +
     scale_color_manual(values=fill_color)+
     labs(title=ch_title, x="", y="")+
     theme(legend.position = "top",

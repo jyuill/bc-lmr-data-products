@@ -96,7 +96,15 @@ function(input, output, session) {
                                     selected = unique(beer_data$category),
                                     inline = FALSE
   )
-  
+  ## BC subcategory filters ----
+  # get BC subcategories
+  bc_subcats <- unique(beer_data$subcategory[beer_data$category == "BC"])
+  dynamic_beer_bc_subcat <- checkboxGroupInput(inputId = "beer_bc_subcat_check", "Select BC category (if only BC selected above):", 
+                                               choices = bc_subcats, 
+                                               selected = bc_subcats,
+                                               inline = FALSE
+  )
+
   # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
   # Dynamic Sidebar ----
   # in ui: sidebarPanel(id = "sidebar", ...)
@@ -110,6 +118,7 @@ function(input, output, session) {
         dynamic_cyr,
         dynamic_qtr,
         dynamic_beer_cat,
+        dynamic_beer_bc_subcat,
         tags$h4("Contents"),
         tags$a(href="#overview_comparison", "Net $ & Litre Sales"),tags$br(),
         tags$a(href="#multi_year_summary", "Multi-Yr Summary"),tags$br(),
@@ -128,6 +137,7 @@ function(input, output, session) {
         dynamic_cyr,
         dynamic_qtr,
         dynamic_beer_cat,
+        dynamic_beer_bc_subcat,
         tags$h4("Contents"),
         tags$a(href="#beer_sales", "$ Sales by Yr & Qtr"),tags$br(),
         tags$a(href="#bsrc_sales", "$ Sales by Source"), tags$br(),
@@ -146,6 +156,7 @@ function(input, output, session) {
         dynamic_cyr,
         dynamic_qtr,
         dynamic_beer_cat,
+        dynamic_beer_bc_subcat,
         tags$h4("Contents"),
           tags$a(href="#litre_sales", "Ttl Litres by Yr & Qtr"),tags$br(),
           tags$a(href="#bsrc_sales_litre", "Litres by Source"), tags$br(),
@@ -179,18 +190,38 @@ function(input, output, session) {
         } 
       })
   
+  # code for activating/deactivating subcat filter based on cat filter selection
+  #  observe({
+  #    # req(input$tabselected == 1)
+  #    is_only_bc_selected <- length(input$beer_cat_check) == 1 && input$beer_cat_check[1] == "BC"
+  #    if(is_only_bc_selected) {
+  #      shinyjs::enable("beer_bc_subcat_check")
+  #    } else {
+  #      shinyjs::disable("beer_bc_subcat_check")
+  #    }
+  #    # Optional: reset the selections when it gets disabled
+  #    #updateCheckboxGroupInput(session, "beer_bc_subcat_check", selected = character(0))
+  #  })
     
     # Data processing ---------------------------------------------------
     cat("192: 01 apply beer filters to data \n")
     ## 1. Filter the data set based on the selected categories ----
     beer_filtered_data <- reactive({
       req(input$cyr_picker, input$qtr_check, input$beer_cat_check)
+      # req(input$beer_bc_subcat_check)
       #beer_data
       beer_data %>% filter(cyr %in% input$cyr_picker) %>%
         filter(cqtr %in% input$qtr_check) %>%
-        filter(category %in% input$beer_cat_check)
+        filter(category %in% input$beer_cat_check) %>%
+        filter( # apply subcategory filter only if BC category is only selection
+          if(length(input$beer_cat_check) == 1 && input$beer_cat_check[1] == "BC") {
+            subcategory %in% input$beer_bc_subcat_check
+          } else {
+            TRUE
+            }
+        )
     })
-    # test
+  
     #beer_filtered_test <- beer_data %>% filter(cyr_num < 2025)
     #beer_filter_annual_test <- AnnualCatTypeData(beer_filtered_test, beer_filtered_test)
     cat("204: 02 aggregate annual & qtr totals \n")
