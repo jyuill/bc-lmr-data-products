@@ -43,22 +43,7 @@ source('support_vars.R')
 
 # Define server logic ----
 function(input, output, session) {
-  # experiment with different bs themes
-  #bslib::bs_themer()
-  # xtoggle sidebar ----
-  # for toggling sidebar, using shinyjs 
-  # - NOT USED - clunky
-  # - makes sidebar disappear / appear but mainPanel doesn't expand - pointless
-  #observeEvent(input$toggleSidebar, {
-  #  toggle("sidebar")
-  #})
-
-  ### for testing data functions ----
-  #beer_annual_test <- AnnualCatTypeData(beer_data, beer_data)
-  #beer_annual_cat_test <- AnnualCatData(beer_data, 'cat_type', 'category',beer_data)
-  #beer_bc_data <- beer_data %>% filter(category == "BC")
-  #beer_annual_subcat_test <- AnnualCatData(beer_bc_data, 'category', 'subcategory', beer_data)
-
+  
   # setup filters for UI ----------------------------------------------------
   cat("87: setup filters \n")
   # Dynamically generate UI filters based on beer_data

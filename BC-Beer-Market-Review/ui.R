@@ -9,7 +9,7 @@ library(bslib)
 library(RColorBrewer)
 library(shinyjs)
 
-# Define UI for application that draws a histogram
+# Define UI for application 
 fluidPage(
   useShinyjs(), # for toggling side panel
   # apply bootstrap theme - set using 'preset'
@@ -37,7 +37,6 @@ fluidPage(
     #tags$h3("An (unofficial) consolidated view of quarterly BC Beer Sales data, 
     #        compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources", class='non-tab'),
     #        class = "sub"),
-    # Sidebar with a slider input for number of bins
     sidebarLayout(
       # sidebar panel ----
         sidebarPanel(
