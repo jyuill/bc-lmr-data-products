@@ -20,154 +20,177 @@ library(treemap)
 library(treemapify)
 
 scipen <- options(scipen=999) # suppress scientific notation
-# START moved to global.R ----
+
 # get data ----
 # query database via separate file for tidyness
 # postgresql as of Jun 2025
 ## get all data - process for beer ----
-  #source('query_pg.R')
+  source('query_pg.R')
   ## recent data ----
   # apply to yr filter as default to avoid over-crowding
-  #yr_max <- max(beer_data$cyr_num) # get current latest yr
-  #yrs_back <- 6 # determine how many yrs back to go
-  #data_recent <- beer_data %>% filter(cyr_num > yr_max-yrs_back)
-  #max_date <- max(beer_data$end_qtr_dt)
+  yr_max <- max(beer_data$cyr_num) # get current latest yr
+  yrs_back <- 6 # determine how many yrs back to go
+  data_recent <- beer_data %>% filter(cyr_num > yr_max-yrs_back)
+  max_date <- max(beer_data$end_qtr_dt)
   # for top of sidebar on pg, set in dynamic sidebar
-  #max_date_note <- paste0("Data as of: ", format(max_date, "%b %d %Y"))
+  max_date_note <- paste0("Data as of: ", format(max_date, "%b %d %Y"))
 
 # load functions used: data manipulation and plots ----
-#source('functions_data.R')
-#source('functions_plots.R')
+source('functions_data.R')
+source('functions_plots.R')
 # load support variables for plots etc
-#source('support_vars.R')
-# END moved to global.R ----
+source('support_vars.R')
 
 # Define server logic ----
 function(input, output, session) {
   
-  cat("180: start server \n")
+  # setup filters for UI ----------------------------------------------------
+  cat("87: setup filters \n")
+  # Dynamically generate UI filters based on beer_data
+  # otherwise, app will crash because beer_data not available for filters in ui.R
+  # CHATGPT suggestion as alt to below
+  ## annual vs qtr grain filter ----
+  dynamic_grain <- radioButtons(inputId = "grain_check", "Select Grain:", 
+                                choices = c("Annual", "Quarterly"), 
+                                selected = "Annual",
+                                inline = FALSE
+  )
+  ## year filter ----
+  
+  dynamic_cyr <- pickerInput(
+    inputId = "cyr_picker",
+    label = "Select Calendar Year(s):",
+    choices = unique(beer_data$cyr),
+    selected = unique(data_recent$cyr),
+    multiple = TRUE,
+    options = list(
+      `actions-box` = TRUE,
+      `selected-text-format` = "count > 3",
+      `count-selected-text` = "{0} years selected",
+      `live-search` = TRUE
+    )
+  )
+  ## qtr filters ----
+  dynamic_qtr <- checkboxGroupInput(inputId = "qtr_check", "Select Quarter:", 
+                                    choices = sort(unique(beer_data$cqtr)), 
+                                    selected = unique(beer_data$cqtr),
+                                    inline = FALSE
+  )
+  ## source/cat filters ----
+  dynamic_beer_cat <- checkboxGroupInput(inputId = "beer_cat_check", "Select Source:", 
+                                    choices = unique(beer_data$category), 
+                                    selected = unique(beer_data$category),
+                                    inline = FALSE
+  )
+  ## BC subcategory filters ----
+  # get BC subcategories
+  bc_subcats <- unique(beer_data$subcategory[beer_data$category == "BC"])
+  dynamic_beer_bc_subcat <- checkboxGroupInput(inputId = "beer_bc_subcat_check", "Select BC category (if only BC selected above):", 
+                                               choices = bc_subcats, 
+                                               selected = bc_subcats,
+                                               inline = FALSE
+  )
 
   # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
   # Dynamic Sidebar ----
-  # MOVED TO ui.R
-  # REPLACEMENT from Gemini ----
-  # populate initial filter choices after session starts
-  observeEvent(session, {
-    # Update choices for filters in sidebar
-    updateRadioButtons(session, "grain_check",
-                       choices = c("Annual", "Quarterly"),
-                       selected = "Annual"
-    )
-    updatePickerInput(session, "cyr_picker",
-                      choices = unique(beer_data$cyr),
-                      selected = unique(data_recent$cyr)
-    )
-    updateCheckboxGroupInput(session, "qtr_check",
-                             choices = sort(unique(beer_data$cqtr)),
-                             selected = unique(beer_data$cqtr)
-    )
-    updateCheckboxGroupInput(session, "beer_cat_check",
-                             choices = unique(beer_data$category),
-                             selected = unique(beer_data$category)
-    )
-    updateCheckboxGroupInput(session, "beer_bc_subcat_check",
-                             choices = bc_subcats,
-                             selected = bc_subcats
-    )
-  })
-
+  # in ui: sidebarPanel(id = "sidebar", ...)
+  # hrefs below refer to ids of h2 tags in ui 
+  cat("130: dynamic sidebar \n")
+  output$dynamic_sidebar <- renderUI({
+    if (input$tabselected == 1) {
+      tagList(
+        tags$p(max_date_note, class="note"),
+        dynamic_grain,
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_beer_cat,
+        dynamic_beer_bc_subcat,
+        tags$h4("Contents"),
+        tags$a(href="#overview_comparison", "Net $ & Litre Sales"),tags$br(),
+        tags$a(href="#multi_year_summary", "Multi-Yr Summary"),tags$br(),
+        tags$a(href="#overview_by_source", "Sales by Source"), tags$br(),
+        tags$a(href="#overview_bc_cat", "BC Producer Categories"),
+        tags$br(),tags$br(),
+        tags$h4("Notes"),
+        tags$p(sb_note_calyr, class="sb_note"), # consistent variables set in support_vars.R
+        tags$p(sb_note_charts, class="sb_note"),
+        tags$p(sb_note_sales, class="sb_note"),
+        tags$p(sb_note_src, class="sb_note")
+      )
+    } else if (input$tabselected == 2) {
+      tagList(
+        tags$p(max_date_note, class="note"),
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_beer_cat,
+        dynamic_beer_bc_subcat,
+        tags$h4("Contents"),
+        tags$a(href="#beer_sales", "$ Sales by Yr & Qtr"),tags$br(),
+        tags$a(href="#bsrc_sales", "$ Sales by Source"), tags$br(),
+        tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
+        tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br(),
+        tags$br(), tags$br(),
+        tags$h4("Notes"),
+        tags$p(sb_note_calyr, class="sb_note"),
+        tags$p(sb_note_charts, class="sb_note"),
+        tags$p(sb_note_sales, class="sb_note"),
+        tags$p(sb_note_src, class="sb_note")
+      )
+    } else if (input$tabselected == 3) {
+      tagList(
+        tags$p(max_date_note, class="note"),
+        dynamic_cyr,
+        dynamic_qtr,
+        dynamic_beer_cat,
+        dynamic_beer_bc_subcat,
+        tags$h4("Contents"),
+          tags$a(href="#litre_sales", "Ttl Litres by Yr & Qtr"),tags$br(),
+          tags$a(href="#bsrc_sales_litre", "Litres by Source"), tags$br(),
+          tags$a(href="#bcat_sales_litre", "BC Litres by Category"), tags$br(),
+          tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br(),
+          tags$br(), tags$br(),
+          tags$h4("Notes"),
+          tags$p(sb_note_calyr, class="sb_note"),
+          tags$p(sb_note_charts, class="sb_note"),
+          tags$p(sb_note_src, class="sb_note")
+      )
+    } else if (input$tabselected == 4) {
+      tagList(
+        tags$h4("Contact"),
+          # Placeholder span for the email address
+          tags$span(id = "email-container"),
+          # JavaScript to dynamically build and insert the email link
+          tags$script(HTML("
+            const user = 'john';
+            const domain = 'bcbeer.ca';
+            const email = `${user}@${domain}`;
+            const link = document.createElement('a');
+            link.href = `mailto:${email}`;
+            link.textContent = email;
+            document.getElementById('email-container').appendChild(link);
+          ")),
+        tags$p("LinkedIn: ",
+               tags$a(href="https://www.linkedin.com/in/johnyuill/", "John Yuill")),
+        tags$br()
+          )
+        } 
+      })
+  
   # Use observeEvent to show/hide the correct static sidebar content defined in ui.R
   observeEvent(input$tabselected, {
       # Hide all possible sidebar containers first
-      #shinyjs::hide("sidebar_tab1_content")
-      #shinyjs::hide("sidebar_tab2_content")
-      #shinyjs::hide("sidebar_tab3_content")
-      #shinyjs::hide("sidebar_tab4_content")
+      shinyjs::hide("sidebar_tab1_content")
+      shinyjs::hide("sidebar_tab2_content")
+      # shinyjs::hide("sidebar_tab3_content") # if you have a third tab setup
 
-      # Show grain_check only on tab 1 
+      # Show only the current tab's sidebar content
       if (input$tabselected == 1) {
-        shinyjs::show("grain_check")
-      } else if (input$tabselected %in% c(2, 3)) {
-        shinyjs::hide("grain_check")
-      } else if (input$tabselected == 4) {
-        shinyjs::hide("max_date_note")
-        shinyjs::hide("grain_check")
-        shinyjs::hide("cyr_picker")
-        shinyjs::hide("qtr_check")
-        shinyjs::hide("beer_cat_check")
-        shinyjs::hide("beer_bc_subcat_check")
+        shinyjs::show("sidebar_tab1_content")
+      } else if (input$tabselected == 2) {
+        shinyjs::show("sidebar_tab2_content")
       }
-  }, ignoreInit = FALSE) # Run on initial load too
-
-  # Use renderUI for dynamic sidebar content based on selected tab
-  output$dynamic_sidebar <- renderUI({
-    if (input$tabselected == 1) {
-      #sidebar_tab1_content
-      tagList(
-                    tags$h4("Contents"),
-                     tags$a(href="#overview_comparison", "Net $ & Litre Sales"),tags$br(),
-                     tags$a(href="#multi_year_summary", "Multi-Yr Summary"),tags$br(),
-                     tags$a(href="#overview_by_source", "Sales by Source"), tags$br(),
-                     tags$a(href="#overview_bc_cat", "BC Producer Categories"),
-                     tags$br(),tags$br(),
-                     tags$h4("Notes"),
-                     tags$p(sb_note_calyr, class="sb_note"), # consistent variables set in support_vars.R
-                     tags$p(sb_note_charts, class="sb_note"),
-                     tags$p(sb_note_sales, class="sb_note"),
-                     tags$p(sb_note_src, class="sb_note")
-    )
-    } else if (input$tabselected == 2) {
-      #sidebar_tab2_content
-      tagList(
-                     tags$h4("Contents"),
-                     tags$a(href="#beer_sales", "$ Sales by Yr & Qtr"),tags$br(),
-                     tags$a(href="#bsrc_sales", "$ Sales by Source"), tags$br(),
-                     tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
-                     tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br(),
-                     tags$br(), tags$br(),
-                     tags$h4("Notes"),
-                     tags$p(sb_note_calyr, class="sb_note"),
-                     tags$p(sb_note_charts, class="sb_note"),
-                     tags$p(sb_note_sales, class="sb_note"),
-                     tags$p(sb_note_src, class="sb_note")
-                     )
-    } else if (input$tabselected == 3) {
-      #sidebar_tab3_content
-      tagList(
-                    tags$h4("Contents"),        
-                    tags$a(href="#litre_sales", "Ttl Litres by Yr & Qtr"),tags$br(),
-                            tags$a(href="#bsrc_sales_litre", "Litres by Source"), tags$br(),
-                            tags$a(href="#bcat_sales_litre", "BC Litres by Category"), tags$br(),
-                            tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br(),
-                            tags$br(), tags$br(),
-                            tags$h4("Notes"),
-                            tags$p(sb_note_calyr, class="sb_note"),
-                            tags$p(sb_note_charts, class="sb_note"),
-                            tags$p(sb_note_src, class="sb_note")
-                     )
-    } else if (input$tabselected == 4) {
-      #sidebar_tab4_content
-      tagList(
-                     tags$h4("Contact"),
-                     # Placeholder span for the email address
-                     tags$span(id = "email-container"),
-                     # JavaScript to dynamically build and insert the email link
-                     tags$script(HTML("
-                     const user = 'john';
-                     const domain = 'bcbeer.ca';
-                     const email = `${user}@${domain}`;
-                     const link = document.createElement('a');
-                     link.href = `mailto:${email}`;
-                     link.textContent = email;
-                     document.getElementById('email-container').appendChild(link);
-                     ")),
-                     tags$p("LinkedIn: ",
-                            tags$a(href="https://www.linkedin.com/in/johnyuill/", "John Yuill")),
-                     tags$br()
-              )
-    }
-  })
-  
+      # Add else if for other tabs
+    }, ignoreInit = FALSE) # Run on initial load too
   # code for activating/deactivating subcat filter based on cat filter selection
   #  observe({
   #    # req(input$tabselected == 1)

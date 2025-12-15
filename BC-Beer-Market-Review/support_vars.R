@@ -3,6 +3,8 @@
 # - minimizes clutter in server.R or other code files
 # - sourced at top of server.R
 
+library(RColorBrewer)
+
 ### COLORS etc ----
 # set plot theme
 # - under 'plots' below
