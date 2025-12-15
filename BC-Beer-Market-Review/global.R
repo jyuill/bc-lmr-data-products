@@ -67,10 +67,7 @@ dynamic_beer_cat <- checkboxGroupInput(inputId = "beer_cat_check",
 )
 ## BC subcategory filters ----
 dynamic_beer_bc_subcat <- checkboxGroupInput(inputId = "beer_bc_subcat_check", 
-                                             label = "Select BC category (if only BC selected above):", 
+                                             label = "Select BC category (select only BC above):", 
                                              choices = NULL, # Placeholder
                                              inline = FALSE
 )
-
-## 3. Define Dynamic UI Elements
-# These objects are now available in ui.R and server.R

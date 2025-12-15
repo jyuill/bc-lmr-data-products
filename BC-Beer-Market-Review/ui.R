@@ -47,20 +47,79 @@ fluidPage(
           # - conttrolled by dynamic_sidebar in server.R
           # abandoning in favour of static sidebar for now for more robust approach
           #uiOutput("dynamic_sidebar") 
-          # ---- Static sidebar content ----
-          # Tab 1 sidebar
-          div(id = "master_sidebar_content",
+          # ---- Sidebar content ----
+          # filters - consistent across tabs 1-3
+          div(id = "sidebar_filters",
               tagList(
                      tags$p(max_date_note, class="note", id="max_date_note"),
                      dynamic_grain,
                      dynamic_cyr,
                      dynamic_qtr,
                      dynamic_beer_cat,
-                     dynamic_beer_bc_subcat,
-                         
+                     dynamic_beer_bc_subcat
+              )
               ),
-              uiOutput("dynamic_sidebar")
-              ),
+          # specific content for each tab sidebar
+          div(id="sidebar_tab1_content",
+              tagList(
+                     tags$h4("Contents"),
+                     tags$a(href="#overview_comparison", "Net $ & Litre Sales"),tags$br(),
+                     tags$a(href="#multi_year_summary", "Multi-Yr Summary"),tags$br(),
+                     tags$a(href="#overview_by_source", "Sales by Source"), tags$br(),
+                     tags$a(href="#overview_bc_cat", "BC Producer Categories"),
+                     tags$br(),tags$br(),
+                     tags$h4("Notes"),
+                     tags$p(sb_note_calyr, class="sb_note"), # consistent variables set in support_vars.R
+                     tags$p(sb_note_charts, class="sb_note"),
+                     tags$p(sb_note_sales, class="sb_note"),
+                     tags$p(sb_note_src, class="sb_note")
+              )),
+          div(id="sidebar_tab2_content",
+              tagList(
+                 tags$h4("Contents"),
+                     tags$a(href="#beer_sales", "$ Sales by Yr & Qtr"),tags$br(),
+                     tags$a(href="#bsrc_sales", "$ Sales by Source"), tags$br(),
+                     tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
+                     tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br(),
+                     tags$br(), tags$br(),
+                     tags$h4("Notes"),
+                     tags$p(sb_note_calyr, class="sb_note"),
+                     tags$p(sb_note_charts, class="sb_note"),
+                     tags$p(sb_note_sales, class="sb_note"),
+                     tags$p(sb_note_src, class="sb_note")
+          )),
+          div(id="sidebar_tab3_content",
+              tagList(
+                     tags$h4("Contents"),        
+                     tags$a(href="#litre_sales", "Ttl Litres by Yr & Qtr"),tags$br(),
+                     tags$a(href="#bsrc_sales_litre", "Litres by Source"), tags$br(),
+                     tags$a(href="#bcat_sales_litre", "BC Litres by Category"), tags$br(),
+                     tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br(),
+                     tags$br(), tags$br(),
+                     tags$h4("Notes"),
+                     tags$p(sb_note_calyr, class="sb_note"),
+                     tags$p(sb_note_charts, class="sb_note"),
+                     tags$p(sb_note_src, class="sb_note")
+          )),
+          div(id="sidebar_tab4_content",
+              tagList(
+                 tags$h4("Contact"),
+                     # Placeholder span for the email address
+                     tags$span(id = "email-container"),
+                     # JavaScript to dynamically build and insert the email link
+                     tags$script(HTML("
+                     const user = 'john';
+                     const domain = 'bcbeer.ca';
+                     const email = `${user}@${domain}`;
+                     const link = document.createElement('a');
+                     link.href = `mailto:${email}`;
+                     link.textContent = email;
+                     document.getElementById('email-container').appendChild(link);
+                     ")),
+                     tags$p("LinkedIn: ",
+                            tags$a(href="https://www.linkedin.com/in/johnyuill/", "John Yuill")),
+                     tags$br()
+          ))
         ), # end sidebarPanel
 
         # main panel with content ----

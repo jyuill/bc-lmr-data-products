@@ -53,6 +53,12 @@ function(input, output, session) {
   # REPLACEMENT from Gemini ----
   # populate initial filter choices after session starts
   observeEvent(session, {
+    # Hide all tab-specific sidebar content initially
+    shinyjs::hide("sidebar_tab1_content")
+    shinyjs::hide("sidebar_tab2_content")
+    shinyjs::hide("sidebar_tab3_content")
+    shinyjs::hide("sidebar_tab4_content")
+
     # Update choices for filters in sidebar
     updateRadioButtons(session, "grain_check",
                        choices = c("Annual", "Quarterly"),
@@ -74,112 +80,49 @@ function(input, output, session) {
                              choices = bc_subcats,
                              selected = bc_subcats
     )
-  })
+  }, once = TRUE) # Run only once at session start
 
   # Use observeEvent to show/hide the correct static sidebar content defined in ui.R
   observeEvent(input$tabselected, {
       # Hide all possible sidebar containers first
-      #shinyjs::hide("sidebar_tab1_content")
-      #shinyjs::hide("sidebar_tab2_content")
-      #shinyjs::hide("sidebar_tab3_content")
-      #shinyjs::hide("sidebar_tab4_content")
+      shinyjs::hide("sidebar_tab1_content")
+      shinyjs::hide("sidebar_tab2_content")
+      shinyjs::hide("sidebar_tab3_content")
+      shinyjs::hide("sidebar_tab4_content")
 
       # Show grain_check only on tab 1 
-      if (input$tabselected == 1) {
-        shinyjs::show("grain_check")
-      } else if (input$tabselected %in% c(2, 3)) {
-        shinyjs::hide("grain_check")
+      if (input$tabselected %in% c(1, 2, 3)) {
+        shinyjs::show("sidebar_filters")
+        # show content for active tab
+        if (input$tabselected == 1) {
+          shinyjs::show("grain_check")
+          shinyjs::show("sidebar_tab1_content")
+        } else if (input$tabselected == 2) {
+          shinyjs::show("sidebar_tab2_content")
+          shinyjs::hide("grain_check")
+        } else if (input$tabselected == 3) {
+          shinyjs::show("sidebar_tab3_content")
+          shinyjs::hide("grain_check")
+        }
       } else if (input$tabselected == 4) {
-        shinyjs::hide("max_date_note")
-        shinyjs::hide("grain_check")
-        shinyjs::hide("cyr_picker")
-        shinyjs::hide("qtr_check")
-        shinyjs::hide("beer_cat_check")
-        shinyjs::hide("beer_bc_subcat_check")
+        shinyjs::hide("sidebar_filters")
+        shinyjs::show("sidebar_tab4_content")
       }
   }, ignoreInit = FALSE) # Run on initial load too
 
-  # Use renderUI for dynamic sidebar content based on selected tab
-  output$dynamic_sidebar <- renderUI({
-    if (input$tabselected == 1) {
-      #sidebar_tab1_content
-      tagList(
-                    tags$h4("Contents"),
-                     tags$a(href="#overview_comparison", "Net $ & Litre Sales"),tags$br(),
-                     tags$a(href="#multi_year_summary", "Multi-Yr Summary"),tags$br(),
-                     tags$a(href="#overview_by_source", "Sales by Source"), tags$br(),
-                     tags$a(href="#overview_bc_cat", "BC Producer Categories"),
-                     tags$br(),tags$br(),
-                     tags$h4("Notes"),
-                     tags$p(sb_note_calyr, class="sb_note"), # consistent variables set in support_vars.R
-                     tags$p(sb_note_charts, class="sb_note"),
-                     tags$p(sb_note_sales, class="sb_note"),
-                     tags$p(sb_note_src, class="sb_note")
-    )
-    } else if (input$tabselected == 2) {
-      #sidebar_tab2_content
-      tagList(
-                     tags$h4("Contents"),
-                     tags$a(href="#beer_sales", "$ Sales by Yr & Qtr"),tags$br(),
-                     tags$a(href="#bsrc_sales", "$ Sales by Source"), tags$br(),
-                     tags$a(href="#bcat_sales", "BC Beer by Category"), tags$br(),
-                     tags$a(href="#bimp_sales","Import Sales by Ctry"), tags$br(),
-                     tags$br(), tags$br(),
-                     tags$h4("Notes"),
-                     tags$p(sb_note_calyr, class="sb_note"),
-                     tags$p(sb_note_charts, class="sb_note"),
-                     tags$p(sb_note_sales, class="sb_note"),
-                     tags$p(sb_note_src, class="sb_note")
-                     )
-    } else if (input$tabselected == 3) {
-      #sidebar_tab3_content
-      tagList(
-                    tags$h4("Contents"),        
-                    tags$a(href="#litre_sales", "Ttl Litres by Yr & Qtr"),tags$br(),
-                            tags$a(href="#bsrc_sales_litre", "Litres by Source"), tags$br(),
-                            tags$a(href="#bcat_sales_litre", "BC Litres by Category"), tags$br(),
-                            tags$a(href="#bimp_sales_litre","Import Litres by Ctry"), tags$br(),
-                            tags$br(), tags$br(),
-                            tags$h4("Notes"),
-                            tags$p(sb_note_calyr, class="sb_note"),
-                            tags$p(sb_note_charts, class="sb_note"),
-                            tags$p(sb_note_src, class="sb_note")
-                     )
-    } else if (input$tabselected == 4) {
-      #sidebar_tab4_content
-      tagList(
-                     tags$h4("Contact"),
-                     # Placeholder span for the email address
-                     tags$span(id = "email-container"),
-                     # JavaScript to dynamically build and insert the email link
-                     tags$script(HTML("
-                     const user = 'john';
-                     const domain = 'bcbeer.ca';
-                     const email = `${user}@${domain}`;
-                     const link = document.createElement('a');
-                     link.href = `mailto:${email}`;
-                     link.textContent = email;
-                     document.getElementById('email-container').appendChild(link);
-                     ")),
-                     tags$p("LinkedIn: ",
-                            tags$a(href="https://www.linkedin.com/in/johnyuill/", "John Yuill")),
-                     tags$br()
-              )
-    }
-  })
   
   # code for activating/deactivating subcat filter based on cat filter selection
-  #  observe({
+    observe({
   #    # req(input$tabselected == 1)
-  #    is_only_bc_selected <- length(input$beer_cat_check) == 1 && input$beer_cat_check[1] == "BC"
-  #    if(is_only_bc_selected) {
-  #      shinyjs::enable("beer_bc_subcat_check")
-  #    } else {
-  #      shinyjs::disable("beer_bc_subcat_check")
-  #    }
+      is_only_bc_selected <- length(input$beer_cat_check) == 1 && input$beer_cat_check[1] == "BC"
+      if(is_only_bc_selected) {
+        shinyjs::enable("beer_bc_subcat_check")
+      } else {
+        shinyjs::disable("beer_bc_subcat_check")
+      }
   #    # Optional: reset the selections when it gets disabled
   #    #updateCheckboxGroupInput(session, "beer_bc_subcat_check", selected = character(0))
-  #  })
+    })
     
     # Data processing ---------------------------------------------------
     cat("192: 01 apply beer filters to data \n")
