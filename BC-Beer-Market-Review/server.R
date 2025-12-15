@@ -20,37 +20,20 @@ library(treemap)
 library(treemapify)
 
 scipen <- options(scipen=999) # suppress scientific notation
-# START moved to global.R ----
-# get data ----
-# query database via separate file for tidyness
-# postgresql as of Jun 2025
-## get all data - process for beer ----
-  #source('query_pg.R')
-  ## recent data ----
-  # apply to yr filter as default to avoid over-crowding
-  #yr_max <- max(beer_data$cyr_num) # get current latest yr
-  #yrs_back <- 6 # determine how many yrs back to go
-  #data_recent <- beer_data %>% filter(cyr_num > yr_max-yrs_back)
-  #max_date <- max(beer_data$end_qtr_dt)
-  # for top of sidebar on pg, set in dynamic sidebar
-  #max_date_note <- paste0("Data as of: ", format(max_date, "%b %d %Y"))
 
-# load functions used: data manipulation and plots ----
-#source('functions_data.R')
-#source('functions_plots.R')
-# load support variables for plots etc
-#source('support_vars.R')
-# END moved to global.R ----
+# START: global.R - initial data fetch, pre-processing, set-up ----
+# - global.R runs automatically - no need to source()
+# - variables available for use in ui.R and server.R
 
 # Define server logic ----
 function(input, output, session) {
   
   cat("180: start server \n")
 
-  # CHATGPT: apply dynamic filters as needed to different tabs, based on selection
   # Dynamic Sidebar ----
-  # MOVED TO ui.R
-  # REPLACEMENT from Gemini ----
+  # - content in ui.R 
+  # - process here sets up initial filter choices & determines 
+  #   which content to show in sidebar based on active tab
   # populate initial filter choices after session starts
   observeEvent(session, {
     # Hide all tab-specific sidebar content initially
@@ -113,7 +96,7 @@ function(input, output, session) {
   
   # code for activating/deactivating subcat filter based on cat filter selection
     observe({
-  #    # req(input$tabselected == 1)
+      # req(input$tabselected == 1)
       is_only_bc_selected <- length(input$beer_cat_check) == 1 && input$beer_cat_check[1] == "BC"
       if(is_only_bc_selected) {
         shinyjs::enable("beer_bc_subcat_check")
