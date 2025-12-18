@@ -196,7 +196,7 @@ fluidPage(
                      ), # end fluidRow 7
                      fluidRow( ## fluidRow 8 BC produced category ----
                        column(width = 12,
-                              tags$h2("BC Producer Net $ Sales & Litres by Category", 
+                              tags$h2("BC Producer Categories: Net $ Sales & Litres", 
                                       class='section',
                                       id="overview_bc_cat"),
                             tags$h3("How do BC producer categories compare?",

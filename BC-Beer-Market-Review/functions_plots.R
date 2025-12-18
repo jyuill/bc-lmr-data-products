@@ -1,6 +1,36 @@
 # Functions for patterns that recur over the categories
 # SPECIFICALLY FOR PLOTTING
 library(tidyverse)
+library(plotly)
+
+# Safety plot ----
+# - provided by Claude
+# - provides error handling for plotly charts
+# - if error, returns empty plot with error message shown in text below
+# - wrap safe_plotly({}) around chart code in renderPlotly functions
+# -- "expr" is chart code sent to the function for evaluation
+safe_plotly <- function(expr) {
+  tryCatch({
+    force(expr)
+  },
+    error = function(e) {
+      plot_ly() %>%
+        add_annotations(
+          text = "No data available with current filters",
+          x = 0.5,
+          y = 0.5,
+          xref = "paper",
+          yref = "paper",
+          showarrow = FALSE,
+          font = list(size = 18, color = "gray")
+        ) %>%
+        layout(
+          xaxis = list(showgrid = FALSE, showticklabels = FALSE, zeroline = FALSE),
+          yaxis = list(showgrid = FALSE, showticklabels = FALSE, zeroline = FALSE)
+        )
+    }
+  )
+}
 
 # Plot Sales for Category ----
 TtlChart <- function(metric="", chart_title, dataset, x_var, y_var, fill_var, fill_color, 
