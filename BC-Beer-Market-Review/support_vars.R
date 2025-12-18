@@ -34,6 +34,7 @@ yr_flag_color <- c("full"=bar_col, "partial"='grey80')
 beer_pal <- brewer.pal(n=9, name="YlOrRd")
 #beer_cat_color <- c("BC"=beer_pal[9], "Other Prov"=beer_pal[7], "Import"=beer_pal[5])
 beer_cat_color <- brewer.pal(n=4, name=base_pal)[2:4]
+beer_cat_color <- c("BC"=beer_cat_color[3], "Other Prov"=beer_cat_color[2], "Import"=beer_cat_color[1])
 beer_bc_cat_color <- c("BC Major"=beer_pal[9], "BC Regional"=beer_pal[7], "BC Micro"=beer_pal[5])
 #beer_bc_cat_color <- beer_cat_color
 beer_imp_color2 <- beer_pal[5:9]

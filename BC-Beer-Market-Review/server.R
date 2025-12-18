@@ -460,12 +460,12 @@ function(input, output, session) {
         #return(NULL) # no annual chart
         CatChart("Net $:", yr_source_pc, 
                beer_annual_data_cat(), "cyr", "pct_ttl_sales","category", 
-               beer_cat_color, "fill",
+               beer_cat_color, "stack", # stack instead of fill - % values known
                theme_xax, tunits="%")
       } else if(input$grain_check == "Quarterly") {
         CatChart("Net $:",yr_source_pc, 
                 beer_qtr_data_cat2(), "cyr_qtr", "pct_ttl_sales", "category", 
-                beer_cat_color, "fill",
+                beer_cat_color, "stack",
                 theme_xaxq, "%") 
       }
      })
@@ -475,11 +475,12 @@ function(input, output, session) {
       if(input$grain_check == "Annual") {
         CatChart("Litres:",yr_source_pc, 
                 beer_annual_data_cat(), "cyr", "pct_ttl_litres", "category", 
-                beer_cat_color, "fill",
+                beer_cat_color, "stack",
                 theme_xax, "%")
       } else if(input$grain_check == "Quarterly") {
         CatChart("Litres:",yr_source_pc, 
-                beer_qtr_data_cat2(), "cyr_qtr", "pct_ttl_litres", "category", beer_cat_color, "fill",
+                beer_qtr_data_cat2(), "cyr_qtr", "pct_ttl_litres", "category", 
+                beer_cat_color, "stack",
                 theme_xaxq, "%")
       }
     })
@@ -576,13 +577,13 @@ function(input, output, session) {
       if(input$grain_check == "Annual") {
         CatChart("Net $:",yr_sales_cat_pc, 
                 beer_annual_data_subcat(), "cyr", "pct_ttl_sales", "subcategory", 
-                beer_bc_cat_color, "fill",
+                beer_bc_cat_color, "stack",
                 theme_xax, "%")
       } else if(input$grain_check == "Quarterly") {
         #return(NULL) # no qtr subcat stacked chart yet - modify code below when ready
         CatChart("Net $:",yr_sales_cat_pc, 
                 beer_qtr_data_subcat(), "cyr_qtr", "netsales", "subcategory", 
-                beer_bc_cat_color, "fill",
+                beer_bc_cat_color, "stack",
                 theme_xaxq, "%")
       }
     })

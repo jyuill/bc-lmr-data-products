@@ -1,5 +1,6 @@
 # Functions for patterns that recur over the categories
 # SPECIFICALLY FOR PLOTTING
+library(tidyverse)
 
 # Plot Sales for Category ----
 TtlChart <- function(metric="", chart_title, dataset, x_var, y_var, fill_var, fill_color, 
@@ -94,13 +95,21 @@ CatChart <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var,
   )
   # set scale labels based on variable and units (currency v commas)
   y_labels <- y_label_format(y_var, tunits)[[1]]
-  
+  # set scale limits depending on whether % stacked or not
+  if(str_detect(y_var, "pct")) { # if %, upper limit is 1
+    y_limit <- 1
+  } else { # if not %, upper limit is max combined values in column
+    y_vals <- x %>% group_by(!!sym(x_var)) %>%
+      summarise(total = sum(!!sym(y_var), na.rm = TRUE))
+    y_limit <- max(y_vals$total, na.rm = TRUE)
+  }
+
   p <- x %>%
     ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = category, text = tooltip_text)) +
     geom_col(position = pos) +
     scale_y_continuous(labels = y_labels,
                        expand = expansion(mult=c(0,0.05)),
-                      limits = c(0, max(x[[y_var]], na.rm = TRUE))) +
+                      limits = c(0, y_limit)) + # using 1 instead of max(x[[y_var]], na.rm = TRUE) since % stacked
     scale_fill_manual(values=fill_color)+
     labs(title=ch_title, x="", y="")+
     theme(axis.ticks.x = element_blank(),
