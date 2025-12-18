@@ -145,7 +145,7 @@ function(input, output, session) {
     ### annual cat ----
     beer_annual_data_cat <- reactive({
       #n_cats <- length(input$beer_cat_check) # calc in function based on data passed
-      AnnualCatData(beer_filtered_data(), 'cat_type', 'category', beer_filtered_data())
+      AnnualCatData(beer_filtered_data(), 'cat_type', 'category', beer_data)
     })
     
     ### qtr cat ----
@@ -176,7 +176,7 @@ function(input, output, session) {
     beer_annual_data_subcat <- reactive({
       cat("242: beer_subcat \n")
       beer_bc <- beer_filtered_data() %>% filter(category== "BC")
-      AnnualCatData(beer_bc, 'category', 'subcategory', beer_bc)
+      AnnualCatData(beer_bc, 'category', 'subcategory', beer_data)
     })
     # test
     #n_cats <- length(unique(beer_data$category))
@@ -592,13 +592,13 @@ function(input, output, session) {
       if(input$grain_check == "Annual") {
         CatChart("Litres:",yr_sales_cat_pc, 
                 beer_annual_data_subcat(), "cyr", "pct_ttl_litres", "subcategory", 
-                beer_bc_cat_color, "fill",
+                beer_bc_cat_color, "stack",
                 theme_xax, "%")
       } else if(input$grain_check == "Quarterly") {
         #return(NULL) # no qtr subcat stacked chart yet - modify code below when ready
         CatChart("Litres:",yr_sales_cat_pc, 
                 beer_qtr_data_subcat(), "cyr_qtr", "pct_ttl_litres", "subcategory", 
-                beer_bc_cat_color, "fill",
+                beer_bc_cat_color, "stack",
                 theme_xaxq, "%")
       }
     })
@@ -704,7 +704,7 @@ function(input, output, session) {
     output$beer_sales_yr_cat_pc <- renderPlotly({
       CatChart("Net $", yr_source_pc, 
                beer_annual_data_cat(), "cyr", "pct_ttl_sales","category", 
-               beer_cat_color, "fill",
+               beer_cat_color, "stack",
                theme_xax, tunits="%")
     })
     
@@ -745,7 +745,8 @@ function(input, output, session) {
     output$beer_sales_yr_bc_cat_pc <- renderPlotly({
       data <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
       CatChart("Net $", yr_sales_cat_pc, 
-               data, "cyr", "pct_ttl_sales","subcategory", beer_bc_cat_color, "fill", 
+               data, "cyr", "pct_ttl_sales","subcategory", 
+               beer_bc_cat_color, "stack", 
                theme_xax, "%")
     })
     ## plots for bc beer subcategory yoy change in facets  
@@ -787,7 +788,8 @@ function(input, output, session) {
       cat('beer_import_pc chart \n')
       data <- beer_annual_data_subcat_imp()
       CatChart("Net $",yr_sales_imp_pc, 
-               data, "cyr", "pct_ttl_sales","subcategory", beer_imp_color, "fill", 
+               data, "cyr", "pct_ttl_sales","subcategory", 
+               beer_imp_color, "fill", 
                theme_xax, "%") %>%
         layout(legend = layout_legend_vr)
     }) 
@@ -867,7 +869,7 @@ function(input, output, session) {
     output$litre_sales_yr_cat_pc <- renderPlotly({
       CatChart(metric, yr_source_pc, 
                beer_annual_data_cat(), "cyr", "pct_ttl_litres","category", 
-               beer_cat_color, "fill",
+               beer_cat_color, "stack",
                theme_xax,tunits="%")
     })
     # ABANDONED:qtr - abandoned in favour of % of annual ttl
@@ -937,7 +939,8 @@ function(input, output, session) {
     output$litre_sales_yr_bc_cat_pc <- renderPlotly({
       data <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
       CatChart(metric, yr_sales_cat_pc, 
-               data, "cyr", "pct_ttl_litres","subcategory", beer_bc_cat_color, "fill", 
+               data, "cyr", "pct_ttl_litres","subcategory", 
+               beer_bc_cat_color, "stack", 
                theme_xax, "%")
     })
     ## plots for bc beer subcategory yoy change in facets
@@ -979,7 +982,8 @@ function(input, output, session) {
       cat('beer_import_pc chart \n')
       data <- beer_annual_data_subcat_imp()
       CatChart(metric, yr_sales_imp_pc, 
-               data, "cyr", "pct_ttl_litres","subcategory", beer_pal, "fill", 
+               data, "cyr", "pct_ttl_litres","subcategory", 
+               beer_pal, "fill", 
                theme_xax, "%") %>%
         layout(legend = layout_legend_vr)
     }) 
