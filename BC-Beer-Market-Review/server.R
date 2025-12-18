@@ -708,28 +708,34 @@ function(input, output, session) {
     
     ## category (source / origin) ----
     output$beer_sales_yr_cat <- renderPlotly({
-      CatChart("Net $", yr_source, 
-               beer_annual_data_cat(), "cyr", "netsales","category", 
-               beer_cat_color, "stack",
-               theme_xax,"M")
+      safe_plotly({
+        CatChart("Net $", yr_source, 
+                beer_annual_data_cat(), "cyr", "netsales","category", 
+                beer_cat_color, "stack",
+                theme_xax,"M")
+      })
     })
     output$beer_sales_yr_cat_pc <- renderPlotly({
-      CatChart("Net $", yr_source_pc, 
-               beer_annual_data_cat(), "cyr", "pct_ttl_sales","category", 
-               beer_cat_color, "stack",
-               theme_xax, tunits="%")
+      safe_plotly({
+        CatChart("Net $", yr_source_pc, 
+                beer_annual_data_cat(), "cyr", "pct_ttl_sales","category", 
+                beer_cat_color, "stack",
+                theme_xax, tunits="%")
+      })
     })
     
     ## facet: % change by source ----  
     output$beer_sales_yoy_cat_chg <- renderPlotly({
-      x <- beer_annual_data_cat()
-      CatChgChart("", yr_source_pc_chg, 
-               x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales",
-               fill_var = "yr_flag", 
-               facet_var = "category",
-               fill_color = yr_flag_color, 
-               strp_color = strp_col,
-               theme_xax+theme_nleg)
+      safe_plotly({
+        x <- beer_annual_data_cat()
+        CatChgChart("", yr_source_pc_chg, 
+                x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales",
+                fill_var = "yr_flag", 
+                facet_var = "category",
+                fill_color = yr_flag_color, 
+                strp_color = strp_col,
+                theme_xax+theme_nleg)
+      })
     })
     
     # % point chg by src yoy
@@ -763,70 +769,82 @@ function(input, output, session) {
     })
     ## plots for bc beer subcategory yoy change in facets  
     output$beer_sales_yoy_bc_cat_chg <- renderPlotly({
-      x <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
-      CatChgChart("",yr_sales_cat_pc_chg, 
-               x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales", 
-               fill_var = "yr_flag", 
-               facet_var = "subcategory",
-               fill_color = yr_flag_color, 
-               strp_color = strp_col,
-               theme_xax+theme_nleg)
-    })
+      safe_plotly({
+        x <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+        CatChgChart("",yr_sales_cat_pc_chg, 
+                x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales", 
+                fill_var = "yr_flag", 
+                facet_var = "subcategory",
+                fill_color = yr_flag_color, 
+                strp_color = strp_col,
+                theme_xax+theme_nleg)
+        })
+      })
     ## % point chg by bc subcat yoy
     output$beer_sales_yoy_bc_cat_chg_pt <- renderPlotly({
-      x <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
-      CatChgChart("",yr_sales_cat_pcpt_chg, 
-               x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales",
-               fill_var = "yr_flag", 
-               facet_var = "subcategory",
-               fill_color = yr_flag_color, 
-               strp_color = strp_col,
-               theme_xax+theme_nleg, tunits = "num")
-    })
+      safe_plotly({
+        x <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+        CatChgChart("",yr_sales_cat_pcpt_chg, 
+                x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales",
+                fill_var = "yr_flag", 
+                facet_var = "subcategory",
+                fill_color = yr_flag_color, 
+                strp_color = strp_col,
+                theme_xax+theme_nleg, tunits = "num")
+        })
+      })
     ## IMPORT beer subcat ----
     
     ## plots by import country/region
     output$beer_sales_yr_import_cat <- renderPlotly({
-      cat('beer_import chart \n')
-      data <- beer_annual_data_subcat_imp()
-      print(data)
-      CatChart("Net $",yr_sales_imp, 
-               data, "cyr", "netsales","subcategory", beer_imp_color, "stack", 
-               theme_xax, "M") %>%
-        layout(legend = layout_legend_vr)
+      safe_plotly({
+        cat('beer_import chart \n')
+        data <- beer_annual_data_subcat_imp()
+        print(data)
+        CatChart("Net $",yr_sales_imp, 
+                data, "cyr", "netsales","subcategory", beer_imp_color, "stack", 
+                theme_xax, "M") %>%
+          layout(legend = layout_legend_vr)
+      })
     }) 
 
     output$beer_sales_yr_import_cat_pc <- renderPlotly({
-      cat('beer_import_pc chart \n')
-      data <- beer_annual_data_subcat_imp()
-      CatChart("Net $",yr_sales_imp_pc, 
-               data, "cyr", "pct_ttl_sales","subcategory", 
-               beer_imp_color, "fill", 
-               theme_xax, "%") %>%
-        layout(legend = layout_legend_vr)
+      safe_plotly({
+        cat('beer_import_pc chart \n')
+        data <- beer_annual_data_subcat_imp()
+        CatChart("Net $",yr_sales_imp_pc, 
+                data, "cyr", "pct_ttl_sales","subcategory", 
+                beer_imp_color, "fill", 
+                theme_xax, "%") %>%
+          layout(legend = layout_legend_vr)
+      })
     }) 
     
     ## plots for import beer subcategory yoy change in facets
     output$beer_sales_yoy_import_cat_chg <- renderPlotly({
-      x <- beer_annual_data_subcat_imp() 
-      CatChgChart("",yr_sales_imp_pc_chg, 
-               x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales", 
-               fill_var = "yr_flag", 
-               facet_var = "subcategory",
-               fill_color = yr_flag_color, 
-               strp_color = strp_col,
-               theme_xax+theme_nleg+theme_facet)
+      safe_plotly({
+        x <- beer_annual_data_subcat_imp() 
+        CatChgChart("",yr_sales_imp_pc_chg, 
+                x, x_var = "cyr", y_var = "yoy_sales", sort_var = "netsales", 
+                fill_var = "yr_flag", 
+                facet_var = "subcategory",
+                fill_color = yr_flag_color, 
+                strp_color = strp_col,
+                theme_xax+theme_nleg+theme_facet)
+      })
     })
     ## % point chg by import subcat yoy
     output$beer_sales_yoy_import_cat_chg_pt <- renderPlotly({
-      x <- beer_annual_data_subcat_imp()
-      CatChgChart("",yr_sales_imp_pcpt_chg, 
-               x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales", 
-               fill_var = "yr_flag", 
-               facet_var = "subcategory",
-               fill_color = yr_flag_color, 
-               strp_color = strp_col,
-               theme_xax+theme_nleg+theme_facet, tunits = "num")
+      safe_plotly({
+        x <- beer_annual_data_subcat_imp()
+        CatChgChart("",yr_sales_imp_pcpt_chg, 
+                x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales", 
+                fill_var = "yr_flag", 
+                facet_var = "subcategory",
+                fill_color = yr_flag_color, 
+                strp_color = strp_col,
+                theme_xax+theme_nleg+theme_facet, tunits = "num")
+      })
     })
 
     # LITRES ----
@@ -941,22 +959,27 @@ function(input, output, session) {
     ## BC subcat ----
     ## PLOTS by BC subcategory ----
     output$litre_sales_yr_bc_cat <- renderPlotly({
-      #data <- beer_bc_yr_subcat()
-      data <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
-      CatChart(metric, yr_sales_cat, 
-               data, "cyr", "litres","subcategory", 
-               beer_bc_cat_color, "stack", theme_xax, "M")
+      safe_plotly({
+        #data <- beer_bc_yr_subcat()
+        data <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+        CatChart(metric, yr_sales_cat, 
+                data, "cyr", "litres","subcategory", 
+                beer_bc_cat_color, "stack", theme_xax, "M")
+      })
     })
     ## plot % of total sales by bc subcategory
     output$litre_sales_yr_bc_cat_pc <- renderPlotly({
+      safe_plotly({
       data <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
       CatChart(metric, yr_sales_cat_pc, 
                data, "cyr", "pct_ttl_litres","subcategory", 
                beer_bc_cat_color, "stack", 
                theme_xax, "%")
+      })
     })
     ## plots for bc beer subcategory yoy change in facets
     output$litre_sales_yoy_bc_cat_chg <- renderPlotly({
+      safe_plotly({
       x <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
       CatChgChart("", yr_sales_cat_pc_chg, 
                   x, x_var = "cyr", y_var = "yoy_litres", sort_var = "litres", 
@@ -965,55 +988,65 @@ function(input, output, session) {
                   fill_color = yr_flag_color, 
                   strp_color = bar_col,
                   theme_xax+theme_nleg)
+      })
     })
     ## % point chg by bc subcat yoy
     output$litre_sales_yoy_bc_cat_chg_pt <- renderPlotly({
-      x <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
-      CatChgChart("", yr_sales_cat_pcpt_chg, 
-                  x, x_var = "cyr", y_var = "yoy_pcp_ttl_litres", sort_var = "litres",
-                  fill_var = "yr_flag", 
-                  facet_var = "subcategory",
-                  fill_color = yr_flag_color, 
-                  strp_color = bar_col,
-                  theme_xax+theme_nleg, tunits = "num")
+      safe_plotly({
+        x <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+        CatChgChart("", yr_sales_cat_pcpt_chg, 
+                    x, x_var = "cyr", y_var = "yoy_pcp_ttl_litres", sort_var = "litres",
+                    fill_var = "yr_flag", 
+                    facet_var = "subcategory",
+                    fill_color = yr_flag_color, 
+                    strp_color = bar_col,
+                    theme_xax+theme_nleg, tunits = "num")
+      })
     })
     
     ## IMPORT beer subcat ----
     ## plots by import country/region
     output$litre_sales_yr_import_cat <- renderPlotly({
-      cat('beer_import chart \n')
-      data <- beer_annual_data_subcat_imp()
-      print(data)
-      CatChart(metric, yr_sales_imp, 
-               data, "cyr", "litres","subcategory", beer_pal, "stack", 
-               theme_xax, "M") %>%
-        layout(legend = layout_legend_vr)
+      safe_plotly({
+        cat('beer_import chart \n')
+        data <- beer_annual_data_subcat_imp()
+        print(data)
+        CatChart(metric, yr_sales_imp, 
+                data, "cyr", "litres","subcategory", beer_pal, "stack", 
+                theme_xax, "M") %>%
+          layout(legend = layout_legend_vr)
+      })
     }) 
     
     output$litre_sales_yr_import_cat_pc <- renderPlotly({
-      cat('beer_import_pc chart \n')
-      data <- beer_annual_data_subcat_imp()
-      CatChart(metric, yr_sales_imp_pc, 
-               data, "cyr", "pct_ttl_litres","subcategory", 
-               beer_pal, "fill", 
-               theme_xax, "%") %>%
-        layout(legend = layout_legend_vr)
+      safe_plotly({
+        cat('beer_import_pc chart \n')
+        data <- beer_annual_data_subcat_imp()
+        CatChart(metric, yr_sales_imp_pc, 
+                data, "cyr", "pct_ttl_litres","subcategory", 
+                beer_pal, "fill", 
+                theme_xax, "%") %>%
+          layout(legend = layout_legend_vr)
+      })
     }) 
     
     ## plots for import beer subcategory yoy change in facets
     output$litre_sales_yoy_import_cat_chg <- renderPlotly({
-      x <- beer_annual_data_subcat_imp()
-      CatChgChart("", yr_sales_imp_pc_chg,
-                  x, x_var = "cyr", y_var = "yoy_sales", 
-                  sort_var = "litres", 
-                  fill_var = "yr_flag", 
-                  facet_var = "subcategory",
-                  fill_color = yr_flag_color, 
-                  strp_color = bar_col,
-                  theme_xax+theme_nleg)
+      safe_plotly({
+        x <- beer_annual_data_subcat_imp()
+        CatChgChart("", yr_sales_imp_pc_chg,
+                    x, x_var = "cyr", y_var = "yoy_sales", 
+                    sort_var = "litres", 
+                    fill_var = "yr_flag", 
+                    facet_var = "subcategory",
+                    fill_color = yr_flag_color, 
+                    strp_color = bar_col,
+                    theme_xax+theme_nleg)
+      })
     })
     ## % point chg by import subcat yoy
     output$litre_sales_yoy_import_cat_chg_pt <- renderPlotly({
+      safe_plotly({
       x <- beer_annual_data_subcat_imp() %>% filter(category=='Import')
       CatChgChart("", yr_sales_imp_pcpt_chg, 
                   x, x_var = "cyr", y_var = "yoy_pcp_ttl_litres", 
@@ -1023,6 +1056,7 @@ function(input, output, session) {
                   fill_color = yr_flag_color, 
                   strp_color = bar_col,
                   theme_xax+theme_nleg, tunits = "num")
+      })
     })
 } # end server
 
