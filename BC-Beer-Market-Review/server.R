@@ -740,32 +740,37 @@ function(input, output, session) {
     
     # % point chg by src yoy
     output$beer_sales_yoy_cat_chg_pt <- renderPlotly({
-      x <- beer_annual_data_cat()
-      CatChgChart("", yr_source_pcpt_chg, 
-               x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales", 
-               fill_var = "yr_flag", 
-               facet_var = "category",
-               fill_color = yr_flag_color, 
-               strp_color = strp_col,
-               theme_xax+theme_nleg, tunits = "num")
+      safe_plotly({
+        x <- beer_annual_data_cat()
+        CatChgChart("", yr_source_pcpt_chg, 
+                x, x_var = "cyr", y_var = "yoy_pcp_ttl_sales", sort_var = "netsales", 
+                fill_var = "yr_flag", 
+                facet_var = "category",
+                fill_color = yr_flag_color, 
+                strp_color = strp_col,
+                theme_xax+theme_nleg, tunits = "num")
+      })
     })
-    
     
     ## BC subcat ----
     ## PLOTS by BC subcategory ----
     output$beer_sales_yr_bc_cat <- renderPlotly({
-      data <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
-      CatChart("Net $",yr_sales_cat, 
-               data, "cyr", "netsales","subcategory", 
-               beer_bc_cat_color, "stack", theme_xax, "M")
+      safe_plotly({
+        data <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+        CatChart("Net $",yr_sales_cat, 
+                data, "cyr", "netsales","subcategory", 
+                beer_bc_cat_color, "stack", theme_xax, "M")
+      })
     })
     ## plot % of total sales by bc subcategory
     output$beer_sales_yr_bc_cat_pc <- renderPlotly({
-      data <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
-      CatChart("Net $", yr_sales_cat_pc, 
-               data, "cyr", "pct_ttl_sales","subcategory", 
-               beer_bc_cat_color, "stack", 
-               theme_xax, "%")
+      safe_plotly({
+        data <- beer_annual_data_subcat() %>% filter(str_detect(subcategory, "BC"))
+        CatChart("Net $", yr_sales_cat_pc, 
+                data, "cyr", "pct_ttl_sales","subcategory", 
+                beer_bc_cat_color, "stack", 
+                theme_xax, "%")
+      })
     })
     ## plots for bc beer subcategory yoy change in facets  
     output$beer_sales_yoy_bc_cat_chg <- renderPlotly({

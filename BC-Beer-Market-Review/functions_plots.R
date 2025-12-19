@@ -8,28 +8,49 @@ library(plotly)
 # - provides error handling for plotly charts
 # - if error, returns empty plot with error message shown in text below
 # - wrap safe_plotly({}) around chart code in renderPlotly functions
-# -- "expr" is chart code sent to the function for evaluation
+#  - "expr" is chart code sent to the function for evaluation from renderPlotly
+#  - also handles empty data to avoid displaying blank charts
+#    - CatChart() is only one set up for empty data handling
 safe_plotly <- function(expr) {
   tryCatch({
-    force(expr)
-  },
-    error = function(e) {
+    result <- force(expr)
+    
+    # Check if result is empty/NULL or a plotly object with no data
+    if (is.null(result) || 
+        (inherits(result, "plotly") && length(result$x$data) == 0)) {
       plot_ly() %>%
         add_annotations(
           text = "No data available with current filters",
           x = 0.5,
-          y = 0.5,
+          y = 0.8,
           xref = "paper",
           yref = "paper",
           showarrow = FALSE,
-          font = list(size = 18, color = "gray")
+          font = list(size = 16, color = "gray")
         ) %>%
         layout(
           xaxis = list(showgrid = FALSE, showticklabels = FALSE, zeroline = FALSE),
           yaxis = list(showgrid = FALSE, showticklabels = FALSE, zeroline = FALSE)
         )
+    } else {
+      result
     }
-  )
+  }, error = function(e) {
+    plot_ly() %>%
+      add_annotations(
+        text = "No data available with current filters",
+        x = 0.5,
+        y = 0.8,
+        xref = "paper",
+        yref = "paper",
+        showarrow = FALSE,
+        font = list(size = 16, color = "gray")
+      ) %>%
+      layout(
+        xaxis = list(showgrid = FALSE, showticklabels = FALSE, zeroline = FALSE),
+        yaxis = list(showgrid = FALSE, showticklabels = FALSE, zeroline = FALSE)
+      )
+  })
 }
 
 # Plot Sales for Category ----
@@ -120,6 +141,10 @@ CatChart <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var,
                     fill_color, pos, theme_list, tunits) {
   ch_title <- paste(metric, chart_title)
   x <- dataset
+  # check for empty data, return NULL for error handling in safe_plotly() above
+  if(is.null(x) || nrow(x) == 0) {
+    return(NULL)
+  } # else not needed because process will stop here if is.null
   x <- x %>% tooltip_fmt(dim = fill_var, units = tunits, y_var = y_var) %>% mutate(
     category = fct_reorder(!!sym(fill_var), !!sym(y_var), .fun = sum)
   )
@@ -133,7 +158,7 @@ CatChart <- function(metric = "",chart_title, dataset, x_var, y_var, fill_var,
       summarise(total = sum(!!sym(y_var), na.rm = TRUE))
     y_limit <- max(y_vals$total, na.rm = TRUE)
   }
-
+  # ggplot in prep for plotly
   p <- x %>%
     ggplot(aes(x = !!sym(x_var), y = !!sym(y_var), fill = category, text = tooltip_text)) +
     geom_col(position = pos) +
