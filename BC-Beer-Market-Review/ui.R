@@ -118,6 +118,8 @@ fluidPage(
                      ")),
                      tags$p("LinkedIn: ",
                             tags$a(href="https://www.linkedin.com/in/johnyuill/", "John Yuill")),
+                     tags$h4("Contents"),
+                     tags$a(href="#chglog", "Change Log"), 
                      tags$br()
           ))
         ), # end sidebarPanel
@@ -420,7 +422,7 @@ fluidPage(
                       #       tags$a(href="https://www.bcbeer.ca/about.html", "About", class="non-tab"), " page.")
                       ), # end fluidRow 1
                      fluidRow( ## fluidRow 2: change log ----
-                       tags$h3("Change Log", class="subabout"),
+                       tags$h3("Change Log", class="subabout", id = "chglog"),
                        tags$p("Latest changes, developments, improvements"),
                        tags$h4("2025-12-18"),
                        tags$ul(
