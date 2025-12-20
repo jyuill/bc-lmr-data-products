@@ -412,8 +412,9 @@ fluidPage(
                              Further, I offer", tags$strong("no guarantees"), "as to the accuracy of the data presented here. 
                              If in doubt or using this information for important purposes, 
                              please refer to the official Liquor Market Review."),
-                      tags$p(tags$strong("Note: This is an unofficial, personal project and is 
-                                         not affiliated with the BC Liquor Distribution Branch."))
+                      tags$p(tags$strong("Note: This is an unofficial project  
+                                         not affiliated with the BC Liquor Distribution Branch, 
+                                         provided for information to the general public."))
                       #,
                       #tags$p("For more info, check out the site's ", 
                       #       tags$a(href="https://www.bcbeer.ca/about.html", "About", class="non-tab"), " page.")
@@ -421,51 +422,62 @@ fluidPage(
                      fluidRow( ## fluidRow 2: change log ----
                        tags$h3("Change Log", class="subabout"),
                        tags$p("Latest changes, developments, improvements"),
+                       tags$h4("2025-12-18"),
+                       tags$ul(
+                         tags$li(tags$strong("DATA UPDATE to: Sep 30, 2025"), "from latest",
+                          tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F25_26_Q2_September_2025.pdf", 
+                         "Liquor Market Review", class="non-tab"), class = "about"),
+                         tags$li("Added filters for BC produced beer by category (major, regional, micro)."),
+                         tags$li("Corrected calculations for % of total stacked charts to maintain accuracy when filters applied."),
+                         tags$li("Improved error handling with user-friendly messaging."),
+                         tags$li("Various usability enhancements like better vertical spacing for faceted charts, 
+                         consistent color-coding."), class = "chglog"
+                       ),
                        tags$h4("2025-10-28"),
                        tags$ul(
                          tags$li("Overview: Added breakdowns for BC produced beer by category (major, regional, micro)."),
-                         tags$li("Improved info available when hovering over charts, including formatting for readability.")
-                       ),
+                         tags$li("Improved info available when hovering over charts, including formatting for readability."),
+                            class = "chglog"),
                        tags$h4("2025-10-14"),
                        tags$p("Overview: Added 'Annual' or 'Quarterly' time grain setting. 
                        Updated all charts to respond to this filter and show data by year or quarter accordingly for 
-                       broader range of insights from the same page.", class="about"),
+                       broader range of insights from the same page.", class="chglog"),
                        tags$p("Overview: Built out charts for source/origin of beer 
-                       (BC, Import, Other Canada).", class="about"),
+                       (BC, Import, Other Canada).", class="chglog"),
                        tags$h4("2025-09-25"),
                        tags$p("New OVERVIEW tab added, with key summary charts comparing Net $ Sales and Litre Sales.
                               This provides a high-level snapshot of overall trends, 
                               without the need to dig through the more detailed tabs.",
-                              class="about"),
+                              class="chglog"),
                        tags$h4("2025-09-15"),
                        tags$p("Converted original high-level bar charts to line charts for better trend visualization, 
                               especially for YoY and QoQ comparisons.",
-                              class="about"),
+                              class="chglog"),
                        tags$p("Added grey lines and bars to highlight comparisons based on partial years, 
                               to help with comparisons between full years and partial years, to reduce potential confusnion.",
-                              class="about"),
+                              class="chglog"),
                        tags$h4("2025-09-06"),
                        tags$p("DATA UPDATE: Updated with latest ",
                         tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F25_26_Q1_June_2025.pdf",
                         "Liquor Market Review data", class="non-tab")," for quarter ended ",
                         tags$strong("Jun 30, 2025"),
-                        class="about"),
+                        class="chglog"),
                        tags$h4("2025-06-05"),
                        tags$p("Fixed the way filters work relative to % of total charts, to ensure that the charts show 
                               % of total among the filtered data, rather than the total of all data.",
-                              class="about"),
+                              class="chglog"),
                        tags$h4("2025-06-02"),
                        tags$p("DATA UPDATE: Updated with latest ",
                         tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F24_25_Q4_March_2025.pdf",
                         "Liquor Market Review data", class="non-tab")," for quarter ended ",
                         tags$strong("Mar 31, 2025"),
-                        class="about"),
+                        class="chglog"),
                        tags$h4("2025-03"),
                        tags$p("Added new tab for Litre Sales, with same visualizations as Net $ Sales tab, 
                                  but using litre as the unit of measure. 
                                  This provides  more complete view of beer sales in BC, 
                                  aligning with the reports in the Liquor Market Review.",
-                              class="about"),
+                              class="chglog"),
                      ), # end fluidRow 2
               ) # end tabPanel 3
             ), # end tabsetPanel ----

@@ -102,17 +102,20 @@ h3.subabout {font-size: 1.1em;
     background-color: #f8f9fa;
     }
 h4 {
-    font-size: 0.8em;
+    font-size: 0.9em;
     text-align: left;
     margin-top: 0em;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
     padding-top: 5px;
     padding-bottom: 0px;
     margin-left: 0px;
     padding-left: 0px;
     width: 100%;
     }
-p.about {
+.chglog {
+    font-size: 0.95em;
+    text-align: left;
+    margin-top: 0em;
     margin-bottom: 5px;
     padding-top: 0px;
     padding-bottom: 0px;
