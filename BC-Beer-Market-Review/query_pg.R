@@ -19,7 +19,7 @@ con_aws <- dbConnect(RPostgres::Postgres(),
                      port=db_config$db_pg$aport)
 # check underlying tables - for testing
 #dbListTables(con_aws)
-# main query - all the data -> raw data joined with date dimensions
+# main query - filter for 'beer' -> raw data joined with date dimensions
 # - everything from lmr, everything BUT fy_qtr from qtr to avoid duplication
 lmr_data_db <- dbGetQuery(con_aws, "SELECT 
                            lmr.*
@@ -32,7 +32,8 @@ lmr_data_db <- dbGetQuery(con_aws, "SELECT
                           , qtr.cqtr 
                           FROM public.lmr_data lmr 
                           LEFT JOIN public.lmr_quarters qtr 
-                          ON lmr.fy_qtr = qtr.fy_qtr;")
+                          ON lmr.fy_qtr = qtr.fy_qtr
+                          WHERE lmr.cat_type = 'Beer';")
 
 # close connection
 dbDisconnect(con_aws)
@@ -48,8 +49,6 @@ lmr_data$cyr <- as.factor(lmr_data$cyr) # also saved as numeric at end below
 lmr_data <- lmr_data %>% mutate(
   cyr_qtr = paste(str_sub(cyr, start = 3, end = 4), cqtr, sep = "-")
   )
-lmr_data <- lmr_data %>% mutate(
-  cat_type = str_replace(cat_type, "Refreshment Beverages", "Refresh Bev"))
 # save cyr as numerical value for filtering
 lmr_data$cyr_num <- as.numeric(as.character(lmr_data$cyr))
 
@@ -66,8 +65,6 @@ lmr_data$cyr_num <- as.numeric(as.character(lmr_data$cyr))
 #write_csv(qtr_all, here('data', 'tblLDB_quarter.csv'), na = "tblLDB_quarter.csv")
 
 ## RENAME categories ----
-  ## beer ----
-  beer_data <- lmr_data %>% filter(cat_type == "Beer")
   # rename categories for brevity
   beer_data <- beer_data %>% mutate(
     category = case_when(
