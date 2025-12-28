@@ -65,7 +65,7 @@ QtrData <- function(dataset, n_qtr) {
 
 # annual category/subcategory data
 # use for: 
-# - annual data by category type and category
+# - annual data by category within category type
 # - subcategory data also -> just needs highest level variable for totals and lowest level for other calcs
 AnnualCatData <- function(dataset, high_cat, low_cat, dataset_all) {
   cat("fn: AnnualCatData \n")

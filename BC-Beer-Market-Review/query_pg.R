@@ -66,7 +66,7 @@ lmr_data$cyr_num <- as.numeric(as.character(lmr_data$cyr))
 
 ## RENAME categories ----
   # rename categories for brevity
-  beer_data <- beer_data %>% mutate(
+  beer_data <- lmr_data %>% mutate(
     category = case_when(
       category == "Domestic - BC Beer" ~ "BC",
       category == "Domestic - Other Province Beer" ~ "Other Prov",
