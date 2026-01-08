@@ -1,4 +1,19 @@
 # Query cloud db for LMR dataset
+# THIS ENTIRE WORKFLOW CAN BE REPLACED WITH 
+# lmrtools > fetch_lmr_complete_filter(replace=TRUE)
+# - replace=TRUE to replace original cat_type, category, subcategory names
+#   with short names
+# install package if needed - may be pdates
+# devtools::install_github("jyuill/lmrtools")
+library(lmrtools)
+# make sure db credentials are in system .Renviron
+# run this to check:
+#usethis::edit_r_environ(scope="user")
+
+lmr_data <- fetch_lmr_complete_filter(replace=TRUE)
+
+# DONE!
+# ---------------------------------------------
 library(RPostgres)
 library(tidyverse) 
 library(here)
