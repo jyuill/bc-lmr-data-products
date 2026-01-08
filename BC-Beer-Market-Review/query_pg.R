@@ -1,4 +1,11 @@
 # Query cloud db for LMR dataset
+# ENTIRE ORIGINAL WORKFLOW CAN BE REPLACED WITH 
+# lmrtools - see lmrtools documentation if any issues
+library(lmrtools)
+beer_data <- fetch_lmr_complete_filter(replace=TRUE, cat_type='Beer')
+
+# DONE!
+# ---------------------------------------------DEPRECATED
 library(RPostgres)
 library(tidyverse) 
 library(here)
