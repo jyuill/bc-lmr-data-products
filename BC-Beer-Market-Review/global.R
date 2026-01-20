@@ -4,12 +4,14 @@ library(shiny)
 library(tidyverse)
 library(shinyjs)
 library(shinyWidgets) # For pickerInput
+library(lmrtools) # custom pkg with lmr functions for data fetch etc
 
 # 1. Load Data from Database and Pre-process ----
 # query database via separate file for tidyness
 # postgresql as of Jun 2025
 ## get all data - process for beer
-  source('query_pg.R') # loads beer_data dataframe
+#source('query_pg.R') # loads beer_data dataframe - NO LONGER NEEDED - see lmrtools
+beer_data <- fetch_lmr_complete_filter(replace=TRUE, cat_type='Beer')
 
 ## pre-process/set up ----
   # recent data - apply to yr filter as default to avoid over-crowding
@@ -24,10 +26,20 @@ library(shinyWidgets) # For pickerInput
 
 # functions & support files ----
 # load functions used: data manipulation and plots
-source('functions_data.R')
-source('functions_plots.R')
+# - if running server.R will load files from relative path
+# - if running manually, need to adjust full path
+files <- c('functions_data.R', 'functions_plots.R', 'support_vars.R')
+for (f in files) {
+  if(file.exists(f)) {
+    source(f)
+  } else {
+    source(here::here("BC-Beer-Market-Review", f))
+  }
+}
+#source('functions_data.R')
+#source('functions_plots.R')
 # load support variables for plots etc
-source('support_vars.R')
+#source('support_vars.R')
 
 # 2. Define Static UI Elements ----
 # (with placeholder choices = NULL)

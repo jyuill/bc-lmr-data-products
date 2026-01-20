@@ -18,6 +18,7 @@ library(bslib)
 library(RColorBrewer)
 library(treemap)
 library(treemapify)
+library(lmrtools) # custom pkg with lmr functions for data fetch etc
 
 scipen <- options(scipen=999) # suppress scientific notation
 

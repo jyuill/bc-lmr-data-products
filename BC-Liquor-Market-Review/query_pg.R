@@ -13,7 +13,7 @@ library(lmrtools)
 lmr_data <- fetch_lmr_complete_filter(replace=TRUE)
 
 # DONE!
-# ---------------------------------------------
+# ------EVERYTHING BELOW IS DEPRECATED---------------------------------------
 library(RPostgres)
 library(tidyverse) 
 library(here)
