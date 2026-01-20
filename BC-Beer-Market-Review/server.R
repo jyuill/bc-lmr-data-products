@@ -270,6 +270,8 @@ function(input, output, session) {
         data_qtr$index <- 0:(nrow(data_qtr) - 1)
         data_qtrs_index <- data_qtr %>% select(cyr, cqtr, index)
         # join data qtr indexes with qtr data
+        # NOTE: at this point, could use this data for quarter grain comparisons:
+        #   - filter for index not null, use CALCULATION approach below
         data_join <- left_join(data, data_qtrs_index, by = c("cyr","cqtr"))
         # fill in the NA values in index column with next available value
         # - allows for grouping based on qtr periods, even if cross-over yrs
@@ -304,7 +306,7 @@ function(input, output, session) {
           yoy_sales = (netsales - lag(netsales))/lag(netsales),
           yoy_litres = (litres - lag(litres))/lag(litres)
         )
-        # loop through to calc percent change from year 0 to each prev
+        # CALCULATIONS:loop through to calc percent change from year 0 to each prev
         # set empty cols to hold calculated values
         data$Period <- NA
         data$Percent_Change_sales <- NA
