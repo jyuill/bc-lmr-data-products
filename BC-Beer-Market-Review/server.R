@@ -414,7 +414,7 @@ function(input, output, session) {
                label_text = paste0(ifelse(Percent_Change >= 0, "+", ""), Percent_Change, "%"))
       # set title depending on grain
       if(input$grain_check == "Annual") {
-        chart_title <- paste0("% Change over Extended Periods, rolling periods from most recent qtr shown")
+        chart_title <- paste0("% Change over Extended Periods, rolling 4 qtrs from most recent qtr shown")
       } else if(input$grain_check == "Quarterly") {
         chart_title <- "% Change vs Same Quarter in Previous Years, over Extended Periods"
       }
