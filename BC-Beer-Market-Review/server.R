@@ -136,8 +136,7 @@ function(input, output, session) {
       AnnualCatTypeData(beer_filtered_data(), beer_filtered_data())
     })
     cat("210: qtr data \n")
-    # test - qtr data
-    #beer_qtr_test <- QtrData(beer_data, length(unique(beer_data$cqtr)))
+    
     beer_qtr_data <- reactive({
       QtrData(beer_filtered_data(), length(input$qtr_check))
     })
@@ -157,19 +156,13 @@ function(input, output, session) {
       n_cats <- length(input$beer_cat_check)
       QtrCatData(beer_filtered_data(), n_cats, n_qtr)
     })
-    # test qtr category data
-    #beer_qtr_cat_test <- QtrCatData(beer_data)
-    # qtr2 - for % of total calcs and others; replace beer_qtr_data_cat once qa'd
     beer_qtr_data_cat2 <- reactive({
       # NO need to base the qoq on the number of cats chosen in filter - factored into data
       #n_qtr <- length(input$qtr_check)
       #n_cats <- length(input$beer_cat_check)
       QtrCatData2(beer_filtered_data(), "cat_type", "category")
     })
-    # test
-    #n_cats <- length(unique(beer_data$category))
-    #n_qtr <- length(unique(beer_data$cqtr))
-    #beer_qtr_cat_test2 <- QtrCatData2(beer_data, n_cats, n_qtr, beer_data)
+    
   # by subcategory
     ## 4. bc subcategory data ----
     cat("239: subcategory data \n")
@@ -260,62 +253,88 @@ function(input, output, session) {
     overview_summary_data <- reactive({
       req(beer_annual_data(), beer_qtr_data(), input$grain_check)
       # NOTE: a LOT of duplications between annual and qtr calcs - could be refactored as function
+      
       if(input$grain_check == "Annual") {
-        data <- beer_annual_data()
-        # Create chart with year over year % change over each of 1 to n yrs based on number of yrs in filtered data
-        # Get the most recent complete yr (assuming not qtr filters applied)
-        # identify unique quarters in data -> filter for yrs that have those qtrs
-        max_qtr_yr <- max(data$max_qtr, na.rm = TRUE) # identifies max qtr in each yr
-        data <- data %>% filter(max_qtr == max_qtr_yr) # yrs with max max_qtr only
-        max_year <- max(as.numeric(as.character(data$cyr)), na.rm = TRUE)
-        min_year <- min(as.numeric(as.character(data$cyr)), na.rm = TRUE)
+        # CHANGING THIS FROM CAL YR COMPS TO ROLLING 4 QTRS COMPS
+        # get aggregated qtr data
+        data <- beer_qtr_data()
+        # Get the most recent yr & qtr
+        most_rec_yr <- data %>% filter(cyr == max(as.character(data$cyr))) # yr with max qtr
+        most_rec_qtr <- max(as.character(most_rec_yr$cqtr, na.rm = TRUE))
+        # aggregate data based on matching qtr periods starting from most recent yr and qtr
+        # starting with most recent yr and quarter, aggregate back to the same quarter prev yr
+        # mark the rows that have the same qtr with index number
+        # get list of yrs and qtrs
+        data_qtr <- data %>% filter(cqtr == most_rec_qtr)
+        data_qtr <- data_qtr %>% arrange(desc(cyr))
+        data_qtr$index <- 0:(nrow(data_qtr) - 1)
+        data_qtrs_index <- data_qtr %>% select(cyr, cqtr, index)
+        # join data qtr indexes with qtr data
+        # NOTE: at this point, could use this data for quarter grain comparisons:
+        #   - filter for index not null, use CALCULATION approach below
+        data_join <- left_join(data, data_qtrs_index, by = c("cyr","cqtr"))
+        # fill in the NA values in index column with next available value
+        # - allows for grouping based on qtr periods, even if cross-over yrs
+        data_index <- data_join %>% mutate(
+          index_yr = case_when(
+            !is.na(index) ~ index,
+            !is.na(lead(index, n=1)) ~ lead(index, n=1),
+            !is.na(lead(index, n=2)) ~ lead(index, n=2),
+            !is.na(lead(index, n=3)) ~ lead(index, n=3),
+            !is.na(lead(index, n=4)) ~ lead(index, n=4),
+            TRUE ~ 0
+          )
+        )
+        data_index$index_yr <- as.integer(data_index$index_yr) # set to integer
+        # ensure complete set for each yr before aggregating and comparing
+        # how many qtrs in year 0
+        qtrs_0 <- data_index %>% filter(index_yr == 0) %>% nrow()
+        # filter out index yr with less qtrs than yr 0
+        data_ind_count <- data_index %>% group_by(index_yr) %>% 
+          summarize(qtrs = n()) %>% ungroup() 
+        data_yr_under <- data_ind_count%>% filter(qtrs < qtrs_0)
+        data_index <- data_index %>% filter(index_yr != data_yr_under$index_yr)
+        # aggregate data by index yr
+        data <- data_index %>% group_by(cat_type,index_yr) %>% 
+          summarise(netsales = sum(netsales), 
+                    litres = sum(litres))
+        # arrange for calculations
+        data <- data %>% arrange(desc(index_yr))
+        # calculate % chg yoy for reference (not actually used here)
+        # - could be used for year-over-year patterns on rolling basis 
+        data <- data %>% mutate(
+          yoy_sales = (netsales - lag(netsales))/lag(netsales),
+          yoy_litres = (litres - lag(litres))/lag(litres)
+        )
+        # CALCULATIONS:loop through to calc percent change from year 0 to each prev
+        # set empty cols to hold calculated values
+        data$Period <- NA
+        data$Percent_Change_sales <- NA
+        data$Percent_Change_litres <- NA
+        # loop through each row
+        for(i in seq_along(data$index_yr)) {
+          data$Period[i] = ifelse(data$index_yr[i] == 1, "1 Year", paste0(data$index_yr[i], " Years"))
+          data$Percent_Change_sales[i] = round(data$netsales[data$index_yr==0]/data$netsales[i]-1,4)*100
+          data$Percent_Change_litres[i] = round(data$litres[data$index_yr==0]/data$litres[i]-1,4)*100
+        }
+        # pivot dataframe so metrics are in a column
+        chart_data <- data %>% select(index_yr, Period,Percent_Change_sales, Percent_Change_litres)
+        chart_data <- chart_data %>% pivot_longer(cols = c(Percent_Change_sales, Percent_Change_litres), names_to = "Metric", values_to = "Percent_Change")
+        chart_data <- chart_data %>% mutate(
+          Metric = case_when(
+            Metric == "Percent_Change_sales" ~ "Net $ Sales",
+            Metric == "Percent_Change_litres" ~ "Litre Sales"
+          )
+        )
+        # drop the yr 0 row
+        chart_data <- chart_data %>% filter(index_yr != 0)
+        # reverse the order of rows based on index yr low to high
+        chart_data <- chart_data %>% arrange(index_yr)
         
-        # get most recent yr row to calculate % chg 
-        most_recent <- data %>% filter(cyr == max_year)
-        if(nrow(most_recent) == 0) return(NULL) # need yr to calculate from
-        recent_year <- as.numeric(as.character(most_recent$cyr[1]))
+        # return chart data
+        if(nrow(chart_data) == 0) return(NULL)
         
-        # Get all years in dataset for comparison
-        available_years <- sort(unique(as.numeric(as.character(data$cyr))))
-        years_back <- available_years[available_years < recent_year]
-
-        if(length(years_back) == 0) return(NULL) # Need at least 2 years for comparison
-
-        # Create chart data in long format
-        chart_data <- data.frame()
-
-        # For each year back, calculate the percent change from same qtr in that yr
-        for(i in seq_along(years_back)) {
-          year_back <- years_back[length(years_back) - i + 1]  # Start from most recent
-          years_diff <- recent_year - year_back
-          period_label <- paste0(years_diff, ifelse(years_diff == 1, " Year", " Years"))
-
-          # Find the comparison year
-          comparison_data <- data %>%
-            filter(cyr == year_back)
-
-          if(nrow(comparison_data) > 0) {
-            sales_pct <- round(((most_recent$netsales[1] - comparison_data$netsales[1]) / comparison_data$netsales[1]) * 100, 1)
-            litres_pct <- round(((most_recent$litres[1] - comparison_data$litres[1]) / comparison_data$litres[1]) * 100, 1)
-
-            # Add rows for both metrics
-            chart_data <- rbind(chart_data,
-                                data.frame(
-                                  Recent_per = as.character(most_recent$cyr[1]),
-                                  Period = period_label,
-                                  Metric = "Net $ Sales",
-                                  Percent_Change = sales_pct,
-                                  stringsAsFactors = FALSE
-                                ),
-                                data.frame(
-                                  Recent_per = as.character(most_recent$cyr[1]),
-                                  Period = period_label,
-                                  Metric = "Litre Sales",
-                                  Percent_Change = litres_pct,
-                                  stringsAsFactors = FALSE
-                                ))
-            }
-          } # end annual calc
+        # end annual calc
       } else if(input$grain_check == "Quarterly") {
         data <- beer_qtr_data()
         # Get the most recent quarter in the filtered data
@@ -395,8 +414,9 @@ function(input, output, session) {
                                    ifelse(Percent_Change >= 0, "+", ""),
                                    Percent_Change, "%"),
                label_text = paste0(ifelse(Percent_Change >= 0, "+", ""), Percent_Change, "%"))
+      # set title depending on grain
       if(input$grain_check == "Annual") {
-        chart_title <- paste0("% Change over Extended Periods, using Most Recent Complete Year (", max(data$Recent_per), ")")
+        chart_title <- paste0("% Change over Extended Periods, rolling 4 qtrs from most recent qtr shown")
       } else if(input$grain_check == "Quarterly") {
         chart_title <- "% Change vs Same Quarter in Previous Years, over Extended Periods"
       }
