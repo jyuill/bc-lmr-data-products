@@ -7,10 +7,8 @@ library(shinyWidgets) # For pickerInput
 library(lmrtools) # custom pkg with lmr functions for data fetch etc
 
 # 1. Load Data from Database and Pre-process ----
-# query database via separate file for tidyness
+# query database with lmrtools pkg
 # postgresql as of Jun 2025
-## get all data - process for beer
-#source('query_pg.R') # loads beer_data dataframe - NO LONGER NEEDED - see lmrtools
 beer_data <- fetch_lmr_complete_filter(replace=TRUE, cat_type='Beer')
 
 ## pre-process/set up ----

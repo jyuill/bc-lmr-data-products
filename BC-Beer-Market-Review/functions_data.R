@@ -110,8 +110,8 @@ AnnualCatData <- function(dataset, high_cat, low_cat, dataset_all) {
     mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales))*100,
            yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres))*100) %>% 
     ungroup()
-  print(head(dataset))
-  print(colnames(dataset))
+  #print(head(dataset))
+  #print(colnames(dataset))
   return(dataset)
 }
 # Qtr category summary data
@@ -170,8 +170,8 @@ QtrCatData2 <- function(dataset, high_cat, low_cat) {
     mutate(qoq_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales))*100,
            qoq_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres))*100) %>% 
     ungroup()
-  print(head(dataset))
-  print(colnames(dataset))
+  #print(head(dataset))
+  #print(colnames(dataset))
   return(dataset)
 }
 
@@ -225,7 +225,7 @@ AnnualSubCatData <- function(dataset, n_cats, n_subcats, dataset_all) {
     mutate(yoy_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales, n=1))*100,
            yoy_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres, n=1))*100) %>% 
     ungroup()
-  print(head(dataset))
+  #print(head(dataset))
   return(dataset)
 }
 
@@ -266,8 +266,8 @@ QtrSubCatData <- function(dataset, n_cats = 1, n_subcats = 3, n_qtr = 4, dataset
     mutate(qoq_pcp_ttl_sales = (pct_ttl_sales - lag(pct_ttl_sales))*100,
            qoq_pcp_ttl_litres = (pct_ttl_litres - lag(pct_ttl_litres))*100) %>% 
     ungroup()
-  print(head(dataset))
-  print(colnames(dataset))
+  #print(head(dataset))
+  #print(colnames(dataset))
   return(dataset)
 }
 

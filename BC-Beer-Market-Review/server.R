@@ -29,7 +29,7 @@ scipen <- options(scipen=999) # suppress scientific notation
 # Define server logic ----
 function(input, output, session) {
   
-  cat("180: start server \n")
+  cat("32: start server \n")
 
   # Dynamic Sidebar ----
   # - content in ui.R 
@@ -109,7 +109,7 @@ function(input, output, session) {
     })
     
     # Data processing ---------------------------------------------------
-    cat("192: 01 apply beer filters to data \n")
+    cat("112: 01 apply beer filters to data \n")
     ## 1. Filter the data set based on the selected categories ----
     beer_filtered_data <- reactive({
       req(input$cyr_picker, input$qtr_check, input$beer_cat_check)
@@ -127,21 +127,19 @@ function(input, output, session) {
         )
     })
   
-    #beer_filtered_test <- beer_data %>% filter(cyr_num < 2025)
-    #beer_filter_annual_test <- AnnualCatTypeData(beer_filtered_test, beer_filtered_test)
-    cat("204: 02 aggregate annual & qtr totals \n")
+    cat("132: 02 aggregate annual & qtr totals \n")
     ## 2. annual and qtr totals ---------------------------------------------------
-    cat("206: annual data \n")
+    cat("134: annual data \n")
     beer_annual_data <- reactive({
       AnnualCatTypeData(beer_filtered_data(), beer_filtered_data())
     })
-    cat("210: qtr data \n")
+    cat("138: qtr data \n")
     
     beer_qtr_data <- reactive({
       QtrData(beer_filtered_data(), length(input$qtr_check))
     })
     ## 3. by category (source / origin) ----
-    cat("217: annual cat/src data \n")
+    cat("144: annual cat/src data \n")
     ### annual cat ----
     beer_annual_data_cat <- reactive({
       #n_cats <- length(input$beer_cat_check) # calc in function based on data passed
@@ -149,7 +147,7 @@ function(input, output, session) {
     })
     
     ### qtr cat ----
-    cat("227: quarterly cat/src data \n")
+    cat("152: quarterly cat/src data \n")
     beer_qtr_data_cat <- reactive({
       # need to base the qoq on the number of cats chosen in filter
       n_qtr <- length(input$qtr_check)
@@ -165,10 +163,10 @@ function(input, output, session) {
     
   # by subcategory
     ## 4. bc subcategory data ----
-    cat("239: subcategory data \n")
+    cat("168: subcategory data \n")
     # annual
     beer_annual_data_subcat <- reactive({
-      cat("242: beer_subcat \n")
+      cat("171: beer_subcat \n")
       beer_bc <- beer_filtered_data() %>% filter(category== "BC")
       AnnualCatData(beer_bc, 'category', 'subcategory', beer_data)
     })
@@ -178,7 +176,7 @@ function(input, output, session) {
     #beer_annual_subcat_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_annual_cat_test)
     # qtr
     beer_qtr_data_subcat <- reactive({
-      cat("255: beer_qtr_subcat \n")
+      cat("181: beer_qtr_subcat \n")
       beer_bc <- beer_filtered_data() %>% filter(category== "BC")
       QtrCatData2(beer_bc, 'category', 'subcategory')
     })
@@ -186,10 +184,10 @@ function(input, output, session) {
     #beer_test_qtr_subcat <- QtrCatData2(beer_bc_data, 'category', 'subcategory')
   
     ## 5. import country data ----
-    cat("239: import subcategory data \n")
+    cat("189: import subcategory data \n")
     # annual
     beer_annual_data_subcat_imp <- reactive({
-      cat("242: imp_subcat \n")
+      cat("192: imp_subcat \n")
       beer_imp <- beer_filtered_data() %>% filter(category== "Import")
       AnnualCatData(beer_imp, 'category', 'subcategory', beer_imp)
     })
@@ -826,7 +824,7 @@ function(input, output, session) {
       safe_plotly({
         cat('beer_import chart \n')
         data <- beer_annual_data_subcat_imp()
-        print(data)
+        #print(data)
         CatChart("Net $",yr_sales_imp, 
                 data, "cyr", "netsales","subcategory", beer_imp_color, "stack", 
                 theme_xax, "M") %>%
@@ -958,18 +956,7 @@ function(input, output, session) {
                   strp_color = bar_col,
                   theme_xax+theme_nleg, tunits = "num")
     })
-    # ABANDONED:qtr % chg by src - abandoned in favour of % of annual total
-    # output$litre_sales_qoq_cat_chg <- renderPlotly({
-    #   x <- beer_qtr_data_cat()
-    #   CatChgChart("Qtrly % Chg Beer Sales by Source", 
-    #               x, x_var = "cyr_qtr", y_var = "qoq_litres", 
-    #               sort_var = "yoy_pcp_ttl_litres", 
-    #               fill_var = "cqtr", 
-    #               facet_var = "category",
-    #               fill_color = qtr_color, 
-    #               strp_color = bar_col,
-    #               theme_xax+theme_xaxq+theme_nleg)
-    # })
+    
     ## SUBCAT data ----
     # annual REPLACED BY beer_annual_data_subcat()
     beer_yr_data_subcat <- reactive({
@@ -978,10 +965,6 @@ function(input, output, session) {
       n_subcats <- length(unique(beer_filtered_data()$subcategory))
       AnnualSubCatData(beer_filtered_data(), n_cats, n_subcats, beer_annual_data_cat())
     })
-    # test
-    #n_cats <- length(unique(beer_data$category))
-    #n_subcats <- length(unique(beer_data$subcategory))
-    #beer_annual_subcat_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_data)
     ## BC subcat ----
     ## PLOTS by BC subcategory ----
     output$litre_sales_yr_bc_cat <- renderPlotly({
@@ -1036,7 +1019,7 @@ function(input, output, session) {
       safe_plotly({
         cat('beer_import chart \n')
         data <- beer_annual_data_subcat_imp()
-        print(data)
+        #print(data)
         CatChart(metric, yr_sales_imp, 
                 data, "cyr", "litres","subcategory", beer_pal, "stack", 
                 theme_xax, "M") %>%
