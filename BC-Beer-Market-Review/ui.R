@@ -424,11 +424,24 @@ fluidPage(
                      fluidRow( ## fluidRow 2: change log ----
                        tags$h3("Change Log", class="subabout", id = "chglog"),
                        tags$p("Latest changes, developments, improvements"),
+                       tags$h4("2026-01-21"),
+                       tags$ul(
+                              tags$li("Multi-year performance summary: improved calculations and display to be based on rolling 12/24/36/48 mth periods from most recent quarter, 
+                              instead of just calendar yr comparisons."),
+                              tags$li("Technical: moved Shiny app from shinyapps.io to Posit Connect Cloud for improved deployment and sustainability."),
+                              tags$li("Technical: Streamlined backend code to improve performance, make it more modular and easier to maintain."),
+                              tags$li("Technical: Developed", 
+                                   tags$a(href="https://github.com/jyuill/lmrtools",
+                                   "lmrtools R package", target="_blank", class="non-tab"),
+                                   " to improve data structure and improve efficiency of data access."
+                                   ), 
+                              class = "chglog"
+                       ),
                        tags$h4("2025-12-18"),
                        tags$ul(
                          tags$li(tags$strong("DATA UPDATE to: Sep 30, 2025"), "from latest",
                           tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F25_26_Q2_September_2025.pdf", 
-                         "Liquor Market Review", class="non-tab"), class = "about"),
+                         "Liquor Market Review", target="_blank", class="non-tab"), class = "about"),
                          tags$li("Added filters for BC produced beer by category (major, regional, micro)."),
                          tags$li("Corrected calculations for % of total stacked charts to maintain accuracy when filters applied."),
                          tags$li("Improved error handling with user-friendly messaging."),
@@ -461,7 +474,7 @@ fluidPage(
                        tags$h4("2025-09-06"),
                        tags$p("DATA UPDATE: Updated with latest ",
                         tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F25_26_Q1_June_2025.pdf",
-                        "Liquor Market Review data", class="non-tab")," for quarter ended ",
+                        "Liquor Market Review data", target="_blank", class="non-tab")," for quarter ended ",
                         tags$strong("Jun 30, 2025"),
                         class="chglog"),
                        tags$h4("2025-06-05"),
@@ -471,7 +484,7 @@ fluidPage(
                        tags$h4("2025-06-02"),
                        tags$p("DATA UPDATE: Updated with latest ",
                         tags$a(href="https://www.bcldb.com/files/Liquor_Market_Review_F24_25_Q4_March_2025.pdf",
-                        "Liquor Market Review data", class="non-tab")," for quarter ended ",
+                        "Liquor Market Review data", target="_blank", class="non-tab")," for quarter ended ",
                         tags$strong("Mar 31, 2025"),
                         class="chglog"),
                        tags$h4("2025-03"),
@@ -487,7 +500,7 @@ fluidPage(
           tags$div(
             style = "margin-top: 20px; padding: 10px; border-top: 2px solid #ddd; text-align: center;",
             "© 2025 A", 
-            tags$a(href="https://www.fig4.com", 'Figure 4'),
+            tags$a(href="https://www.fig4.com", target="_blank", 'Figure 4'),
             " Production, John Yuill; see 'About' tab for details", 
             class="footer")
         ) # end mainPanel ----
