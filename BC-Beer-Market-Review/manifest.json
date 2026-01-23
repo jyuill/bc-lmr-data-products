@@ -362,26 +362,27 @@
       "description": {
         "Package": "blob",
         "Title": "A Simple S3 Class for Representing Vectors of Binary Data\n('BLOBS')",
-        "Version": "1.2.4",
+        "Version": "1.3.0",
         "Authors@R": "c(\n    person(\"Hadley\", \"Wickham\", role = \"aut\"),\n    person(\"Kirill\", \"Müller\", , \"kirill@cynkra.com\", role = \"cre\"),\n    person(\"RStudio\", role = c(\"cph\", \"fnd\"))\n  )",
         "Description": "R's raw vector is useful for storing a single binary object.\n    What if you want to put a vector of them in a data frame? The 'blob'\n    package provides the blob object, a list of raw vectors, suitable for\n    use as a column in data frame.",
         "License": "MIT + file LICENSE",
         "URL": "https://blob.tidyverse.org, https://github.com/tidyverse/blob",
         "BugReports": "https://github.com/tidyverse/blob/issues",
         "Imports": "methods, rlang, vctrs (>= 0.2.1)",
-        "Suggests": "covr, crayon, pillar (>= 1.2.1), testthat",
+        "Suggests": "covr, crayon, pillar (>= 1.2.1), testthat (>= 3.0.0)",
         "Config/autostyle/scope": "line_breaks",
         "Config/autostyle/strict": "false",
         "Config/Needs/website": "tidyverse/tidytemplate",
+        "Config/testthat/edition": "3",
         "Encoding": "UTF-8",
-        "RoxygenNote": "7.2.3",
+        "RoxygenNote": "7.3.3.9000",
         "NeedsCompilation": "no",
-        "Packaged": "2023-03-17 09:42:50 UTC; kirill",
+        "Packaged": "2026-01-13 06:57:54 UTC; kirill",
         "Author": "Hadley Wickham [aut],\n  Kirill Müller [cre],\n  RStudio [cph, fnd]",
         "Maintainer": "Kirill Müller <kirill@cynkra.com>",
         "Repository": "CRAN",
-        "Date/Publication": "2023-03-17 12:00:06 UTC",
-        "Built": "R 4.4.0; ; 2024-04-06 02:53:54 UTC; unix"
+        "Date/Publication": "2026-01-14 09:10:14 UTC",
+        "Built": "R 4.4.3; ; 2026-01-14 10:50:26 UTC; unix"
       }
     },
     "broom": {
@@ -1978,27 +1979,27 @@
       "description": {
         "Package": "lifecycle",
         "Title": "Manage the Life Cycle of your Package Functions",
-        "Version": "1.0.4",
+        "Version": "1.0.5",
         "Authors@R": "c(\n    person(\"Lionel\", \"Henry\", , \"lionel@posit.co\", role = c(\"aut\", \"cre\")),\n    person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = \"aut\",\n           comment = c(ORCID = \"0000-0003-4757-117X\")),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
         "Description": "Manage the life cycle of your exported functions with shared\n    conventions, documentation badges, and user-friendly deprecation\n    warnings.",
         "License": "MIT + file LICENSE",
         "URL": "https://lifecycle.r-lib.org/, https://github.com/r-lib/lifecycle",
         "BugReports": "https://github.com/r-lib/lifecycle/issues",
         "Depends": "R (>= 3.6)",
-        "Imports": "cli (>= 3.4.0), glue, rlang (>= 1.1.0)",
-        "Suggests": "covr, crayon, knitr, lintr, rmarkdown, testthat (>= 3.0.1),\ntibble, tidyverse, tools, vctrs, withr",
+        "Imports": "cli (>= 3.4.0), rlang (>= 1.1.0)",
+        "Suggests": "covr, knitr, lintr (>= 3.1.0), rmarkdown, testthat (>=\n3.0.1), tibble, tidyverse, tools, vctrs, withr, xml2",
         "VignetteBuilder": "knitr",
         "Config/Needs/website": "tidyverse/tidytemplate, usethis",
         "Config/testthat/edition": "3",
         "Encoding": "UTF-8",
-        "RoxygenNote": "7.2.1",
+        "RoxygenNote": "7.3.3",
         "NeedsCompilation": "no",
-        "Packaged": "2023-11-06 16:07:36 UTC; lionel",
-        "Author": "Lionel Henry [aut, cre],\n  Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>),\n  Posit Software, PBC [cph, fnd]",
+        "Packaged": "2026-01-07 15:00:49 UTC; lionel",
+        "Author": "Lionel Henry [aut, cre],\n  Hadley Wickham [aut] (ORCID: <https://orcid.org/0000-0003-4757-117X>),\n  Posit Software, PBC [cph, fnd]",
         "Maintainer": "Lionel Henry <lionel@posit.co>",
         "Repository": "CRAN",
-        "Date/Publication": "2023-11-07 10:10:10 UTC",
-        "Built": "R 4.4.0; ; 2024-04-05 22:31:19 UTC; unix"
+        "Date/Publication": "2026-01-08 08:00:02 UTC",
+        "Built": "R 4.4.3; ; 2026-01-08 11:52:14 UTC; unix"
       }
     },
     "litedown": {
@@ -2043,22 +2044,24 @@
         "Encoding": "UTF-8",
         "Roxygen": "list(markdown = TRUE)",
         "RoxygenNote": "7.3.3",
-        "Imports": "DBI, dplyr, formattable, glue, here, lubridate, readr,\nRPostgres, scales, stringr",
+        "Imports": "DBI, dplyr, formattable, glue, here, lubridate, readr,\nRPostgres, scales, stringr, magrittr",
+        "Suggests": "testthat (>= 3.0.0)",
+        "Config/testthat/edition": "3",
         "RemoteType": "github",
         "RemoteHost": "api.github.com",
         "RemoteRepo": "lmrtools",
         "RemoteUsername": "jyuill",
         "RemoteRef": "HEAD",
-        "RemoteSha": "c3a363170869ee356d20d5dac05a91236c7e2865",
+        "RemoteSha": "7699378b017acd60a211f224c62ced19d66eebe2",
         "GithubRepo": "lmrtools",
         "GithubUsername": "jyuill",
         "GithubRef": "HEAD",
-        "GithubSHA1": "c3a363170869ee356d20d5dac05a91236c7e2865",
+        "GithubSHA1": "7699378b017acd60a211f224c62ced19d66eebe2",
         "NeedsCompilation": "no",
-        "Packaged": "2026-01-21 23:13:50 UTC; jy",
+        "Packaged": "2026-01-23 02:34:24 UTC; jy",
         "Author": "John Yuill [aut, cre]",
         "Maintainer": "John Yuill <john@fig4.com>",
-        "Built": "R 4.4.2; ; 2026-01-21 23:13:50 UTC; unix"
+        "Built": "R 4.4.2; ; 2026-01-23 02:34:24 UTC; unix"
       }
     },
     "lubridate": {
@@ -2844,31 +2847,31 @@
       "Repository": "https://cran.rstudio.com",
       "description": {
         "Package": "rlang",
-        "Version": "1.1.6",
+        "Version": "1.1.7",
         "Title": "Functions for Base Types and Core R and 'Tidyverse' Features",
         "Description": "A toolbox for working with base types, core R features\n  like the condition system, and core 'Tidyverse' features like tidy\n  evaluation.",
         "Authors@R": "c(\n    person(\"Lionel\", \"Henry\", ,\"lionel@posit.co\", c(\"aut\", \"cre\")),\n    person(\"Hadley\", \"Wickham\", ,\"hadley@posit.co\", \"aut\"),\n    person(given = \"mikefc\",\n           email = \"mikefc@coolbutuseless.com\",\n           role = \"cph\",\n           comment = \"Hash implementation based on Mike's xxhashlite\"),\n    person(given = \"Yann\",\n           family = \"Collet\",\n           role = \"cph\",\n           comment = \"Author of the embedded xxHash library\"),\n    person(given = \"Posit, PBC\", role = c(\"cph\", \"fnd\"))\n    )",
         "License": "MIT + file LICENSE",
         "ByteCompile": "true",
         "Biarch": "true",
-        "Depends": "R (>= 3.5.0)",
+        "Depends": "R (>= 4.0.0)",
         "Imports": "utils",
         "Suggests": "cli (>= 3.1.0), covr, crayon, desc, fs, glue, knitr,\nmagrittr, methods, pillar, pkgload, rmarkdown, stats, testthat\n(>= 3.2.0), tibble, usethis, vctrs (>= 0.2.3), withr",
         "Enhances": "winch",
         "Encoding": "UTF-8",
-        "RoxygenNote": "7.3.2",
+        "RoxygenNote": "7.3.3",
         "URL": "https://rlang.r-lib.org, https://github.com/r-lib/rlang",
         "BugReports": "https://github.com/r-lib/rlang/issues",
         "Config/build/compilation-database": "true",
         "Config/testthat/edition": "3",
         "Config/Needs/website": "dplyr, tidyverse/tidytemplate",
         "NeedsCompilation": "yes",
-        "Packaged": "2025-04-10 09:25:27 UTC; lionel",
+        "Packaged": "2026-01-08 10:35:58 UTC; lionel",
         "Author": "Lionel Henry [aut, cre],\n  Hadley Wickham [aut],\n  mikefc [cph] (Hash implementation based on Mike's xxhashlite),\n  Yann Collet [cph] (Author of the embedded xxHash library),\n  Posit, PBC [cph, fnd]",
         "Maintainer": "Lionel Henry <lionel@posit.co>",
         "Repository": "CRAN",
-        "Date/Publication": "2025-04-11 08:40:10 UTC",
-        "Built": "R 4.4.1; aarch64-apple-darwin20; 2025-04-11 09:29:09 UTC; unix",
+        "Date/Publication": "2026-01-09 12:10:02 UTC",
+        "Built": "R 4.4.3; aarch64-apple-darwin20; 2026-01-09 16:40:35 UTC; unix",
         "Archs": "rlang.so.dSYM"
       }
     },
@@ -3690,28 +3693,30 @@
       "description": {
         "Package": "vctrs",
         "Title": "Vector Helpers",
-        "Version": "0.6.5",
+        "Version": "0.7.0",
         "Authors@R": "c(\n    person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = \"aut\"),\n    person(\"Lionel\", \"Henry\", , \"lionel@posit.co\", role = \"aut\"),\n    person(\"Davis\", \"Vaughan\", , \"davis@posit.co\", role = c(\"aut\", \"cre\")),\n    person(\"data.table team\", role = \"cph\",\n           comment = \"Radix sort based on data.table's forder() and their contribution to R's order()\"),\n    person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\"))\n  )",
         "Description": "Defines new notions of prototype and size that are used to\n    provide tools for consistent and well-founded type-coercion and\n    size-recycling, and are in turn connected to ideas of type- and\n    size-stability useful for analysing function interfaces.",
         "License": "MIT + file LICENSE",
         "URL": "https://vctrs.r-lib.org/, https://github.com/r-lib/vctrs",
         "BugReports": "https://github.com/r-lib/vctrs/issues",
-        "Depends": "R (>= 3.5.0)",
-        "Imports": "cli (>= 3.4.0), glue, lifecycle (>= 1.0.3), rlang (>= 1.1.0)",
+        "Depends": "R (>= 4.0.0)",
+        "Imports": "cli (>= 3.4.0), glue, lifecycle (>= 1.0.3), rlang (>= 1.1.7)",
         "Suggests": "bit64, covr, crayon, dplyr (>= 0.8.5), generics, knitr,\npillar (>= 1.4.4), pkgdown (>= 2.0.1), rmarkdown, testthat (>=\n3.0.0), tibble (>= 3.1.3), waldo (>= 0.2.0), withr, xml2,\nzeallot",
         "VignetteBuilder": "knitr",
+        "Config/build/compilation-database": "true",
         "Config/Needs/website": "tidyverse/tidytemplate",
         "Config/testthat/edition": "3",
+        "Config/testthat/parallel": "true",
         "Encoding": "UTF-8",
         "Language": "en-GB",
-        "RoxygenNote": "7.2.3",
+        "RoxygenNote": "7.3.3",
         "NeedsCompilation": "yes",
-        "Packaged": "2023-12-01 16:27:12 UTC; davis",
+        "Packaged": "2026-01-15 15:47:30 UTC; davis",
         "Author": "Hadley Wickham [aut],\n  Lionel Henry [aut],\n  Davis Vaughan [aut, cre],\n  data.table team [cph] (Radix sort based on data.table's forder() and\n    their contribution to R's order()),\n  Posit Software, PBC [cph, fnd]",
         "Maintainer": "Davis Vaughan <davis@posit.co>",
         "Repository": "CRAN",
-        "Date/Publication": "2023-12-01 23:50:02 UTC",
-        "Built": "R 4.4.0; aarch64-apple-darwin20; 2024-04-06 02:48:37 UTC; unix",
+        "Date/Publication": "2026-01-16 11:30:02 UTC",
+        "Built": "R 4.4.3; aarch64-apple-darwin20; 2026-01-16 11:49:19 UTC; unix",
         "Archs": "vctrs.so.dSYM"
       }
     },
@@ -3924,35 +3929,26 @@
     }
   },
   "files": {
-    ".Rprofile": {
-      "checksum": "218dab1524f9d7140266c952efc593c5"
-    },
     "config.yml": {
       "checksum": "108110a429b50e6b5af8a8ef317e2028"
     },
     "functions_data.R": {
-      "checksum": "f82517c943f675211bc5613fc2b72a49"
+      "checksum": "07c83f3ed7f02196da8833c6f51d0248"
     },
     "functions_plots.R": {
       "checksum": "a0bd614d205b814875ff9ef8e73e0bc2"
     },
     "global.R": {
-      "checksum": "cd1b5ba9bec900a63ce6422cabbd2c46"
-    },
-    "query_pg.R": {
-      "checksum": "162e0f44c6f752e17db2c66b12e925eb"
+      "checksum": "b026aa703dd7b87e25757950d23185e3"
     },
     "server.R": {
-      "checksum": "54ccdc9ddb9cc2fcd7dabafb7f6d0587"
+      "checksum": "e8beb3bec5cf94d94a84c39f10b33721"
     },
     "support_vars.R": {
       "checksum": "a4fbba8f16b4b20720088ae8cfd2da6a"
     },
-    "testing.R": {
-      "checksum": "c50161ba0883990f7f6e6515032eb5a0"
-    },
     "ui.R": {
-      "checksum": "7ff9082756c5e21787125f3890981546"
+      "checksum": "6d46c12c34fc905a8ec7ba54c31ee2fd"
     },
     "www/style.css": {
       "checksum": "a6fc050361ddf4451e9ad34165b09caf"

@@ -24,6 +24,7 @@ For basic data updates, nothing needed as the apps connect directly to the datab
 -   deploys directly from Github: push changes, they will be reflected
 -   IF update to **lmrtools package**, may need to run:
     -   `rsconnect::writeManifest(appDir="BC-Beer-Market-Review")`
+    -   if probs, reinstall: `devtools::install_github('jyuill/lmrtools')`
 
 **shinyapps.io: rsconnect**
 
