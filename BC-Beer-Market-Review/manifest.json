@@ -2035,7 +2035,7 @@
       "description": {
         "Package": "lmrtools",
         "Title": "Tools for managing Figure 4 LMR database",
-        "Version": "0.0.0.9000",
+        "Version": "0.0.1.0",
         "Authors@R": "\n    person(\"John\", \"Yuill\", , \"john@fig4.com\", role = c(\"aut\", \"cre\"))",
         "Description": "Collection of tools for accessing LMR database. Includes functions for\n    connecting to the database, querying data, and performing common data\n    manipulations. Requires database credentials to be set in environment variables.",
         "Depends": "R (>= 4.0.0)",
