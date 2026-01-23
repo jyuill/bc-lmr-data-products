@@ -17,6 +17,17 @@ As of Sep 2025, products are R shiny apps hosted on [shinyapps.io](https://www.s
 
 For basic data updates, nothing needed as the apps connect directly to the database on AWS RDS.
 
+As of Jan 2026, BC Beer shiny app was moved to [**Posit Connect Cloud** ](https://connect.posit.cloud/fig4)for easier management, more robust and sustainable platform.
+
+This should be done for any other shiny apps or quarto docs, as convenient.
+
+Mainly involves:
+
+1.  console: `rsconnect::writeManifest(appDir="<app folder>")`
+2.  Posit Connect Cloud:
+    1.  walk through Publish steps
+    2.  Add any environment variables needed, such as for db credentials
+
 ### Deploying changes to code
 
 **Posit Connect Cloud**
@@ -77,6 +88,14 @@ This is a Shiny Dashboard that provides an interactive visualization of the BC L
     -   the key functions used to create the charts
 
 ### Key functions
+
+#### BC Beer
+
+[**lmrtools package**](https://github.com/jyuill/lmrtools) is heavily used to import and manage data.
+
+Should also be used in future development of all categories, and continue to evolve.
+
+#### BC LMR general
 
 Functions are used as much as possible, since there are repetitive processes for each category type. Note that many of these functions were developed starting with the Refreshment Beverage category, based on what worked for Beer category.
 
