@@ -1,9 +1,10 @@
 # Functions for patterns that recur over the categories
-# SPECIFICALLY FOR DATA MANIPULATION
-
+# For data manipulation
+# DEPRECATED -MAINTAINED FOR REFERENCE: functions moved to lmrtools
 # Summary data ----
 # -- use for: annual data by category type (beer only in this case)
 # -- - includes year-over-year changes in sales and litres
+# -- MOVED to lmrtools::aggregate_annual_cat_type
 AnnualCatTypeData <- function(dataset, dataset_all=beer_data) {
   cat("fn: AnnualCatTypeData\n")
   # summarize higher level data for % of ttl calculations
@@ -47,6 +48,7 @@ AnnualCatTypeData <- function(dataset, dataset_all=beer_data) {
   return(dataset)
 }
 # Qtr smry data
+# -- MOVED to lmrtools::aggregate_qtr_cat_type
 QtrData <- function(dataset, n_qtr) {
   cat("fn: Qtr data \n")
   # takes n_qtr from number of quarters selected in input selector for calc yoy lag
@@ -67,6 +69,7 @@ QtrData <- function(dataset, n_qtr) {
 # use for: 
 # - annual data by category within category type
 # - subcategory data also -> just needs highest level variable for totals and lowest level for other calcs
+# -- MOVED to lmrtools::aggregate_annual_cat_subcat
 AnnualCatData <- function(dataset, high_cat, low_cat, dataset_all) {
   cat("fn: AnnualCatData \n")
   # get totals for yr to use in % of total calculations
@@ -115,24 +118,9 @@ AnnualCatData <- function(dataset, high_cat, low_cat, dataset_all) {
   return(dataset)
 }
 # Qtr category summary data
-QtrCatData <- function(dataset, n_cats = 3, n_qtr = 4) {
-  cat("fn: QtrCatData \n")
-  # takes data, number of categories from iput selector, number of quarters from input selector
-  # number of quarters used to calculate yoy_qoq_sales, yoy_qoq_litres
-  n_lag <- n_cats
-  dataset <- dataset %>% group_by(cat_type, cyr, cqtr, cyr_qtr, end_qtr_dt, category) %>%
-    summarize(netsales = sum(netsales),
-              litres = sum(litres)) %>% ungroup() %>%
-    mutate(qoq_sales = (netsales - lag(netsales, n=n_lag))/lag(netsales, n=n_lag),
-           qoq_litres = (litres - lag(litres, n=n_lag))/lag(litres, n_lag),
-           yoy_qoq_sales = (netsales - lag(netsales, n=n_lag*n_qtr))/lag(netsales, n=n_lag*n_qtr),
-           yoy_qoq_litres = (litres - lag(litres, n=n_lag*n_qtr))/lag(litres, n=n_lag*n_qtr),
-           yr_qtr = paste(cyr, cqtr, sep = "-")
-    )
-  return(dataset)
-}
 # revised Qtr category version with % of total calculations
 # - use for: categories, subcategories
+# -- MOVED to lmrtools::aggregate_qtr_cat_subcat
 QtrCatData2 <- function(dataset, high_cat, low_cat) {
   cat("fn: QtrCatData2 \n")
   # get totals for qtr to use in % of total calculations

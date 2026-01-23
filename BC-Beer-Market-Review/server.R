@@ -131,65 +131,58 @@ function(input, output, session) {
     ## 2. annual and qtr totals ---------------------------------------------------
     cat("134: annual data \n")
     beer_annual_data <- reactive({
-      AnnualCatTypeData(beer_filtered_data(), beer_filtered_data())
+      # replace original function with lmrtools equivalent
+      #AnnualCatTypeData(beer_filtered_data(), beer_filtered_data())
+      lmrtools::aggregate_annual_cat_type(beer_filtered_data(), beer_filtered_data())
     })
     cat("138: qtr data \n")
     
     beer_qtr_data <- reactive({
-      QtrData(beer_filtered_data(), length(input$qtr_check))
+      #QtrData(beer_filtered_data(), length(input$qtr_check))
+      lmrtools::aggregate_qtr_cat_type(beer_filtered_data(), length(input$qtr_check))
     })
     ## 3. by category (source / origin) ----
     cat("144: annual cat/src data \n")
     ### annual cat ----
     beer_annual_data_cat <- reactive({
       #n_cats <- length(input$beer_cat_check) # calc in function based on data passed
-      AnnualCatData(beer_filtered_data(), 'cat_type', 'category', beer_data)
+      #AnnualCatData(beer_filtered_data(), 'cat_type', 'category', beer_data)
+      lmrtools::aggregate_annual_cat_subcat(beer_filtered_data(), "cat_type", "category", beer_data)
     })
     
     ### qtr cat ----
     cat("152: quarterly cat/src data \n")
-    beer_qtr_data_cat <- reactive({
-      # need to base the qoq on the number of cats chosen in filter
-      n_qtr <- length(input$qtr_check)
-      n_cats <- length(input$beer_cat_check)
-      QtrCatData(beer_filtered_data(), n_cats, n_qtr)
-    })
     beer_qtr_data_cat2 <- reactive({
-      # NO need to base the qoq on the number of cats chosen in filter - factored into data
-      #n_qtr <- length(input$qtr_check)
-      #n_cats <- length(input$beer_cat_check)
-      QtrCatData2(beer_filtered_data(), "cat_type", "category")
+      #QtrCatData2(beer_filtered_data(), "cat_type", "category")
+      lmrtools::aggregate_qtr_cat_subcat(beer_filtered_data(), "cat_type", "category")
     })
     
   # by subcategory
     ## 4. bc subcategory data ----
-    cat("168: subcategory data \n")
-    # annual
+    cat("162: subcategory data \n")
+    #### annual ----
     beer_annual_data_subcat <- reactive({
       cat("171: beer_subcat \n")
       beer_bc <- beer_filtered_data() %>% filter(category== "BC")
-      AnnualCatData(beer_bc, 'category', 'subcategory', beer_data)
+      #AnnualCatData(beer_bc, 'category', 'subcategory', beer_data)
+      lmrtools::aggregate_annual_cat_subcat(beer_bc, "category", "subcategory", beer_data)
     })
-    # test
-    #n_cats <- length(unique(beer_data$category))
-    #n_subcats <- length(unique(beer_data$subcategory))
-    #beer_annual_subcat_test <- AnnualSubCatData(beer_data, n_cats, n_subcats, beer_annual_cat_test)
-    # qtr
+    #### qtr ----
     beer_qtr_data_subcat <- reactive({
       cat("181: beer_qtr_subcat \n")
       beer_bc <- beer_filtered_data() %>% filter(category== "BC")
-      QtrCatData2(beer_bc, 'category', 'subcategory')
+      #QtrCatData2(beer_bc, 'category', 'subcategory')
+      lmrtools::aggregate_qtr_cat_subcat(beer_bc, "category", "subcategory")
     })
-    # test - qtr
-    #beer_test_qtr_subcat <- QtrCatData2(beer_bc_data, 'category', 'subcategory')
-  
+    
     ## 5. import country data ----
-    cat("189: import subcategory data \n")
-    # annual
+    cat("186: import subcategory data \n")
+    #### annual ----
     beer_annual_data_subcat_imp <- reactive({
-      cat("192: imp_subcat \n")
+      cat("189: imp_subcat \n")
       beer_imp <- beer_filtered_data() %>% filter(category== "Import")
-      AnnualCatData(beer_imp, 'category', 'subcategory', beer_imp)
+      #AnnualCatData(beer_imp, 'category', 'subcategory', beer_imp)
+      lmrtools::aggregate_annual_cat_subcat(beer_imp, "category", "subcategory", beer_imp)
     })
     # Overview tab -----------------------------------------------------
     ### Ttl sales & litres ----
@@ -906,13 +899,6 @@ function(input, output, session) {
     })
     ## CAT - source / origin ----
     
-    # qtr
-    beer_qtr_data_cat <- reactive({
-      # need to base the qoq on the number of cats chosen in filter
-      n_qtr <- length(input$qtr_check)
-      n_cats <- length(input$beer_cat_check)
-      QtrCatData(beer_filtered_data(), n_cats, n_qtr)
-    })
     ## PLOTS by category (source / origin) ----
     output$litre_sales_yr_cat <- renderPlotly({
       CatChart(metric, yr_source, 
@@ -926,12 +912,7 @@ function(input, output, session) {
                beer_cat_color, "stack",
                theme_xax,tunits="%")
     })
-    # ABANDONED:qtr - abandoned in favour of % of annual ttl
-    # output$litre_sales_qtr_cat <- renderPlotly({
-    #   CatChart("Qtrly Litres by Source", 
-    #            beer_qtr_data_cat(), "cyr_qtr", "litres", "category", beer_cat_color, "stack",
-    #            theme_xax+theme_xaxq, "M")
-    # })
+    
     ### facet: % change by source ----
     output$litre_sales_yoy_cat_chg <- renderPlotly({
       x <- beer_annual_data_cat()

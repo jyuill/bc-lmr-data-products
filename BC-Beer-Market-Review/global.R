@@ -26,7 +26,9 @@ beer_data <- fetch_lmr_complete_filter(replace=TRUE, cat_type='Beer')
 # load functions used: data manipulation and plots
 # - if running server.R will load files from relative path
 # - if running manually, need to adjust full path
-files <- c('functions_data.R', 'functions_plots.R', 'support_vars.R')
+# - replace with lmrtools pkg:
+#   - functions_data.R: done
+files <- c('functions_plots.R', 'support_vars.R')
 for (f in files) {
   if(file.exists(f)) {
     source(f)
