@@ -283,8 +283,11 @@ function(input, output, session) {
         # filter out index yr with less qtrs than yr 0
         data_ind_count <- data_index %>% group_by(index_yr) %>% 
           summarize(qtrs = n()) %>% ungroup() 
-        data_yr_under <- data_ind_count%>% filter(qtrs < qtrs_0)
-        data_index <- data_index %>% filter(index_yr != data_yr_under$index_yr)
+        data_yr_under <- data_ind_count %>% filter(qtrs < qtrs_0)
+        # remove yr with less qtrs - if any
+        if(nrow(data_yr_under) > 0) {
+          data_index <- data_index %>% filter(index_yr != data_yr_under$index_yr)
+        }        
         # aggregate data by index yr
         data <- data_index %>% group_by(cat_type,index_yr) %>% 
           summarise(netsales = sum(netsales), 
