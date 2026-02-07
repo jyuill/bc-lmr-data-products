@@ -17,7 +17,7 @@ As of Sep 2025, products are R shiny apps hosted on [shinyapps.io](https://www.s
 
 For basic data updates, nothing needed as the apps connect directly to the database on AWS RDS.
 
-As of Jan 2026, BC Beer shiny app was moved to [**Posit Connect Cloud** ](https://connect.posit.cloud/fig4)for easier management, more robust and sustainable platform.
+As of Jan 2026, BC Beer shiny app was moved to [**Posit Connect Cloud** ](https://connect.posit.cloud/fig4)for easier management (push to Github), more robust and sustainable platform.
 
 This should be done for any other shiny apps or quarto docs, as convenient.
 
@@ -32,7 +32,7 @@ Mainly involves:
 
 **Posit Connect Cloud**
 
--   deploys directly from Github: push changes, they will be reflected
+-   deploys **directly from Github**: push changes, they will be reflected
 -   IF update to **lmrtools package**, may need to run:
     -   `rsconnect::writeManifest(appDir="BC-Beer-Market-Review")`
     -   if probs, reinstall: `devtools::install_github('jyuill/lmrtools')`
