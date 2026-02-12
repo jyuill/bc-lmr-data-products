@@ -496,11 +496,10 @@ fluidPage(
           # FOOTER ----
           tags$div(
             style = "margin-top: 20px; padding: 10px; border-top: 2px solid #ddd; text-align: center;",
-            "© 2025 A", 
+            "© 2025 A",
             tags$a(href="https://www.fig4.com", target="_blank", 'Figure 4'),
             " Production, John Yuill; see 'About' tab for details",
             class="footer")
-          ) # end tabsetPanel ----
-        ) # end div.main ----
+        ) # end div.main (contains tabsetPanel + footer) ----
     ) # end layout_sidebar ----
 ) # end shinyUI
