@@ -24,11 +24,6 @@ fluidPage(
     includeCSS("www/style.css"),
     tags$head(
       #  tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
-      # style for toggle button
-      tags$style(
-        "#toggleSidebar {margin-bottom: 4px;
-        padding: 2px;}"
-      )
       ),
     
     # Application title
@@ -37,11 +32,13 @@ fluidPage(
     #tags$h3("An (unofficial) consolidated view of quarterly BC Beer Sales data, 
     #        compiled from", tags$a(href="https://www.bcldb.com/publications/liquor-market-review", "govt. sources", class='non-tab'),
     #        class = "sub"),
-    sidebarLayout(
+    layout_sidebar(
       # sidebar panel ----
-        sidebarPanel(
-          class = "sidebar",
+        sidebar = sidebar(
           id = "sidebar", # needed for toggling
+          open = "desktop", # open on desktop, collapsible on mobile
+          width = "25%", # matches default sidebarPanel width
+          class = "sidebar",
           # dynamic sidebar displays filter options depending on tab selected (courtesy of chatGPT)
           # - allows for re-use of same filter setup across multiple tabs
           # - conttrolled by dynamic_sidebar in server.R
@@ -122,12 +119,12 @@ fluidPage(
                      tags$a(href="#chglog", "Change Log"), 
                      tags$br()
           ))
-        ), # end sidebarPanel
+        ), # end sidebar
 
         # main panel with content ----
-        mainPanel(
-          class = "main",
-          tabsetPanel( # tabsetPanel ----
+        # Note: layout_sidebar() handles the main content without mainPanel wrapper
+        div(class = "main",
+        tabsetPanel( # tabsetPanel ----
             id = "tabselected",
             # tabPanel 1: Overview ----
             tabPanel("Overview", value = 1,
@@ -501,8 +498,9 @@ fluidPage(
             style = "margin-top: 20px; padding: 10px; border-top: 2px solid #ddd; text-align: center;",
             "© 2025 A", 
             tags$a(href="https://www.fig4.com", target="_blank", 'Figure 4'),
-            " Production, John Yuill; see 'About' tab for details", 
+            " Production, John Yuill; see 'About' tab for details",
             class="footer")
-        ) # end mainPanel ----
-    ) # end sidebarLayout ----
+          ) # end tabsetPanel ----
+        ) # end div.main ----
+    ) # end layout_sidebar ----
 ) # end shinyUI
