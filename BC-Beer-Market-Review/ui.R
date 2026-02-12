@@ -13,7 +13,7 @@ library(shinyjs)
 fluidPage(
   useShinyjs(), # for toggling side panel
   # apply bootstrap theme - set using 'preset'
-  theme = bslib::bs_theme(version = 4,
+  theme = bslib::bs_theme(version = 5,
                           preset = 'lux',
                           `enable-shadows` = TRUE,
                           `enable-rounded` = TRUE,
