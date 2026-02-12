@@ -1,3 +1,15 @@
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(lmrtools)
+
+# QUARTERLY DATA UPDATE
+# - fetch data from postgres database and save as RDS file
+# query database with lmrtools pkg
+# postgresql as of Jun 2025
+beer_data_rds <- fetch_lmr_complete_filter(replace=TRUE, cat_type='Beer')
+saveRDS(beer_data_rds, here::here("BC-Beer-Market-Review", "beer_data.rds"))
+
 # Functions for patterns that recur over the categories
 # For data manipulation
 # DEPRECATED -MAINTAINED FOR REFERENCE: functions moved to lmrtools

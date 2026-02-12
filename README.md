@@ -46,7 +46,16 @@ Mainly involves:
 
 There are several component products in this project:
 
-## Project 1: BC Liquor Market Review - Shiny Dashboard
+## Project 1: BC Beer Market Review - Shiny Dashboard
+
+- Shiny dashboard focused on beer only.
+- Embedded in [bcbeer.ca](https://www.bcbeer.ca)
+- Data from postgres database
+    - uses **beer_data.rds** as data source for speed - updated quarterly when LMR database is updated.
+- **lmrtools** package used for various data functions.
+- **global.R** file used to kick off data and support functions.
+
+## Project 2: BC Liquor Market Review - Shiny Dashboard
 
 This is a Shiny Dashboard that provides an interactive visualization of the BC Liquor Market Review data.
 

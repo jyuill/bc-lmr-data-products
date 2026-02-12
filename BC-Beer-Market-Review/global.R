@@ -1,6 +1,5 @@
 # global.R - for global variables accessed by both ui.R and server.R
 
-library(shiny)
 library(tidyverse)
 library(shinyjs)
 library(shinyWidgets) # For pickerInput
@@ -9,7 +8,13 @@ library(lmrtools) # custom pkg with lmr functions for data fetch etc
 # 1. Load Data from Database and Pre-process ----
 # query database with lmrtools pkg
 # postgresql as of Jun 2025
-beer_data <- fetch_lmr_complete_filter(replace=TRUE, cat_type='Beer')
+#beer_data <- fetch_lmr_complete_filter(replace=TRUE, cat_type='Beer')
+# replace with import RDS file
+if(file.exists("beer_data.rds")) {
+  beer_data <- readRDS("beer_data.rds")
+} else {
+  beer_data <- readRDS(here::here("BC-Beer-Market-Review", "beer_data.rds"))
+}
 
 ## pre-process/set up ----
   # recent data - apply to yr filter as default to avoid over-crowding
