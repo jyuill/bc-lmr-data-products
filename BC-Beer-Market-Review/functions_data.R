@@ -10,9 +10,7 @@ library(lmrtools)
 beer_data_rds <- fetch_lmr_complete_filter(replace=TRUE, cat_type='Beer')
 saveRDS(beer_data_rds, here::here("BC-Beer-Market-Review", "beer_data.rds"))
 
-# Functions for patterns that recur over the categories
-# For data manipulation
-# DEPRECATED -MAINTAINED FOR REFERENCE: functions moved to lmrtools
+# DEPRECATED -MAINTAINED FOR REFERENCE: legacy functions moved to lmrtools
 # Summary data ----
 # -- use for: annual data by category type (beer only in this case)
 # -- - includes year-over-year changes in sales and litres
