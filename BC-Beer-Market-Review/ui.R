@@ -36,8 +36,8 @@ fluidPage(
       # sidebar panel ----
         sidebar = sidebar(
           id = "sidebar", # needed for toggling
-          open = "desktop", # open on desktop, collapsible on mobile
-          width = "25%", # matches default sidebarPanel width
+          open = TRUE, # open by default
+          width = 300, # fixed width in pixels (similar to default sidebarPanel)
           class = "sidebar",
           # dynamic sidebar displays filter options depending on tab selected (courtesy of chatGPT)
           # - allows for re-use of same filter setup across multiple tabs
