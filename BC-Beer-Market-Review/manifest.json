@@ -2036,7 +2036,7 @@
       "description": {
         "Package": "lmrtools",
         "Title": "Tools for managing Figure 4 LMR database",
-        "Version": "0.0.1.0",
+        "Version": "1.1.0",
         "Authors@R": "\n    person(\"John\", \"Yuill\", , \"john@fig4.com\", role = c(\"aut\", \"cre\"))",
         "Description": "Collection of tools for accessing LMR database. Includes functions for\n    connecting to the database, querying data, and performing common data\n    manipulations. Requires database credentials to be set in environment variables.",
         "Depends": "R (>= 4.0.0)",
@@ -2058,7 +2058,7 @@
         "GithubRef": "HEAD",
         "GithubSHA1": "7699378b017acd60a211f224c62ced19d66eebe2",
         "NeedsCompilation": "no",
-        "Packaged": "2026-01-23 02:34:24 UTC; jy",
+        "Packaged": "2026-02-18 02:34:24 UTC; jy",
         "Author": "John Yuill [aut, cre]",
         "Maintainer": "John Yuill <john@fig4.com>",
         "Built": "R 4.4.2; ; 2026-01-23 02:34:24 UTC; unix"
