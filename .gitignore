@@ -12,3 +12,4 @@ rsconnect/
 lmr-data/.env
 config.yml
 lmr-data/config.yml
+.DS_Store
