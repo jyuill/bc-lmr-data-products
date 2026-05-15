@@ -5,16 +5,46 @@ library(shinyjs)
 library(shinyWidgets) # For pickerInput
 library(lmrtools) # custom pkg with lmr functions for data fetch etc
 
-# 1. Load Data from Database and Pre-process ----
+# 1. Load Data from RDS or Database and Pre-process ----
 # query database with lmrtools pkg
 # postgresql as of Jun 2025
 #beer_data <- fetch_lmr_complete_filter(replace=TRUE, cat_type='Beer')
 # replace with import RDS file
-if(file.exists("beer_data.rds")) {
-  beer_data <- readRDS("beer_data.rds")
-} else {
-  beer_data <- readRDS(here::here("BC-Beer-Market-Review", "beer_data.rds"))
+#if(file.exists("beer_data.rds")) {
+#  beer_data <- readRDS("beer_data.rds")
+#} else {
+#  beer_data <- readRDS(here::here("BC-Beer-Market-Review", "beer_data.rds"))
+#}
+# compare RDS file to database on end_qtr_dt
+# - fetch from database if more recent and save as RDS for future use
+rds_path <- if (file.exists("beer_data.rds")) "beer_data.rds" else here::here("BC-Beer-Market-Review", "beer_data.rds")
+
+refresh_beer_data_if_stale <- function(rds_path) {
+  tryCatch({
+
+    db_max_date <- lmrtools::get_max_date()
+
+    needs_refresh <- !file.exists(rds_path) ||
+      db_max_date > (readRDS(rds_path) |> pull(end_qtr_dt) |> max() |> as.Date())
+
+    if (needs_refresh) {
+      message("RDS is stale — refreshing from database...")
+      data <- fetch_lmr_complete_filter(replace = TRUE, cat_type = "Beer")
+      saveRDS(data, rds_path)
+      tail(data)
+    } else {
+      message("RDS is current — loading from file.")
+      readRDS(rds_path)
+    }
+  },
+  error = function(e) {
+    message("DB check failed — loading from RDS: ", e$message)
+    readRDS(rds_path)
+  })
 }
+
+beer_data <- refresh_beer_data_if_stale(rds_path)
+
 
 ## pre-process/set up ----
   # recent data - apply to yr filter as default to avoid over-crowding
