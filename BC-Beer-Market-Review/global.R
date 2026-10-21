@@ -31,7 +31,7 @@ refresh_beer_data_if_stale <- function(rds_path) {
       message("RDS is stale — refreshing from database...")
       data <- fetch_lmr_complete_filter(replace = TRUE, cat_type = "Beer")
       saveRDS(data, rds_path)
-      tail(data)
+      data
     } else {
       message("RDS is current — loading from file.")
       readRDS(rds_path)
